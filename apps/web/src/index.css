@@ -12,54 +12,60 @@ body {
   line-height: 1.7;
 }
 
-/* プライマリボタン (紫紺ベース) */
+/* プライマリボタン (淡青ベース) */
 .btn-primary {
-  background-color: #2B2028; /* karuta-shikon */
+  background-color: #0B8BDB;
+  /* karuta-tansei */
   color: white;
-  padding: 0.875rem 2rem;
-  border-radius: 2px; /* よりスクエアでアカデミックな印象に */
-  font-weight: 500;
-  transition: all 0.2s ease;
-  border: 1px solid #2B2028;
+  padding: 0.875rem 2.5rem;
+  border-radius: 99px;
+  /* より現代的でフレンドリーな丸み */
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #0B8BDB;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(43, 32, 40, 0.15); /* shikon shadow */
-  font-size: 0.9375rem;
-  letter-spacing: 0.05em;
+  box-shadow: 0 4px 6px -1px rgba(11, 139, 219, 0.2), 0 2px 4px -1px rgba(11, 139, 219, 0.1);
+  font-size: 1rem;
+  letter-spacing: 0.025em;
 }
 
 .btn-primary:hover {
-  background-color: #453642; /* lighter shikon */
-  border-color: #453642;
-  box-shadow: 0 4px 8px rgba(43, 32, 40, 0.2);
+  background-color: #0a73b5;
+  /* darker tansei for hover */
+  border-color: #0a73b5;
+  box-shadow: 0 10px 15px -3px rgba(11, 139, 219, 0.3), 0 4px 6px -2px rgba(11, 139, 219, 0.15);
   transform: translateY(-1px);
 }
 
 .btn-primary:disabled {
-  background-color: #bdbdbd;
-  border-color: #bdbdbd;
+  background-color: #e5e7eb;
+  border-color: #e5e7eb;
+  color: #9ca3af;
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
 }
 
-/* セカンダリボタン (鬱金色アクセント) */
+/* セカンダリボタン (白ベース・青ボーダー) */
 .btn-secondary {
   background-color: white;
-  color: #2B2028; /* shikon text */
-  padding: 0.875rem 2rem;
-  border-radius: 2px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  border: 1px solid #E69B3A; /* ukon border */
+  color: #0B8BDB;
+  /* tansei text */
+  padding: 0.875rem 2.5rem;
+  border-radius: 99px;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #0B8BDB;
+  /* tansei border */
   cursor: pointer;
-  font-size: 0.9375rem;
-  letter-spacing: 0.05em;
+  font-size: 1rem;
+  letter-spacing: 0.025em;
 }
 
 .btn-secondary:hover {
-  background-color: #FFF8E1; /* very light ukon hint */
-  border-color: #F57F17; /* darker ukon */
-  box-shadow: 0 2px 4px rgba(230, 155, 58, 0.15);
+  background-color: #f0f9ff;
+  /* very light blue hint */
+  box-shadow: 0 4px 6px -1px rgba(11, 139, 219, 0.1);
 }
 
 .btn-secondary:disabled {

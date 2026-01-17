@@ -7,11 +7,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        // シンプルで落ち着いたカラーパレット（熊本大学風）
-        'karuta-shikon': '#2B2028',   // 紫紺（プライマリ・ヘッダー・テキスト）
-        'karuta-ukon': '#E69B3A',     // 鬱金色（セカンダリ・アクセント）
-        'karuta-red': '#c62828',      // 深紅（競技かるた的なアクセント）
-        'karuta-gold': '#ffa000',     // ゴールド（予備）
+        // シンプルで知的なカラーパレット（東大風）
+        'karuta-tansei': '#0B8BDB',   // 淡青（プライマリ・UTokyo Blue）
+        'karuta-accent': '#F4A000',   // アクセント（補色・ゴールド）
+        'karuta-red': '#c62828',      // 深紅（競技かるた的なアクセント・伝統色）
         'karuta-black': '#212121',    // ダークグレー
         'neutral-50': '#fafafa',      // ライトグレー（背景）
         'neutral-100': '#f5f5f5',     // より明るいグレー
