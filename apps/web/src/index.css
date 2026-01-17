@@ -1,0 +1,196 @@
+@import "tailwindcss";
+
+/* クリーンでシンプルなデザイン（熊本大学風） */
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #fafafa;
+  color: #212121;
+  line-height: 1.7;
+}
+
+/* プライマリボタン (紫紺ベース) */
+.btn-primary {
+  background-color: #2B2028; /* karuta-shikon */
+  color: white;
+  padding: 0.875rem 2rem;
+  border-radius: 2px; /* よりスクエアでアカデミックな印象に */
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid #2B2028;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(43, 32, 40, 0.15); /* shikon shadow */
+  font-size: 0.9375rem;
+  letter-spacing: 0.05em;
+}
+
+.btn-primary:hover {
+  background-color: #453642; /* lighter shikon */
+  border-color: #453642;
+  box-shadow: 0 4px 8px rgba(43, 32, 40, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  background-color: #bdbdbd;
+  border-color: #bdbdbd;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* セカンダリボタン (鬱金色アクセント) */
+.btn-secondary {
+  background-color: white;
+  color: #2B2028; /* shikon text */
+  padding: 0.875rem 2rem;
+  border-radius: 2px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid #E69B3A; /* ukon border */
+  cursor: pointer;
+  font-size: 0.9375rem;
+  letter-spacing: 0.05em;
+}
+
+.btn-secondary:hover {
+  background-color: #FFF8E1; /* very light ukon hint */
+  border-color: #F57F17; /* darker ukon */
+  box-shadow: 0 2px 4px rgba(230, 155, 58, 0.15);
+}
+
+.btn-secondary:disabled {
+  background-color: #fafafa;
+  color: #bdbdbd;
+  border-color: #eeeeee;
+  cursor: not-allowed;
+}
+
+/* カード */
+.card {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  padding: 2rem;
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* 取札コンテナ */
+.karuta-card-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: white;
+}
+
+/* 札カード（実寸 縦73mm × 横52mm） */
+.karuta-card {
+  width: 52mm;
+  height: 73mm;
+  flex-shrink: 0;
+}
+
+/* 取札の縦書きテキスト */
+.karuta-line {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 1.125rem;
+  line-height: 2;
+  color: #212121;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  font-family: 'Yu Mincho', 'YuMincho', 'Hiragino Mincho ProN', serif;
+}
+
+/* 3D Card Flip Animation */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* 4×3 Grid for 12-card practice (aspect-ratio: 52/73) */
+.karuta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 100%;
+  padding: 0.5rem;
+}
+
+/* Grid card (maintains 73:52 ratio) */
+.karuta-card-grid {
+  aspect-ratio: 52 / 73;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Grid card container for vertical text */
+.karuta-card-container-grid {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  gap: 0.25rem;
+  padding: 0.5rem;
+}
+
+/* Grid card text (smaller than regular cards) */
+.karuta-line-grid {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: clamp(0.625rem, 2vw, 0.875rem);
+  line-height: 1.6;
+  color: #212121;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  font-family: 'Yu Mincho', 'YuMincho', 'Hiragino Mincho ProN', serif;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 640px) {
+  .karuta-grid {
+    gap: 0.25rem;
+    padding: 0.25rem;
+  }
+
+  .karuta-card-container-grid {
+    gap: 0.125rem;
+    padding: 0.25rem;
+  }
+
+  .karuta-line-grid {
+    font-size: clamp(0.5rem, 1.8vw, 0.75rem);
+    line-height: 1.4;
+  }
+}

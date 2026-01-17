@@ -1,0 +1,513 @@
+# Cloud Functions Callable API Contract: submitOfficialRecord
+
+## Function Metadata
+
+**Function Name**: `submitOfficialRecord`
+**Function Type**: Firebase Cloud Functions v2 Callable
+**Region**: `asia-northeast1` (Tokyo)
+**Runtime**: Node.js 18
+**Authentication**: Required (Firebase Auth)
+**Trigger**: HTTPS Callable (client invokes via `httpsCallable()`)
+
+## Purpose
+
+Validates practice session results, calculates official score, detects anomalies, and creates official or reference record in Firestore. This is the only way to create submission records - client-side writes are blocked by Security Rules.
+
+---
+
+## Request
+
+### Client Invocation
+
+```typescript
+import { getFunctions, httpsCallable } from 'firebase/functions';
+
+const functions = getFunctions();
+const submitOfficialRecord = httpsCallable(functions, 'submitOfficialRecord');
+
+const result = await submitOfficialRecord({
+  questionCount: 10,
+  correctCount: 8,
+  elapsedMs: 24500
+});
+
+console.log(result.data); // Response object
+```
+
+### Request Payload
+
+```typescript
+interface SubmitOfficialRecordPayload {
+  questionCount: number;   // Number of questions in practice session
+  correctCount: number;    // Number of correct answers
+  elapsedMs: number;       // Total elapsed time in milliseconds
+}
+```
+
+#### Payload Fields
+
+| Field | Type | Required | Constraints | Description |
+|-------|------|----------|-------------|-------------|
+| `questionCount` | number | ✅ | Integer, must be 10 in Phase 0 | Total questions in session |
+| `correctCount` | number | ✅ | Integer, range 0-questionCount | Number of correct answers |
+| `elapsedMs` | number | ✅ | Integer, > 0 | Total elapsed time in milliseconds |
+
+#### Example Requests
+
+**Valid Request**:
+```json
+{
+  "questionCount": 10,
+  "correctCount": 8,
+  "elapsedMs": 24500
+}
+```
+
+**Invalid Requests** (will trigger errors):
+
+Unauthenticated:
+```
+Error: User must be authenticated (code: unauthenticated)
+```
+
+Missing field:
+```json
+{
+  "questionCount": 10,
+  "correctCount": 8
+  // Missing elapsedMs
+}
+```
+Error: `Missing required field: elapsedMs (code: invalid-argument)`
+
+Invalid type:
+```json
+{
+  "questionCount": "10", // String instead of number
+  "correctCount": 8,
+  "elapsedMs": 24500
+}
+```
+Error: `questionCount must be a number (code: invalid-argument)`
+
+Out of range:
+```json
+{
+  "questionCount": 10,
+  "correctCount": 15, // > questionCount
+  "elapsedMs": 24500
+}
+```
+Result: Accepted but marked as reference record (official=false)
+
+---
+
+## Processing Logic
+
+### 1. Authentication Check
+
+```typescript
+if (!request.auth) {
+  throw new HttpsError('unauthenticated', 'User must be authenticated');
+}
+
+const uid = request.auth.uid;
+```
+
+### 2. Payload Validation
+
+```typescript
+const { questionCount, correctCount, elapsedMs } = request.data;
+
+if (typeof questionCount !== 'number' || typeof correctCount !== 'number' || typeof elapsedMs !== 'number') {
+  throw new HttpsError('invalid-argument', 'All fields must be numbers');
+}
+
+if (!Number.isInteger(questionCount) || !Number.isInteger(correctCount) || !Number.isInteger(elapsedMs)) {
+  throw new HttpsError('invalid-argument', 'All fields must be integers');
+}
+
+if (elapsedMs <= 0) {
+  throw new HttpsError('invalid-argument', 'elapsedMs must be positive');
+}
+```
+
+### 3. Anomaly Detection
+
+```typescript
+const invalidReasons: string[] = [];
+
+// Rule A: elapsedMs too short
+if (elapsedMs < 2000) {
+  invalidReasons.push('elapsed time too short (< 2000ms)');
+}
+
+// Rule B: correctCount out of range
+if (correctCount < 0 || correctCount > questionCount) {
+  invalidReasons.push('correctCount out of range');
+}
+
+// Rule C: questionCount not 10 (Phase 0 requirement)
+if (questionCount !== 10) {
+  invalidReasons.push('questionCount must be 10 in Phase 0');
+}
+
+const official = invalidReasons.length === 0;
+```
+
+### 4. Score Calculation
+
+```typescript
+const tSec = elapsedMs / 1000;
+const base = correctCount * 100;
+const speedBonus = Math.round(Math.max(0, 300 - tSec));
+const score = Math.max(0, base + speedBonus);
+```
+
+**Formula Breakdown**:
+- `base`: 100 points per correct answer (max 1000 for perfect 10/10)
+- `speedBonus`: 300 points minus time in seconds (rounded), capped at 0 minimum
+- `score`: Sum of base + speedBonus, capped at 0 minimum (theoretical min, practically always positive)
+
+**Examples**:
+| correctCount | elapsedMs | base | speedBonus | score |
+|--------------|-----------|------|------------|-------|
+| 10 | 20000 (20s) | 1000 | 280 | 1280 |
+| 8 | 24500 (24.5s) | 800 | 275 | 1075 |
+| 10 | 1500 (1.5s, anomaly) | 1000 | 298 | 1298 (official=false) |
+
+### 5. JST Date Calculation
+
+```typescript
+function getCurrentJstDate(): string {
+  const now = new Date();
+  const utcTime = now.getTime() + now.getTimezoneOffset() * 60000;
+  const jstTime = new Date(utcTime + 9 * 3600000); // UTC+9
+
+  const year = jstTime.getUTCFullYear();
+  const month = String(jstTime.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(jstTime.getUTCDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`; // "2026-01-17"
+}
+
+const dayKeyJst = getCurrentJstDate();
+```
+
+### 6. Firestore Write
+
+```typescript
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+
+const db = getFirestore();
+
+const submissionData = {
+  uid,
+  mode: 'choice8',
+  questionCount,
+  correctCount,
+  elapsedMs,
+  avgMs: Math.round(elapsedMs / questionCount),
+  score,
+  official,
+  invalidReasons,
+  dayKeyJst,
+  serverSubmittedAt: FieldValue.serverTimestamp()
+};
+
+const docRef = await db.collection('submissions').add(submissionData);
+const submissionId = docRef.id;
+```
+
+---
+
+## Response
+
+### Success Response
+
+```typescript
+interface SubmitOfficialRecordResponse {
+  success: boolean;          // Always true for successful calls
+  official: boolean;         // true = official record, false = reference record
+  score: number;             // Calculated score
+  invalidReasons?: string[]; // Only present if official=false
+  submissionId: string;      // Firestore document ID
+}
+```
+
+#### Response Fields
+
+| Field | Type | Always Present | Description |
+|-------|------|----------------|-------------|
+| `success` | boolean | ✅ | Always `true` (if function completes without error) |
+| `official` | boolean | ✅ | `true` if valid (appears in banzuke), `false` if anomaly detected |
+| `score` | number | ✅ | Calculated score (even for reference records) |
+| `invalidReasons` | string[] | ❌ (only if official=false) | Array of reasons why marked as reference record |
+| `submissionId` | string | ✅ | Firestore document ID for created submission |
+
+#### Example Responses
+
+**Official Record** (valid submission):
+```json
+{
+  "success": true,
+  "official": true,
+  "score": 1075,
+  "submissionId": "abc123xyz456def789"
+}
+```
+
+**Reference Record** (anomaly detected - too fast):
+```json
+{
+  "success": true,
+  "official": false,
+  "score": 1298,
+  "invalidReasons": [
+    "elapsed time too short (< 2000ms)"
+  ],
+  "submissionId": "def456uvw789ghi012"
+}
+```
+
+**Reference Record** (multiple anomalies):
+```json
+{
+  "success": true,
+  "official": false,
+  "score": 0,
+  "invalidReasons": [
+    "elapsed time too short (< 2000ms)",
+    "correctCount out of range",
+    "questionCount must be 10 in Phase 0"
+  ],
+  "submissionId": "ghi789jkl012mno345"
+}
+```
+
+---
+
+## Error Responses
+
+### Error Format
+
+Cloud Functions Callable returns structured errors via `HttpsError`:
+
+```typescript
+{
+  code: string;    // Error code (see below)
+  message: string; // Human-readable error message
+  details?: any;   // Optional additional context
+}
+```
+
+### Error Codes
+
+| Code | HTTP Status | Cause | Example Message |
+|------|-------------|-------|-----------------|
+| `unauthenticated` | 401 | User not logged in | "User must be authenticated" |
+| `invalid-argument` | 400 | Missing/invalid payload field | "Missing required field: elapsedMs" |
+| `permission-denied` | 403 | User lacks permission (e.g., no profile) | "User profile not found or incomplete" |
+| `internal` | 500 | Server error (Firestore write failure, etc.) | "Failed to create submission record" |
+
+### Example Error Handling (Client)
+
+```typescript
+try {
+  const result = await submitOfficialRecord({
+    questionCount: 10,
+    correctCount: 8,
+    elapsedMs: 24500
+  });
+
+  if (result.data.official) {
+    console.log('公式記録として保存されました！');
+  } else {
+    console.log('参考記録として保存されました（番付反映なし）');
+    console.log('理由:', result.data.invalidReasons);
+  }
+
+} catch (error: any) {
+  switch (error.code) {
+    case 'unauthenticated':
+      console.error('ログインが必要です');
+      break;
+    case 'invalid-argument':
+      console.error('入力データが不正です:', error.message);
+      break;
+    case 'permission-denied':
+      console.error('プロフィール設定が必要です');
+      break;
+    default:
+      console.error('提出に失敗しました:', error.message);
+  }
+}
+```
+
+---
+
+## Performance Characteristics
+
+### Expected Latency
+
+| Scenario | Latency Target | Notes |
+|----------|---------------|-------|
+| Valid submission | < 500ms | Single Firestore write + timestamp calculation |
+| Invalid submission (anomaly) | < 500ms | Same as valid (still creates record) |
+| Unauthenticated | < 100ms | Early return (no database operations) |
+| Server error | < 2s | Retry logic may apply |
+
+### Concurrency
+
+- **Max concurrent executions**: 80 (Cloud Functions v2 default)
+- **Expected peak load**: < 20 concurrent submissions (Phase 0 scale)
+- **Throttling**: None (firebase-functions handles rate limiting automatically)
+
+### Cost Estimation
+
+**Per Invocation**:
+- Cloud Functions invocation: ¥0.0005 (approx)
+- Firestore write: 1 document write = ¥0.00012 (approx)
+- Total: ~¥0.00062 per submission
+
+**Monthly** (assuming 1000 submissions/day):
+- Invocations: 30,000 × ¥0.0005 = ¥15
+- Firestore writes: 30,000 × ¥0.00012 = ¥3.6
+- Total: ~¥18.6/month (well within ¥10,000 budget)
+
+---
+
+## Security Considerations
+
+### Authentication
+
+- **Required**: All calls must be from authenticated Firebase Auth users
+- **UID extraction**: Server extracts `uid` from `request.auth.uid` (cannot be spoofed by client)
+- **No token validation needed**: Firebase SDK handles authentication automatically
+
+### Authorization
+
+- **Profile check** (optional, not enforced in function):
+  - Client should verify user has `nickname` and `banzukeConsent=true` before calling
+  - Function does NOT check profile completeness (assumes client enforces this)
+  - Rational: Even incomplete profiles can submit practice results (just won't appear in banzuke if no nickname)
+
+### Data Validation
+
+- **Type checking**: All payload fields validated for correct type (number)
+- **Range checking**: Anomaly detection flags out-of-range values but still accepts submission
+- **No SQL injection risk**: Firestore is NoSQL (no query concatenation)
+- **No XSS risk**: Server doesn't render HTML
+
+### Tampering Prevention
+
+- **Server-side calculations**: Score, avgMs, dayKeyJst, serverSubmittedAt calculated by server (client cannot influence)
+- **Immutable fields**: Once created, submissions cannot be updated (no update endpoint)
+- **Security Rules enforcement**: Client cannot write directly to `submissions` collection
+
+---
+
+## Testing Scenarios
+
+### Unit Tests (Cloud Functions Emulator)
+
+**Test 1: Valid submission**
+- Input: `{ questionCount: 10, correctCount: 8, elapsedMs: 24500 }`
+- Expected: `{ success: true, official: true, score: 1075, submissionId: "..." }`
+
+**Test 2: Too fast (anomaly A)**
+- Input: `{ questionCount: 10, correctCount: 10, elapsedMs: 1500 }`
+- Expected: `{ success: true, official: false, score: 1298, invalidReasons: ["elapsed time too short (< 2000ms)"], submissionId: "..." }`
+
+**Test 3: Invalid correctCount (anomaly B)**
+- Input: `{ questionCount: 10, correctCount: 15, elapsedMs: 24500 }`
+- Expected: `{ success: true, official: false, score: 1775, invalidReasons: ["correctCount out of range"], submissionId: "..." }`
+
+**Test 4: Wrong questionCount (anomaly C)**
+- Input: `{ questionCount: 5, correctCount: 3, elapsedMs: 12000 }`
+- Expected: `{ success: true, official: false, score: 588, invalidReasons: ["questionCount must be 10 in Phase 0"], submissionId: "..." }`
+
+**Test 5: Unauthenticated**
+- Input: No auth context
+- Expected: `HttpsError { code: 'unauthenticated', message: 'User must be authenticated' }`
+
+**Test 6: Missing field**
+- Input: `{ questionCount: 10, correctCount: 8 }` (no elapsedMs)
+- Expected: `HttpsError { code: 'invalid-argument', message: 'All fields must be numbers' }`
+
+### Integration Tests (End-to-End)
+
+**Test 1: Submit from React app**
+- User completes practice session
+- Clicks "公式提出"
+- Function creates submission in Firestore
+- Verify document exists with correct fields
+
+**Test 2: Banzuke inclusion**
+- Submit valid official record
+- Query banzuke for current day
+- Verify submission appears in rankings
+
+**Test 3: Reference record exclusion**
+- Submit anomaly (too fast)
+- Query banzuke for current day
+- Verify submission does NOT appear in rankings
+
+---
+
+## Deployment
+
+### Firebase CLI Commands
+
+**Deploy function**:
+```bash
+firebase deploy --only functions:submitOfficialRecord
+```
+
+**Deploy with specific region**:
+```bash
+# Configured in functions/src/index.ts with region: 'asia-northeast1'
+firebase deploy --only functions
+```
+
+### Environment Variables
+
+**None required** - Function uses default Firebase Admin SDK initialization
+
+### Monitoring
+
+**Firebase Console → Functions → submitOfficialRecord**:
+- Invocations count
+- Error rate
+- Execution time (p50, p95, p99)
+- Memory usage
+
+**Alerts** (optional):
+- Error rate > 5%
+- Execution time > 2s
+- Memory usage > 200MB
+
+---
+
+## Versioning
+
+**Current Version**: v1.0.0 (Phase 0)
+
+**Future Versions**:
+- v1.1.0: Support for different question counts (Phase 1+)
+- v2.0.0: New scoring formula with `scoreVersion` field
+- v2.1.0: Advanced anomaly detection (pattern recognition)
+
+**Breaking Changes Policy**:
+- Payload fields cannot be removed (only added as optional)
+- Response fields cannot be removed (only added)
+- Anomaly rules can be added but not removed (stricter validation OK)
+
+---
+
+## References
+
+- [Firebase Callable Functions docs](https://firebase.google.com/docs/functions/callable)
+- [Cloud Functions error handling](https://firebase.google.com/docs/functions/callable#handle_errors)
+- [Firestore Admin SDK](https://firebase.google.com/docs/firestore/server/start)
+- [Constitution v6.0.0](../../.specify/memory/constitution.md) - Score formula and anomaly rules

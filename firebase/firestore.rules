@@ -1,0 +1,87 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // poems collection: read-only for all users
+    match /poems/{poemId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // users collection: users can only read/write their own document
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null && request.auth.uid == uid;
+      allow update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.nickname is string
+        && request.resource.data.nickname.size() <= 20
+        && request.resource.data.banzukeConsent is bool;
+      allow delete: if false;
+
+      // learned poems subcollection
+      match /learned/{poemId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+
+    // submissions collection (legacy):
+    // - read: authenticated users can read their own or official submissions
+    // - write: only via Cloud Functions (Admin SDK bypasses rules)
+    match /submissions/{submissionId} {
+      allow read: if request.auth != null && (
+        resource.data.uid == request.auth.uid ||
+        resource.data.official == true
+      );
+      allow write: if false; // Only Cloud Functions can write
+    }
+
+    // seasons: read-only for all users
+    match /seasons/{seasonId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // entries: authenticated users can create their own entry, no update/delete
+    match /entries/{entryId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.seasonId is string
+        && request.resource.data.division in ['kyu', 'dan'];
+      allow update, delete: if false;
+    }
+
+    // sessions: users can create/read their own, update limited fields
+    match /sessions/{sessionId} {
+      allow read: if request.auth != null
+        && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'created';
+      // Users can update status to in_progress/submitted, but NOT confirmed fields
+      allow update: if request.auth != null
+        && resource.data.uid == request.auth.uid
+        && !request.resource.data.diff(resource.data).affectedKeys()
+          .hasAny(['score', 'confirmedAt', 'invalidReasons']);
+
+      // rounds subcollection
+      match /rounds/{roundIndex} {
+        allow read, write: if request.auth != null
+          && get(/databases/$(database)/documents/sessions/$(sessionId)).data.uid == request.auth.uid;
+      }
+    }
+
+    // rankings: read-only for all users
+    match /rankings/{rankingId} {
+      allow read: if true;
+      allow write: if false; // Only Cloud Functions can write
+    }
+
+    // userStats: users can only read their own stats
+    match /userStats/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false; // Only Cloud Functions can write
+    }
+  }
+}

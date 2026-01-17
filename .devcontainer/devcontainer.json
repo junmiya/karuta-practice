@@ -1,0 +1,52 @@
+{
+  "name": "Hyakunin Isshu Training Platform",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        }
+      }
+    }
+  },
+  "postCreateCommand": "corepack enable && corepack prepare pnpm@latest --activate && pnpm install",
+  "forwardPorts": [3000, 9099, 8080, 5001, 9000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Next.js App",
+      "onAutoForward": "notify"
+    },
+    "9099": {
+      "label": "Firebase Auth Emulator",
+      "onAutoForward": "silent"
+    },
+    "8080": {
+      "label": "Firebase Firestore Emulator",
+      "onAutoForward": "silent"
+    },
+    "5001": {
+      "label": "Firebase Hosting Emulator",
+      "onAutoForward": "silent"
+    },
+    "9000": {
+      "label": "Firebase Emulator UI",
+      "onAutoForward": "silent"
+    }
+  },
+  "remoteUser": "node"
+}

@@ -1,0 +1,112 @@
+[
+  {
+    "poemId": "p001",
+    "order": 1,
+    "yomi": "あきのたの　かりほのいほの　とまをあらみ",
+    "yomiKana": "あきのたの　かりほのいほの　とまをあらみ",
+    "tori": "わがころもでは　つゆにぬれつつ",
+    "toriKana": "わがころもでは　つゆにぬれつつ",
+    "kimariji": "あきの",
+    "kimarijiCount": 3,
+    "author": "天智天皇"
+  },
+  {
+    "poemId": "p002",
+    "order": 2,
+    "yomi": "はるすぎて　なつきにけらし　しろたへの",
+    "yomiKana": "はるすぎて　なつきにけらし　しろたへの",
+    "tori": "ころもほすてふ　あまのかぐやま",
+    "toriKana": "ころもほすてふ　あまのかぐやま",
+    "kimariji": "はるす",
+    "kimarijiCount": 3,
+    "author": "持統天皇"
+  },
+  {
+    "poemId": "p003",
+    "order": 3,
+    "yomi": "あしびきの　やまどりのをの　しだりをの",
+    "yomiKana": "あしびきの　やまどりのをの　しだりをの",
+    "tori": "ながながしよを　ひとりかもねむ",
+    "toriKana": "ながながしよを　ひとりかもねむ",
+    "kimariji": "あしび",
+    "kimarijiCount": 3,
+    "author": "柿本人麻呂"
+  },
+  {
+    "poemId": "p004",
+    "order": 4,
+    "yomi": "たごのうらに　うちいでてみれば　しろたへの",
+    "yomiKana": "たごのうらに　うちいでてみれば　しろたへの",
+    "tori": "ふじのたかねに　ゆきはふりつつ",
+    "toriKana": "ふじのたかねに　ゆきはふりつつ",
+    "kimariji": "たご",
+    "kimarijiCount": 2,
+    "author": "山部赤人"
+  },
+  {
+    "poemId": "p005",
+    "order": 5,
+    "yomi": "おくやまに　もみぢふみわけ　なくしかの",
+    "yomiKana": "おくやまに　もみぢふみわけ　なくしかの",
+    "tori": "こゑきくときぞ　あきはかなしき",
+    "toriKana": "こゑきくときぞ　あきはかなしき",
+    "kimariji": "おくや",
+    "kimarijiCount": 3,
+    "author": "猿丸大夫"
+  },
+  {
+    "poemId": "p006",
+    "order": 6,
+    "yomi": "かささぎの　わたせるはしに　おくしもの",
+    "yomiKana": "かささぎの　わたせるはしに　おくしもの",
+    "tori": "しろきをみれば　よぞふけにける",
+    "toriKana": "しろきをみれば　よぞふけにける",
+    "kimariji": "かささ",
+    "kimarijiCount": 3,
+    "author": "中納言家持"
+  },
+  {
+    "poemId": "p007",
+    "order": 7,
+    "yomi": "あまのはら　ふりさけみれば　かすがなる",
+    "yomiKana": "あまのはら　ふりさけみれば　かすがなる",
+    "tori": "みかさのやまに　いでしつきかも",
+    "toriKana": "みかさのやまに　いでしつきかも",
+    "kimariji": "あまの",
+    "kimarijiCount": 3,
+    "author": "安倍仲麻呂"
+  },
+  {
+    "poemId": "p008",
+    "order": 8,
+    "yomi": "わがいほは　みやこのたつみ　しかぞすむ",
+    "yomiKana": "わがいほは　みやこのたつみ　しかぞすむ",
+    "tori": "よをうぢやまと　ひとはいふなり",
+    "toriKana": "よをうぢやまと　ひとはいふなり",
+    "kimariji": "わがい",
+    "kimarijiCount": 3,
+    "author": "喜撰法師"
+  },
+  {
+    "poemId": "p009",
+    "order": 9,
+    "yomi": "はなのいろは　うつりにけりな　いたづらに",
+    "yomiKana": "はなのいろは　うつりにけりな　いたづらに",
+    "tori": "わがみよにふる　ながめせしまに",
+    "toriKana": "わがみよにふる　ながめせしまに",
+    "kimariji": "はなの",
+    "kimarijiCount": 3,
+    "author": "小野小町"
+  },
+  {
+    "poemId": "p010",
+    "order": 10,
+    "yomi": "これやこの　ゆくもかへるも　わかれては",
+    "yomiKana": "これやこの　ゆくもかへるも　わかれては",
+    "tori": "しるもしらぬも　あふさかのせき",
+    "toriKana": "しるもしらぬも　あふさかのせき",
+    "kimariji": "これ",
+    "kimarijiCount": 2,
+    "author": "蝉丸"
+  }
+]

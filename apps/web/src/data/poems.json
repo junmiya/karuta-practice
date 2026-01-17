@@ -1,0 +1,3296 @@
+[
+    {
+        "poemId": "p001",
+        "order": 1,
+        "yomi": "秋の田の かりほの庵の 苫をあらみ",
+        "yomiKana": "あきのたの かりほのいおの とまをあらみ",
+        "tori": "わが衣手は 露にぬれつつ",
+        "toriKana": "わがころもでは つゆにぬれつつ",
+        "yomiTokens": [
+            "秋の田の",
+            "かりほの庵の",
+            "苫をあらみ"
+        ],
+        "yomiKanaTokens": [
+            "あきのたの",
+            "かりほのいおの",
+            "とまをあらみ"
+        ],
+        "toriTokens": [
+            "わが衣手は",
+            "露にぬれつつ"
+        ],
+        "toriKanaTokens": [
+            "わがころもでは",
+            "つゆにぬれつつ"
+        ],
+        "yomiNoSpace": "秋の田のかりほの庵の苫をあらみ",
+        "yomiKanaNoSpace": "あきのたのかりほのいおのとまをあらみ",
+        "toriNoSpace": "わが衣手は露にぬれつつ",
+        "toriKanaNoSpace": "わがころもではつゆにぬれつつ",
+        "kimariji": "あきの",
+        "kimarijiCount": 3,
+        "author": "天智天皇"
+    },
+    {
+        "poemId": "p002",
+        "order": 2,
+        "yomi": "春過ぎて 夏来にけらし 白妙の",
+        "yomiKana": "はるすぎて なつきにけらし しろたえの",
+        "tori": "衣干すてふ 天の香具山",
+        "toriKana": "ころもほすちょう あまのかぐやま",
+        "yomiTokens": [
+            "春過ぎて",
+            "夏来にけらし",
+            "白妙の"
+        ],
+        "yomiKanaTokens": [
+            "はるすぎて",
+            "なつきにけらし",
+            "しろたえの"
+        ],
+        "toriTokens": [
+            "衣干すてふ",
+            "天の香具山"
+        ],
+        "toriKanaTokens": [
+            "ころもほすちょう",
+            "あまのかぐやま"
+        ],
+        "yomiNoSpace": "春過ぎて夏来にけらし白妙の",
+        "yomiKanaNoSpace": "はるすぎてなつきにけらししろたえの",
+        "toriNoSpace": "衣干すてふ天の香具山",
+        "toriKanaNoSpace": "ころもほすちょうあまのかぐやま",
+        "kimariji": "はるす",
+        "kimarijiCount": 3,
+        "author": "持統天皇"
+    },
+    {
+        "poemId": "p003",
+        "order": 3,
+        "yomi": "あしびきの 山鳥の尾の しだり尾の",
+        "yomiKana": "あしびきの やまどりのおの しだりおの",
+        "tori": "ながながし夜を ひとりかも寝む",
+        "toriKana": "ながながしよを ひとりかもねん",
+        "yomiTokens": [
+            "あしびきの",
+            "山鳥の尾の",
+            "しだり尾の"
+        ],
+        "yomiKanaTokens": [
+            "あしびきの",
+            "やまどりのおの",
+            "しだりおの"
+        ],
+        "toriTokens": [
+            "ながながし夜を",
+            "ひとりかも寝む"
+        ],
+        "toriKanaTokens": [
+            "ながながしよを",
+            "ひとりかもねん"
+        ],
+        "yomiNoSpace": "あしびきの山鳥の尾のしだり尾の",
+        "yomiKanaNoSpace": "あしびきのやまどりのおのしだりおの",
+        "toriNoSpace": "ながながし夜をひとりかも寝む",
+        "toriKanaNoSpace": "ながながしよをひとりかもねん",
+        "kimariji": "あし",
+        "kimarijiCount": 2,
+        "author": "柿本人麻呂"
+    },
+    {
+        "poemId": "p004",
+        "order": 4,
+        "yomi": "田子の浦に うち出でて見れば 白妙の",
+        "yomiKana": "たごのうらに うちいでてみれば しろたえの",
+        "tori": "富士の高嶺に 雪は降りつつ",
+        "toriKana": "ふじのたかねに ゆきはふりつつ",
+        "yomiTokens": [
+            "田子の浦に",
+            "うち出でて見れば",
+            "白妙の"
+        ],
+        "yomiKanaTokens": [
+            "たごのうらに",
+            "うちいでてみれば",
+            "しろたえの"
+        ],
+        "toriTokens": [
+            "富士の高嶺に",
+            "雪は降りつつ"
+        ],
+        "toriKanaTokens": [
+            "ふじのたかねに",
+            "ゆきはふりつつ"
+        ],
+        "yomiNoSpace": "田子の浦にうち出でて見れば白妙の",
+        "yomiKanaNoSpace": "たごのうらにうちいでてみればしろたえの",
+        "toriNoSpace": "富士の高嶺に雪は降りつつ",
+        "toriKanaNoSpace": "ふじのたかねにゆきはふりつつ",
+        "kimariji": "たご",
+        "kimarijiCount": 2,
+        "author": "山部赤人"
+    },
+    {
+        "poemId": "p005",
+        "order": 5,
+        "yomi": "奥山に 紅葉踏み分け 鳴く鹿の",
+        "yomiKana": "おくやまに もみじふみわけ なくしかの",
+        "tori": "声聞く時ぞ 秋は悲しき",
+        "toriKana": "こえきくときぞ あきはかなしき",
+        "yomiTokens": [
+            "奥山に",
+            "紅葉踏み分け",
+            "鳴く鹿の"
+        ],
+        "yomiKanaTokens": [
+            "おくやまに",
+            "もみじふみわけ",
+            "なくしかの"
+        ],
+        "toriTokens": [
+            "声聞く時ぞ",
+            "秋は悲しき"
+        ],
+        "toriKanaTokens": [
+            "こえきくときぞ",
+            "あきはかなしき"
+        ],
+        "yomiNoSpace": "奥山に紅葉踏み分け鳴く鹿の",
+        "yomiKanaNoSpace": "おくやまにもみじふみわけなくしかの",
+        "toriNoSpace": "声聞く時ぞ秋は悲しき",
+        "toriKanaNoSpace": "こえきくときぞあきはかなしき",
+        "kimariji": "おく",
+        "kimarijiCount": 2,
+        "author": "猿丸大夫"
+    },
+    {
+        "poemId": "p006",
+        "order": 6,
+        "yomi": "かささぎの 渡せる橋に 置く霜の",
+        "yomiKana": "かささぎの わたせるはしに おくしもの",
+        "tori": "白きを見れば 夜ぞ更けにける",
+        "toriKana": "しろきをみれば よぞふけにける",
+        "yomiTokens": [
+            "かささぎの",
+            "渡せる橋に",
+            "置く霜の"
+        ],
+        "yomiKanaTokens": [
+            "かささぎの",
+            "わたせるはしに",
+            "おくしもの"
+        ],
+        "toriTokens": [
+            "白きを見れば",
+            "夜ぞ更けにける"
+        ],
+        "toriKanaTokens": [
+            "しろきをみれば",
+            "よぞふけにける"
+        ],
+        "yomiNoSpace": "かささぎの渡せる橋に置く霜の",
+        "yomiKanaNoSpace": "かささぎのわたせるはしにおくしもの",
+        "toriNoSpace": "白きを見れば夜ぞ更けにける",
+        "toriKanaNoSpace": "しろきをみればよぞふけにける",
+        "kimariji": "かさ",
+        "kimarijiCount": 2,
+        "author": "中納言家持"
+    },
+    {
+        "poemId": "p007",
+        "order": 7,
+        "yomi": "天の原 ふりさけ見れば 春日なる",
+        "yomiKana": "あまのはら ふりさけみれば かすがなる",
+        "tori": "三笠の山に 出でし月かも",
+        "toriKana": "みかさのやまに いでしつきかも",
+        "yomiTokens": [
+            "天の原",
+            "ふりさけ見れば",
+            "春日なる"
+        ],
+        "yomiKanaTokens": [
+            "あまのはら",
+            "ふりさけみれば",
+            "かすがなる"
+        ],
+        "toriTokens": [
+            "三笠の山に",
+            "出でし月かも"
+        ],
+        "toriKanaTokens": [
+            "みかさのやまに",
+            "いでしつきかも"
+        ],
+        "yomiNoSpace": "天の原ふりさけ見れば春日なる",
+        "yomiKanaNoSpace": "あまのはらふりさけみればかすがなる",
+        "toriNoSpace": "三笠の山に出でし月かも",
+        "toriKanaNoSpace": "みかさのやまにいでしつきかも",
+        "kimariji": "あまの",
+        "kimarijiCount": 3,
+        "author": "安倍仲麿"
+    },
+    {
+        "poemId": "p008",
+        "order": 8,
+        "yomi": "わが庵は 都の辰巳 しかぞ住む",
+        "yomiKana": "わがいおは みやこのたつみ しかぞすむ",
+        "tori": "世をうぢ山と 人はいふなり",
+        "toriKana": "よをうじやまと ひとはいうなり",
+        "yomiTokens": [
+            "わが庵は",
+            "都の辰巳",
+            "しかぞ住む"
+        ],
+        "yomiKanaTokens": [
+            "わがいおは",
+            "みやこのたつみ",
+            "しかぞすむ"
+        ],
+        "toriTokens": [
+            "世をうぢ山と",
+            "人はいふなり"
+        ],
+        "toriKanaTokens": [
+            "よをうじやまと",
+            "ひとはいうなり"
+        ],
+        "yomiNoSpace": "わが庵は都の辰巳しかぞ住む",
+        "yomiKanaNoSpace": "わがいおはみやこのたつみしかぞすむ",
+        "toriNoSpace": "世をうぢ山と人はいふなり",
+        "toriKanaNoSpace": "よをうじやまとひとはいうなり",
+        "kimariji": "わがい",
+        "kimarijiCount": 3,
+        "author": "喜撰法師"
+    },
+    {
+        "poemId": "p009",
+        "order": 9,
+        "yomi": "花の色は 移りにけりな いたづらに",
+        "yomiKana": "はなのいろは うつりにけりな いたずらに",
+        "tori": "わが身世にふる ながめせしまに",
+        "toriKana": "わがみよにふる ながめせしまに",
+        "yomiTokens": [
+            "花の色は",
+            "移りにけりな",
+            "いたづらに"
+        ],
+        "yomiKanaTokens": [
+            "はなのいろは",
+            "うつりにけりな",
+            "いたずらに"
+        ],
+        "toriTokens": [
+            "わが身世にふる",
+            "ながめせしまに"
+        ],
+        "toriKanaTokens": [
+            "わがみよにふる",
+            "ながめせしまに"
+        ],
+        "yomiNoSpace": "花の色は移りにけりないたづらに",
+        "yomiKanaNoSpace": "はなのいろはうつりにけりないたずらに",
+        "toriNoSpace": "わが身世にふるながめせしまに",
+        "toriKanaNoSpace": "わがみよにふるながめせしまに",
+        "kimariji": "はなの",
+        "kimarijiCount": 3,
+        "author": "小野小町"
+    },
+    {
+        "poemId": "p010",
+        "order": 10,
+        "yomi": "これやこの 行くも帰るも別れては",
+        "yomiKana": "これやこの ゆくもかえるも わかれては",
+        "tori": "知るも知らぬも 逢坂の関",
+        "toriKana": "しるもしらぬも おおさかのせき",
+        "yomiTokens": [
+            "これやこの",
+            "行くも帰るも別れては"
+        ],
+        "yomiKanaTokens": [
+            "これやこの",
+            "ゆくもかえるもわかれては"
+        ],
+        "toriTokens": [
+            "知るも知らぬも",
+            "逢坂の関"
+        ],
+        "toriKanaTokens": [
+            "しるもしらぬも",
+            "おおさかのせき"
+        ],
+        "yomiNoSpace": "これやこの行くも帰るも別れては",
+        "yomiKanaNoSpace": "これやこのゆくもかえるもわかれては",
+        "toriNoSpace": "知るも知らぬも逢坂の関",
+        "toriKanaNoSpace": "しるもしらぬもおおさかのせき",
+        "kimariji": "これ",
+        "kimarijiCount": 2,
+        "author": "蝉丸"
+    },
+    {
+        "poemId": "p011",
+        "order": 11,
+        "yomi": "わたの原 八十島かけて 漕ぎ出でぬと",
+        "yomiKana": "わたのはら やそしまかけて こぎいでぬと",
+        "tori": "人には告げよ 海人の釣舟",
+        "toriKana": "ひとにはつげよ あまのつりぶね",
+        "yomiTokens": [
+            "わたの原",
+            "八十島かけて",
+            "漕ぎ出でぬと"
+        ],
+        "yomiKanaTokens": [
+            "わたのはら",
+            "やそしまかけて",
+            "こぎいでぬと"
+        ],
+        "toriTokens": [
+            "人には告げよ",
+            "海人の釣舟"
+        ],
+        "toriKanaTokens": [
+            "ひとにはつげよ",
+            "あまのつりぶね"
+        ],
+        "yomiNoSpace": "わたの原八十島かけて漕ぎ出でぬと",
+        "yomiKanaNoSpace": "わたのはらやそしまかけてこぎいでぬと",
+        "toriNoSpace": "人には告げよ海人の釣舟",
+        "toriKanaNoSpace": "ひとにはつげよあまのつりぶね",
+        "kimariji": "わたのはらや",
+        "kimarijiCount": 6,
+        "author": "参議篁"
+    },
+    {
+        "poemId": "p012",
+        "order": 12,
+        "yomi": "天つ風 雲の通ひ路 吹き閉ぢよ",
+        "yomiKana": "あまつかぜ くものかよいじ ふきとじよ",
+        "tori": "乙女の姿 しばしとどめむ",
+        "toriKana": "おとめのすがた しばしとどめん",
+        "yomiTokens": [
+            "天つ風",
+            "雲の通ひ路",
+            "吹き閉ぢよ"
+        ],
+        "yomiKanaTokens": [
+            "あまつかぜ",
+            "くものかよいじ",
+            "ふきとじよ"
+        ],
+        "toriTokens": [
+            "乙女の姿",
+            "しばしとどめむ"
+        ],
+        "toriKanaTokens": [
+            "おとめのすがた",
+            "しばしとどめん"
+        ],
+        "yomiNoSpace": "天つ風雲の通ひ路吹き閉ぢよ",
+        "yomiKanaNoSpace": "あまつかぜくものかよいじふきとじよ",
+        "toriNoSpace": "乙女の姿しばしとどめむ",
+        "toriKanaNoSpace": "おとめのすがたしばしとどめん",
+        "kimariji": "あまつ",
+        "kimarijiCount": 3,
+        "author": "僧正遍昭"
+    },
+    {
+        "poemId": "p013",
+        "order": 13,
+        "yomi": "筑波嶺の 峰より落つる 男女川",
+        "yomiKana": "つくばねの みねよりおつる みなのがわ",
+        "tori": "恋ぞ積もりて 淵となりぬる",
+        "toriKana": "こいぞつもりて ふちとなりぬる",
+        "yomiTokens": [
+            "筑波嶺の",
+            "峰より落つる",
+            "男女川"
+        ],
+        "yomiKanaTokens": [
+            "つくばねの",
+            "みねよりおつる",
+            "みなのがわ"
+        ],
+        "toriTokens": [
+            "恋ぞ積もりて",
+            "淵となりぬる"
+        ],
+        "toriKanaTokens": [
+            "こいぞつもりて",
+            "ふちとなりぬる"
+        ],
+        "yomiNoSpace": "筑波嶺の峰より落つる男女川",
+        "yomiKanaNoSpace": "つくばねのみねよりおつるみなのがわ",
+        "toriNoSpace": "恋ぞ積もりて淵となりぬる",
+        "toriKanaNoSpace": "こいぞつもりてふちとなりぬる",
+        "kimariji": "つく",
+        "kimarijiCount": 2,
+        "author": "陽成院"
+    },
+    {
+        "poemId": "p014",
+        "order": 14,
+        "yomi": "陸奥の しのぶもぢずり 誰ゆゑに",
+        "yomiKana": "みちのくの しのぶもじずり たれゆえに",
+        "tori": "乱れそめにし 我ならなくに",
+        "toriKana": "みだれそめにし われならなくに",
+        "yomiTokens": [
+            "陸奥の",
+            "しのぶもぢずり",
+            "誰ゆゑに"
+        ],
+        "yomiKanaTokens": [
+            "みちのくの",
+            "しのぶもじずり",
+            "たれゆえに"
+        ],
+        "toriTokens": [
+            "乱れそめにし",
+            "我ならなくに"
+        ],
+        "toriKanaTokens": [
+            "みだれそめにし",
+            "われならなくに"
+        ],
+        "yomiNoSpace": "陸奥のしのぶもぢずり誰ゆゑに",
+        "yomiKanaNoSpace": "みちのくのしのぶもじずりたれゆえに",
+        "toriNoSpace": "乱れそめにし我ならなくに",
+        "toriKanaNoSpace": "みだれそめにしわれならなくに",
+        "kimariji": "みち",
+        "kimarijiCount": 2,
+        "author": "河原左大臣"
+    },
+    {
+        "poemId": "p015",
+        "order": 15,
+        "yomi": "君がため 春の野に出でて 若菜摘む",
+        "yomiKana": "きみがため はるののにいでて わかなつむ",
+        "tori": "わが衣手に 雪は降りつつ",
+        "toriKana": "わがころもでに ゆきはふりつつ",
+        "yomiTokens": [
+            "君がため",
+            "春の野に出でて",
+            "若菜摘む"
+        ],
+        "yomiKanaTokens": [
+            "きみがため",
+            "はるののにいでて",
+            "わかなつむ"
+        ],
+        "toriTokens": [
+            "わが衣手に",
+            "雪は降りつつ"
+        ],
+        "toriKanaTokens": [
+            "わがころもでに",
+            "ゆきはふりつつ"
+        ],
+        "yomiNoSpace": "君がため春の野に出でて若菜摘む",
+        "yomiKanaNoSpace": "きみがためはるののにいでてわかなつむ",
+        "toriNoSpace": "わが衣手に雪は降りつつ",
+        "toriKanaNoSpace": "わがころもでにゆきはふりつつ",
+        "kimariji": "きみがためは",
+        "kimarijiCount": 6,
+        "author": "光孝天皇"
+    },
+    {
+        "poemId": "p016",
+        "order": 16,
+        "yomi": "立ち別れ いなばの山の 峰に生ふる",
+        "yomiKana": "たちわかれ いなばのやまの みねにおうる",
+        "tori": "まつとし聞かば 今帰り来む",
+        "toriKana": "まつとしきかば いまかえりこん",
+        "yomiTokens": [
+            "立ち別れ",
+            "いなばの山の",
+            "峰に生ふる"
+        ],
+        "yomiKanaTokens": [
+            "たちわかれ",
+            "いなばのやまの",
+            "みねにおうる"
+        ],
+        "toriTokens": [
+            "まつとし聞かば",
+            "今帰り来む"
+        ],
+        "toriKanaTokens": [
+            "まつとしきかば",
+            "いまかえりこん"
+        ],
+        "yomiNoSpace": "立ち別れいなばの山の峰に生ふる",
+        "yomiKanaNoSpace": "たちわかれいなばのやまのみねにおうる",
+        "toriNoSpace": "まつとし聞かば今帰り来む",
+        "toriKanaNoSpace": "まつとしきかばいまかえりこん",
+        "kimariji": "たち",
+        "kimarijiCount": 2,
+        "author": "中納言行平"
+    },
+    {
+        "poemId": "p017",
+        "order": 17,
+        "yomi": "ちはやぶる 神代も聞かず 竜田川",
+        "yomiKana": "ちはやぶる かみよもきかず たつたがわ",
+        "tori": "からくれなゐに 水くくるとは",
+        "toriKana": "からくれないに みずくくるとは",
+        "yomiTokens": [
+            "ちはやぶる",
+            "神代も聞かず",
+            "竜田川"
+        ],
+        "yomiKanaTokens": [
+            "ちはやぶる",
+            "かみよもきかず",
+            "たつたがわ"
+        ],
+        "toriTokens": [
+            "からくれなゐに",
+            "水くくるとは"
+        ],
+        "toriKanaTokens": [
+            "からくれないに",
+            "みずくくるとは"
+        ],
+        "yomiNoSpace": "ちはやぶる神代も聞かず竜田川",
+        "yomiKanaNoSpace": "ちはやぶるかみよもきかずたつたがわ",
+        "toriNoSpace": "からくれなゐに水くくるとは",
+        "toriKanaNoSpace": "からくれないにみずくくるとは",
+        "kimariji": "ちは",
+        "kimarijiCount": 2,
+        "author": "在原業平朝臣"
+    },
+    {
+        "poemId": "p018",
+        "order": 18,
+        "yomi": "住の江の 岸に寄る波 よるさへや",
+        "yomiKana": "すみのえの きしによるなみ よるさえや",
+        "tori": "夢の通ひ路 人目よくらむ",
+        "toriKana": "ゆめのかよいじ ひとめよくらん",
+        "yomiTokens": [
+            "住の江の",
+            "岸に寄る波",
+            "よるさへや"
+        ],
+        "yomiKanaTokens": [
+            "すみのえの",
+            "きしによるなみ",
+            "よるさえや"
+        ],
+        "toriTokens": [
+            "夢の通ひ路",
+            "人目よくらむ"
+        ],
+        "toriKanaTokens": [
+            "ゆめのかよいじ",
+            "ひとめよくらん"
+        ],
+        "yomiNoSpace": "住の江の岸に寄る波よるさへや",
+        "yomiKanaNoSpace": "すみのえのきしによるなみよるさえや",
+        "toriNoSpace": "夢の通ひ路人目よくらむ",
+        "toriKanaNoSpace": "ゆめのかよいじひとめよくらん",
+        "kimariji": "す",
+        "kimarijiCount": 1,
+        "author": "藤原敏行朝臣"
+    },
+    {
+        "poemId": "p019",
+        "order": 19,
+        "yomi": "難波潟 短き蘆の 節の間も",
+        "yomiKana": "なにわがた みじかきあしの ふしのまも",
+        "tori": "逢はでこの世を 過ぐしてよとや",
+        "toriKana": "あわでこのよを すぐしてよとや",
+        "yomiTokens": [
+            "難波潟",
+            "短き蘆の",
+            "節の間も"
+        ],
+        "yomiKanaTokens": [
+            "なにわがた",
+            "みじかきあしの",
+            "ふしのまも"
+        ],
+        "toriTokens": [
+            "逢はでこの世を",
+            "過ぐしてよとや"
+        ],
+        "toriKanaTokens": [
+            "あわでこのよを",
+            "すぐしてよとや"
+        ],
+        "yomiNoSpace": "難波潟短き蘆の節の間も",
+        "yomiKanaNoSpace": "なにわがたみじかきあしのふしのまも",
+        "toriNoSpace": "逢はでこの世を過ぐしてよとや",
+        "toriKanaNoSpace": "あわでこのよをすぐしてよとや",
+        "kimariji": "なにわが",
+        "kimarijiCount": 4,
+        "author": "伊勢"
+    },
+    {
+        "poemId": "p020",
+        "order": 20,
+        "yomi": "わびぬれば 今はた同じ 難波なる",
+        "yomiKana": "わびぬれば いまはたおなじ なにわなる",
+        "tori": "身をつくしても 逢はむとぞ思ふ",
+        "toriKana": "みをつくしても あわんとぞおもう",
+        "yomiTokens": [
+            "わびぬれば",
+            "今はた同じ",
+            "難波なる"
+        ],
+        "yomiKanaTokens": [
+            "わびぬれば",
+            "いまはたおなじ",
+            "なにわなる"
+        ],
+        "toriTokens": [
+            "身をつくしても",
+            "逢はむとぞ思ふ"
+        ],
+        "toriKanaTokens": [
+            "みをつくしても",
+            "あわんとぞおもう"
+        ],
+        "yomiNoSpace": "わびぬれば今はた同じ難波なる",
+        "yomiKanaNoSpace": "わびぬればいまはたおなじなにわなる",
+        "toriNoSpace": "身をつくしても逢はむとぞ思ふ",
+        "toriKanaNoSpace": "みをつくしてもあわんとぞおもう",
+        "kimariji": "わび",
+        "kimarijiCount": 2,
+        "author": "元良親王"
+    },    {
+        "poemId": "p021",
+        "order": 21,
+        "yomi": "今来むと いひしばかりに 長月の",
+        "yomiKana": "いまこんと いいしばかりに ながつきの",
+        "tori": "有明の月を 待ち出でつるかな",
+        "toriKana": "ありあけのつきを まちいでつるかな",
+        "yomiTokens": [
+            "今来むと",
+            "いひしばかりに",
+            "長月の"
+        ],
+        "yomiKanaTokens": [
+            "いまこんと",
+            "いいしばかりに",
+            "ながつきの"
+        ],
+        "toriTokens": [
+            "有明の月を",
+            "待ち出でつるかな"
+        ],
+        "toriKanaTokens": [
+            "ありあけのつきを",
+            "まちいでつるかな"
+        ],
+        "yomiNoSpace": "今来むといひしばかりに長月の",
+        "yomiKanaNoSpace": "いまこんといいしばかりにながつきの",
+        "toriNoSpace": "有明の月を待ち出でつるかな",
+        "toriKanaNoSpace": "ありあけのつきをまちいでつるかな",
+        "kimariji": "いまこ",
+        "kimarijiCount": 3,
+        "author": "素性法師"
+    },
+    {
+        "poemId": "p022",
+        "order": 22,
+        "yomi": "吹くからに 秋の草木の しをるれば",
+        "yomiKana": "ふくからに あきのくさきの しおるれば",
+        "tori": "むべ山風を 嵐といふらむ",
+        "toriKana": "むべやまかぜを あらしというらん",
+        "yomiTokens": [
+            "吹くからに",
+            "秋の草木の",
+            "しをるれば"
+        ],
+        "yomiKanaTokens": [
+            "ふくからに",
+            "あきのくさきの",
+            "しおるれば"
+        ],
+        "toriTokens": [
+            "むべ山風を",
+            "嵐といふらむ"
+        ],
+        "toriKanaTokens": [
+            "むべやまかぜを",
+            "あらしというらん"
+        ],
+        "yomiNoSpace": "吹くからに秋の草木のしをるれば",
+        "yomiKanaNoSpace": "ふくからにあきのくさきのしおるれば",
+        "toriNoSpace": "むべ山風を嵐といふらむ",
+        "toriKanaNoSpace": "むべやまかぜをあらしというらん",
+        "kimariji": "ふ",
+        "kimarijiCount": 1,
+        "author": "文屋康秀"
+    },
+    {
+        "poemId": "p023",
+        "order": 23,
+        "yomi": "月見れば ちぢに物こそ 悲しけれ",
+        "yomiKana": "つきみれば ちぢにものこそ かなしけれ",
+        "tori": "わが身一つの 秋にはあらねど",
+        "toriKana": "わがみひとつの あきにはあらねど",
+        "yomiTokens": [
+            "月見れば",
+            "ちぢに物こそ",
+            "悲しけれ"
+        ],
+        "yomiKanaTokens": [
+            "つきみれば",
+            "ちぢにものこそ",
+            "かなしけれ"
+        ],
+        "toriTokens": [
+            "わが身一つの",
+            "秋にはあらねど"
+        ],
+        "toriKanaTokens": [
+            "わがみひとつの",
+            "あきにはあらねど"
+        ],
+        "yomiNoSpace": "月見ればちぢに物こそ悲しけれ",
+        "yomiKanaNoSpace": "つきみればちぢにものこそかなしけれ",
+        "toriNoSpace": "わが身一つの秋にはあらねど",
+        "toriKanaNoSpace": "わがみひとつのあきにはあらねど",
+        "kimariji": "つき",
+        "kimarijiCount": 2,
+        "author": "大江千里"
+    },
+    {
+        "poemId": "p024",
+        "order": 24,
+        "yomi": "このたびは 幣も取りあへず 手向山",
+        "yomiKana": "このたびは ぬさもとりあへず たむけやま",
+        "tori": "紅葉の錦 神のまにまに",
+        "toriKana": "もみじのにしき かみのまにまに",
+        "yomiTokens": [
+            "このたびは",
+            "幣も取りあへず",
+            "手向山"
+        ],
+        "yomiKanaTokens": [
+            "このたびは",
+            "ぬさもとりあへず",
+            "たむけやま"
+        ],
+        "toriTokens": [
+            "紅葉の錦",
+            "神のまにまに"
+        ],
+        "toriKanaTokens": [
+            "もみじのにしき",
+            "かみのまにまに"
+        ],
+        "yomiNoSpace": "このたびは幣も取りあへず手向山",
+        "yomiKanaNoSpace": "このたびはぬさもとりあへずたむけやま",
+        "toriNoSpace": "紅葉の錦神のまにまに",
+        "toriKanaNoSpace": "もみじのにしきかみのまにまに",
+        "kimariji": "この",
+        "kimarijiCount": 2,
+        "author": "菅家"
+    },
+    {
+        "poemId": "p025",
+        "order": 25,
+        "yomi": "名にし負はば 逢坂山の さねかづら",
+        "yomiKana": "なにしおわば おおさかやまの さねかずら",
+        "tori": "人に知られで 来るよしもがな",
+        "toriKana": "ひとにしられで くるよしもがな",
+        "yomiTokens": [
+            "名にし負はば",
+            "逢坂山の",
+            "さねかづら"
+        ],
+        "yomiKanaTokens": [
+            "なにしおわば",
+            "おおさかやまの",
+            "さねかずら"
+        ],
+        "toriTokens": [
+            "人に知られで",
+            "来るよしもがな"
+        ],
+        "toriKanaTokens": [
+            "ひとにしられで",
+            "くるよしもがな"
+        ],
+        "yomiNoSpace": "名にし負はば逢坂山のさねかづら",
+        "yomiKanaNoSpace": "なにしおわばおおさかやまのさねかずら",
+        "toriNoSpace": "人に知られで来るよしもがな",
+        "toriKanaNoSpace": "ひとにしられでくるよしもがな",
+        "kimariji": "なにし",
+        "kimarijiCount": 3,
+        "author": "三条右大臣"
+    },
+    {
+        "poemId": "p026",
+        "order": 26,
+        "yomi": "小倉山 峰のもみぢ葉 心あらば",
+        "yomiKana": "おぐらやま みねのもみじば こころあらば",
+        "tori": "今ひとたびの みゆき待たなむ",
+        "toriKana": "いまひとたびの みゆきまたなん",
+        "yomiTokens": [
+            "小倉山",
+            "峰のもみぢ葉",
+            "心あらば"
+        ],
+        "yomiKanaTokens": [
+            "おぐらやま",
+            "みねのもみじば",
+            "こころあらば"
+        ],
+        "toriTokens": [
+            "今ひとたびの",
+            "みゆき待たなむ"
+        ],
+        "toriKanaTokens": [
+            "いまひとたびの",
+            "みゆきまたなん"
+        ],
+        "yomiNoSpace": "小倉山峰のもみぢ葉心あらば",
+        "yomiKanaNoSpace": "おぐらやまみねのもみじばこころあらば",
+        "toriNoSpace": "今ひとたびのみゆき待たなむ",
+        "toriKanaNoSpace": "いまひとたびのみゆきまたなん",
+        "kimariji": "おぐ",
+        "kimarijiCount": 2,
+        "author": "貞信公"
+    },
+    {
+        "poemId": "p027",
+        "order": 27,
+        "yomi": "みかの原 わきて流るる 泉川",
+        "yomiKana": "みかのはら わきてながるる いずみがわ",
+        "tori": "いつ見きとてか 恋しかるらむ",
+        "toriKana": "いつみきとてか こいしかるらん",
+        "yomiTokens": [
+            "みかの原",
+            "わきて流るる",
+            "泉川"
+        ],
+        "yomiKanaTokens": [
+            "みかのはら",
+            "わきてながるる",
+            "いずみがわ"
+        ],
+        "toriTokens": [
+            "いつ見きとてか",
+            "恋しかるらむ"
+        ],
+        "toriKanaTokens": [
+            "いつみきとてか",
+            "こいしかるらん"
+        ],
+        "yomiNoSpace": "みかの原わきて流るる泉川",
+        "yomiKanaNoSpace": "みかのはらわきてながるるいずみがわ",
+        "toriNoSpace": "いつ見きとてか恋しかるらむ",
+        "toriKanaNoSpace": "いつみきとてかこいしかるらん",
+        "kimariji": "みかの",
+        "kimarijiCount": 3,
+        "author": "中納言兼輔"
+    },
+    {
+        "poemId": "p028",
+        "order": 28,
+        "yomi": "山里は 冬ぞ寂しさ まさりける",
+        "yomiKana": "やまざとは ふゆぞさびしさ まさりける",
+        "tori": "人目も草も かれぬと思へば",
+        "toriKana": "ひとめもくさも かれぬとおもえば",
+        "yomiTokens": [
+            "山里は",
+            "冬ぞ寂しさ",
+            "まさりける"
+        ],
+        "yomiKanaTokens": [
+            "やまざとは",
+            "ふゆぞさびしさ",
+            "まさりける"
+        ],
+        "toriTokens": [
+            "人目も草も",
+            "かれぬと思へば"
+        ],
+        "toriKanaTokens": [
+            "ひとめもくさも",
+            "かれぬとおもえば"
+        ],
+        "yomiNoSpace": "山里は冬ぞ寂しさまさりける",
+        "yomiKanaNoSpace": "やまざとはふゆぞさびしさまさりける",
+        "toriNoSpace": "人目も草もかれぬと思へば",
+        "toriKanaNoSpace": "ひとめもくさもかれぬとおもえば",
+        "kimariji": "やまざ",
+        "kimarijiCount": 3,
+        "author": "源宗于朝臣"
+    },
+    {
+        "poemId": "p029",
+        "order": 29,
+        "yomi": "心あてに 折らばや折らむ 初霜の",
+        "yomiKana": "こころあてに おらばやおらん はつしもの",
+        "tori": "置きまどはせる 白菊の花",
+        "toriKana": "おきまどわせる しらぎくのはな",
+        "yomiTokens": [
+            "心あてに",
+            "折らばや折らむ",
+            "初霜の"
+        ],
+        "yomiKanaTokens": [
+            "こころあてに",
+            "おらばやおらん",
+            "はつしもの"
+        ],
+        "toriTokens": [
+            "置きまどはせる",
+            "白菊の花"
+        ],
+        "toriKanaTokens": [
+            "おきまどわせる",
+            "しらぎくのはな"
+        ],
+        "yomiNoSpace": "心あてに折らばや折らむ初霜の",
+        "yomiKanaNoSpace": "こころあてにおらばやおらんはつしもの",
+        "toriNoSpace": "置きまどはせる白菊の花",
+        "toriKanaNoSpace": "おきまどわせるしらぎくのはな",
+        "kimariji": "こころあ",
+        "kimarijiCount": 4,
+        "author": "凡河内躬恒"
+    },
+    {
+        "poemId": "p030",
+        "order": 30,
+        "yomi": "有明の つれなく見えし 別れより",
+        "yomiKana": "ありあけの つれなくみえし わかれより",
+        "tori": "暁ばかり 憂きものはなし",
+        "toriKana": "あかつきばかり うきものはなし",
+        "yomiTokens": [
+            "有明の",
+            "つれなく見えし",
+            "別れより"
+        ],
+        "yomiKanaTokens": [
+            "ありあけの",
+            "つれなくみえし",
+            "わかれより"
+        ],
+        "toriTokens": [
+            "暁ばかり",
+            "憂きものはなし"
+        ],
+        "toriKanaTokens": [
+            "あかつきばかり",
+            "うきものはなし"
+        ],
+        "yomiNoSpace": "有明のつれなく見えし別れより",
+        "yomiKanaNoSpace": "ありあけのつれなくみえしわかれより",
+        "toriNoSpace": "暁ばかり憂きものはなし",
+        "toriKanaNoSpace": "あかつきばかりうきものはなし",
+        "kimariji": "ありあ",
+        "kimarijiCount": 3,
+        "author": "壬生忠岑"
+    },
+    {
+        "poemId": "p031",
+        "order": 31,
+        "yomi": "朝ぼらけ 有明の月と 見るまでに",
+        "yomiKana": "あさぼらけ ありあけのつきと みるまでに",
+        "tori": "吉野の里に 降れる白雪",
+        "toriKana": "よしののさとに ふれるしらゆき",
+        "yomiTokens": [
+            "朝ぼらけ",
+            "有明の月と",
+            "見るまでに"
+        ],
+        "yomiKanaTokens": [
+            "あさぼらけ",
+            "ありあけのつきと",
+            "みるまでに"
+        ],
+        "toriTokens": [
+            "吉野の里に",
+            "降れる白雪"
+        ],
+        "toriKanaTokens": [
+            "よしののさとに",
+            "ふれるしらゆき"
+        ],
+        "yomiNoSpace": "朝ぼらけ有明の月と見るまでに",
+        "yomiKanaNoSpace": "あさぼらけありあけのつきとみるまでに",
+        "toriNoSpace": "吉野の里に降れる白雪",
+        "toriKanaNoSpace": "よしののさとにふれるしらゆき",
+        "kimariji": "あさぼらけあ",
+        "kimarijiCount": 6,
+        "author": "坂上是則"
+    },
+    {
+        "poemId": "p032",
+        "order": 32,
+        "yomi": "山川に 風のかけたる しがらみは",
+        "yomiKana": "やまがわに かぜのかけたる しがらみは",
+        "tori": "流れもあへぬ 紅葉なりけり",
+        "toriKana": "ながれもあえぬ もみじなりけり",
+        "yomiTokens": [
+            "山川に",
+            "風のかけたる",
+            "しがらみは"
+        ],
+        "yomiKanaTokens": [
+            "やまがわに",
+            "かぜのかけたる",
+            "しがらみは"
+        ],
+        "toriTokens": [
+            "流れもあへぬ",
+            "紅葉なりけり"
+        ],
+        "toriKanaTokens": [
+            "ながれもあえぬ",
+            "もみじなりけり"
+        ],
+        "yomiNoSpace": "山川に風のかけたるしがらみは",
+        "yomiKanaNoSpace": "やまがわにかぜのかけたるしがらみは",
+        "toriNoSpace": "流れもあへぬ紅葉なりけり",
+        "toriKanaNoSpace": "ながれもあえぬもみじなりけり",
+        "kimariji": "やまが",
+        "kimarijiCount": 3,
+        "author": "春道列樹"
+    },
+    {
+        "poemId": "p033",
+        "order": 33,
+        "yomi": "久方の 光のどけき 春の日に",
+        "yomiKana": "ひさかたの ひかりのどけき はるのひに",
+        "tori": "静心なく 花の散るらむ",
+        "toriKana": "しずごころなく はなのちるらん",
+        "yomiTokens": [
+            "久方の",
+            "光のどけき",
+            "春の日に"
+        ],
+        "yomiKanaTokens": [
+            "ひさかたの",
+            "ひかりのどけき",
+            "はるのひに"
+        ],
+        "toriTokens": [
+            "静心なく",
+            "花の散るらむ"
+        ],
+        "toriKanaTokens": [
+            "しずごころなく",
+            "はなのちるらん"
+        ],
+        "yomiNoSpace": "久方の光のどけき春の日に",
+        "yomiKanaNoSpace": "ひさかたのひかりのどけきはるのひに",
+        "toriNoSpace": "静心なく花の散るらむ",
+        "toriKanaNoSpace": "しずごころなくはなのちるらん",
+        "kimariji": "ひさ",
+        "kimarijiCount": 2,
+        "author": "紀友則"
+    },
+    {
+        "poemId": "p034",
+        "order": 34,
+        "yomi": "誰をかも 知る人にせむ 高砂の",
+        "yomiKana": "たれをかも しるひとにせん たかさごの",
+        "tori": "松も昔の 友ならなくに",
+        "toriKana": "まつもむかしの ともならなくに",
+        "yomiTokens": [
+            "誰をかも",
+            "知る人にせむ",
+            "高砂の"
+        ],
+        "yomiKanaTokens": [
+            "たれをかも",
+            "しるひとにせん",
+            "たかさごの"
+        ],
+        "toriTokens": [
+            "松も昔の",
+            "友ならなくに"
+        ],
+        "toriKanaTokens": [
+            "まつもむかしの",
+            "ともならなくに"
+        ],
+        "yomiNoSpace": "誰をかも知る人にせむ高砂の",
+        "yomiKanaNoSpace": "たれをかもしるひとにせんたかさごの",
+        "toriNoSpace": "松も昔の友ならなくに",
+        "toriKanaNoSpace": "まつもむかしのともならなくに",
+        "kimariji": "たれ",
+        "kimarijiCount": 2,
+        "author": "藤原興風"
+    },
+    {
+        "poemId": "p035",
+        "order": 35,
+        "yomi": "人はいさ 心も知らず ふるさとは",
+        "yomiKana": "ひとはいさ こころもしらず ふるさとは",
+        "tori": "花ぞ昔の 香に匂ひける",
+        "toriKana": "はなぞむかしの かににおいける",
+        "yomiTokens": [
+            "人はいさ",
+            "心も知らず",
+            "ふるさとは"
+        ],
+        "yomiKanaTokens": [
+            "ひとはいさ",
+            "こころもしらず",
+            "ふるさとは"
+        ],
+        "toriTokens": [
+            "花ぞ昔の",
+            "香に匂ひける"
+        ],
+        "toriKanaTokens": [
+            "はなぞむかしの",
+            "かににおいける"
+        ],
+        "yomiNoSpace": "人はいさ心も知らずふるさとは",
+        "yomiKanaNoSpace": "ひとはいさこころもしらずふるさとは",
+        "toriNoSpace": "花ぞ昔の香に匂ひける",
+        "toriKanaNoSpace": "はなぞむかしのかににおいける",
+        "kimariji": "ひとは",
+        "kimarijiCount": 3,
+        "author": "紀貫之"
+    },
+    {
+        "poemId": "p036",
+        "order": 36,
+        "yomi": "夏の夜は まだ宵ながら 明けぬるを",
+        "yomiKana": "なつのよは まだよひながら あけぬるを",
+        "tori": "雲のいづこに 月宿るらむ",
+        "toriKana": "くものいずこに つきやどるらん",
+        "yomiTokens": [
+            "夏の夜は",
+            "まだ宵ながら",
+            "明けぬるを"
+        ],
+        "yomiKanaTokens": [
+            "なつのよは",
+            "まだよひながら",
+            "あけぬるを"
+        ],
+        "toriTokens": [
+            "雲のいづこに",
+            "月宿るらむ"
+        ],
+        "toriKanaTokens": [
+            "くものいずこに",
+            "つきやどるらん"
+        ],
+        "yomiNoSpace": "夏の夜はまだ宵ながら明けぬるを",
+        "yomiKanaNoSpace": "なつのよはまだよひながらあけぬるを",
+        "toriNoSpace": "雲のいづこに月宿るらむ",
+        "toriKanaNoSpace": "くものいずこにつきやどるらん",
+        "kimariji": "なつ",
+        "kimarijiCount": 2,
+        "author": "清原深養父"
+    },
+    {
+        "poemId": "p037",
+        "order": 37,
+        "yomi": "白露に 風の吹きしく 秋の野は",
+        "yomiKana": "しらつゆに かぜのふきしく あきののは",
+        "tori": "つらぬきとめぬ 玉ぞ散りける",
+        "toriKana": "つらぬきとめぬ たまぞちりける",
+        "yomiTokens": [
+            "白露に",
+            "風の吹きしく",
+            "秋の野は"
+        ],
+        "yomiKanaTokens": [
+            "しらつゆに",
+            "かぜのふきしく",
+            "あきののは"
+        ],
+        "toriTokens": [
+            "つらぬきとめぬ",
+            "玉ぞ散りける"
+        ],
+        "toriKanaTokens": [
+            "つらぬきとめぬ",
+            "たまぞちりける"
+        ],
+        "yomiNoSpace": "白露に風の吹きしく秋の野は",
+        "yomiKanaNoSpace": "しらつゆにかぜのふきしくあきののは",
+        "toriNoSpace": "つらぬきとめぬ玉ぞ散りける",
+        "toriKanaNoSpace": "つらぬきとめぬたまぞちりける",
+        "kimariji": "しら",
+        "kimarijiCount": 2,
+        "author": "文屋朝康"
+    },
+    {
+        "poemId": "p038",
+        "order": 38,
+        "yomi": "忘らるる 身をば思はず 誓ひてし",
+        "yomiKana": "わすらるる みをばおもわず ちかいてし",
+        "tori": "人の命の 惜しくもあるかな",
+        "toriKana": "ひとのいのちの おしくもあるかな",
+        "yomiTokens": [
+            "忘らるる",
+            "身をば思はず",
+            "誓ひてし"
+        ],
+        "yomiKanaTokens": [
+            "わすらるる",
+            "みをばおもわず",
+            "ちかいてし"
+        ],
+        "toriTokens": [
+            "人の命の",
+            "惜しくもあるかな"
+        ],
+        "toriKanaTokens": [
+            "ひとのいのちの",
+            "おしくもあるかな"
+        ],
+        "yomiNoSpace": "忘らるる身をば思はず誓ひてし",
+        "yomiKanaNoSpace": "わすらるるみをばおもわずちかいてし",
+        "toriNoSpace": "人の命の惜しくもあるかな",
+        "toriKanaNoSpace": "ひとのいのちのおしくもあるかな",
+        "kimariji": "わすら",
+        "kimarijiCount": 3,
+        "author": "右近"
+    },
+    {
+        "poemId": "p039",
+        "order": 39,
+        "yomi": "浅茅生の 小野の篠原 しのぶれど",
+        "yomiKana": "あさじうの おののしのはら しのぶれど",
+        "tori": "あまりてなどか 人の恋しき",
+        "toriKana": "あまりてなどか ひとのこいしき",
+        "yomiTokens": [
+            "浅茅生の",
+            "小野の篠原",
+            "しのぶれど"
+        ],
+        "yomiKanaTokens": [
+            "あさじうの",
+            "おののしのはら",
+            "しのぶれど"
+        ],
+        "toriTokens": [
+            "あまりてなどか",
+            "人の恋しき"
+        ],
+        "toriKanaTokens": [
+            "あまりてなどか",
+            "ひとのこいしき"
+        ],
+        "yomiNoSpace": "浅茅生の小野の篠原しのぶれど",
+        "yomiKanaNoSpace": "あさじうのおののしのはらしのぶれど",
+        "toriNoSpace": "あまりてなどか人の恋しき",
+        "toriKanaNoSpace": "あまりてなどかひとのこいしき",
+        "kimariji": "あさじ",
+        "kimarijiCount": 3,
+        "author": "参議等"
+    },
+    {
+        "poemId": "p040",
+        "order": 40,
+        "yomi": "忍れど 色に出でにけり 我が恋は",
+        "yomiKana": "しのぶれど いろにいでにけり わがこいは",
+        "tori": "物や思ふと 人の問ふまで",
+        "toriKana": "ものやおもうと ひとのとうまで",
+        "yomiTokens": [
+            "忍れど",
+            "色に出でにけり",
+            "我が恋は"
+        ],
+        "yomiKanaTokens": [
+            "しのぶれど",
+            "いろにいでにけり",
+            "わがこいは"
+        ],
+        "toriTokens": [
+            "物や思ふと",
+            "人の問ふまで"
+        ],
+        "toriKanaTokens": [
+            "ものやおもうと",
+            "ひとのとうまで"
+        ],
+        "yomiNoSpace": "忍れど色に出でにけり我が恋は",
+        "yomiKanaNoSpace": "しのぶれどいろにいでにけりわがこいは",
+        "toriNoSpace": "物や思ふと人の問ふまで",
+        "toriKanaNoSpace": "ものやおもうとひとのとうまで",
+        "kimariji": "しの",
+        "kimarijiCount": 2,
+        "author": "平兼盛"
+    },    {
+        "poemId": "p041",
+        "order": 41,
+        "yomi": "恋すてふ 我が名はまだき 立ちにけり",
+        "yomiKana": "こいすちょう わがなはまだき たちにけり",
+        "tori": "人知れずこそ 思ひそめしか",
+        "toriKana": "ひとしれずこそ おもいそめしか",
+        "yomiTokens": [
+            "恋すてふ",
+            "我が名はまだき",
+            "立ちにけり"
+        ],
+        "yomiKanaTokens": [
+            "こいすちょう",
+            "わがなはまだき",
+            "たちにけり"
+        ],
+        "toriTokens": [
+            "人知れずこそ",
+            "思ひそめしか"
+        ],
+        "toriKanaTokens": [
+            "ひとしれずこそ",
+            "おもいそめしか"
+        ],
+        "yomiNoSpace": "恋すてふ我が名はまだき立ちにけり",
+        "yomiKanaNoSpace": "こいすちょうわがなはまだきたちにけり",
+        "toriNoSpace": "人知れずこそ思ひそめしか",
+        "toriKanaNoSpace": "ひとしれずこそおもいそめしか",
+        "kimariji": "こい",
+        "kimarijiCount": 2,
+        "author": "壬生忠見"
+    },
+    {
+        "poemId": "p042",
+        "order": 42,
+        "yomi": "契りきな かたみに袖を しぼりつつ",
+        "yomiKana": "ちぎりきな かたみにそでを しぼりつつ",
+        "tori": "末の松山 波越さじとは",
+        "toriKana": "すえのまつやま なみこさじとは",
+        "yomiTokens": [
+            "契りきな",
+            "かたみに袖を",
+            "しぼりつつ"
+        ],
+        "yomiKanaTokens": [
+            "ちぎりきな",
+            "かたみにそでを",
+            "しぼりつつ"
+        ],
+        "toriTokens": [
+            "末の松山",
+            "波越さじとは"
+        ],
+        "toriKanaTokens": [
+            "すえのまつやま",
+            "なみこさじとは"
+        ],
+        "yomiNoSpace": "契りきなかたみに袖をしぼりつつ",
+        "yomiKanaNoSpace": "ちぎりきなかたみにそでをしぼりつつ",
+        "toriNoSpace": "末の松山波越さじとは",
+        "toriKanaNoSpace": "すえのまつやまなみこさじとは",
+        "kimariji": "ちぎりき",
+        "kimarijiCount": 4,
+        "author": "清原元輔"
+    },
+    {
+        "poemId": "p043",
+        "order": 43,
+        "yomi": "逢ひ見ての 後の心に 比ぶれば",
+        "yomiKana": "あいみての のちのこころに くらぶれば",
+        "tori": "昔は物を 思はざりけり",
+        "toriKana": "むかしはものを おもわざりけり",
+        "yomiTokens": [
+            "逢ひ見ての",
+            "後の心に",
+            "比ぶれば"
+        ],
+        "yomiKanaTokens": [
+            "あいみての",
+            "のちのこころに",
+            "くらぶれば"
+        ],
+        "toriTokens": [
+            "昔は物を",
+            "思はざりけり"
+        ],
+        "toriKanaTokens": [
+            "むかしはものを",
+            "おもわざりけり"
+        ],
+        "yomiNoSpace": "逢ひ見ての後の心に比ぶれば",
+        "yomiKanaNoSpace": "あいみてののちのこころにくらぶれば",
+        "toriNoSpace": "昔は物を思はざりけり",
+        "toriKanaNoSpace": "むかしはものをおもわざりけり",
+        "kimariji": "あい",
+        "kimarijiCount": 2,
+        "author": "権中納言敦忠"
+    },
+    {
+        "poemId": "p044",
+        "order": 44,
+        "yomi": "逢ふことの 絶えてしなくは なかなかに",
+        "yomiKana": "おおことの たえてしなくは なかなかに",
+        "tori": "人をも身をも 恨みざらまし",
+        "toriKana": "ひとをもみをも うらみざらまし",
+        "yomiTokens": [
+            "逢ふことの",
+            "絶えてしなくは",
+            "なかなかに"
+        ],
+        "yomiKanaTokens": [
+            "おおことの",
+            "たえてしなくは",
+            "なかなかに"
+        ],
+        "toriTokens": [
+            "人をも身をも",
+            "恨みざらまし"
+        ],
+        "toriKanaTokens": [
+            "ひとをもみをも",
+            "うらみざらまし"
+        ],
+        "yomiNoSpace": "逢ふことの絶えてしなくはなかなかに",
+        "yomiKanaNoSpace": "おおことのたえてしなくはなかなかに",
+        "toriNoSpace": "人をも身をも恨みざらまし",
+        "toriKanaNoSpace": "ひとをもみをもうらみざらまし",
+        "kimariji": "おおこ",
+        "kimarijiCount": 4,
+        "author": "中納言朝忠"
+    },
+    {
+        "poemId": "p045",
+        "order": 45,
+        "yomi": "あはれとも いふべき人は 思ほえで",
+        "yomiKana": "あわれとも いうべきひとは おもほえで",
+        "tori": "身のいたづらに なりぬべきかな",
+        "toriKana": "みのいたずらに なりぬべきかな",
+        "yomiTokens": [
+            "あはれとも",
+            "いふべき人は",
+            "思ほえで"
+        ],
+        "yomiKanaTokens": [
+            "あわれとも",
+            "いうべきひとは",
+            "おもほえで"
+        ],
+        "toriTokens": [
+            "身のいたづらに",
+            "なりぬべきかな"
+        ],
+        "toriKanaTokens": [
+            "みのいたずらに",
+            "なりぬべきかな"
+        ],
+        "yomiNoSpace": "あはれともいふべき人は思ほえで",
+        "yomiKanaNoSpace": "あわれともいうべきひとはおもほえで",
+        "toriNoSpace": "身のいたづらになりぬべきかな",
+        "toriKanaNoSpace": "みのいたずらになりぬべきかな",
+        "kimariji": "あわれ",
+        "kimarijiCount": 3,
+        "author": "謙徳公"
+    },
+    {
+        "poemId": "p046",
+        "order": 46,
+        "yomi": "由良の門を 渡る舟人 かぢを絶え",
+        "yomiKana": "ゆらのとを わたるふなびと かじをたえ",
+        "tori": "ゆくへもしらぬ 恋の道かな",
+        "toriKana": "ゆくえもしらぬ こいのみちかな",
+        "yomiTokens": [
+            "由良の門を",
+            "渡る舟人",
+            "かぢを絶え"
+        ],
+        "yomiKanaTokens": [
+            "ゆらのとを",
+            "わたるふなびと",
+            "かじをたえ"
+        ],
+        "toriTokens": [
+            "ゆくへもしらぬ",
+            "恋の道かな"
+        ],
+        "toriKanaTokens": [
+            "ゆくえもしらぬ",
+            "こいのみちかな"
+        ],
+        "yomiNoSpace": "由良の門を渡る舟人かぢを絶え",
+        "yomiKanaNoSpace": "ゆらのとをわたるふなびとかじをたえ",
+        "toriNoSpace": "ゆくへもしらぬ恋の道かな",
+        "toriKanaNoSpace": "ゆくえもしらぬこいのみちかな",
+        "kimariji": "ゆら",
+        "kimarijiCount": 2,
+        "author": "曾禰好忠"
+    },
+    {
+        "poemId": "p047",
+        "order": 47,
+        "yomi": "八重葎 茂れる宿の さびしきに",
+        "yomiKana": "やえむぐら しげれるやどの さびしきに",
+        "tori": "人こそ見えね 秋は来にけり",
+        "toriKana": "ひとこそみえね あきはきにけり",
+        "yomiTokens": [
+            "八重葎",
+            "茂れる宿の",
+            "さびしきに"
+        ],
+        "yomiKanaTokens": [
+            "やえむぐら",
+            "しげれるやどの",
+            "さびしきに"
+        ],
+        "toriTokens": [
+            "人こそ見えね",
+            "秋は来にけり"
+        ],
+        "toriKanaTokens": [
+            "ひとこそみえね",
+            "あきはきにけり"
+        ],
+        "yomiNoSpace": "八重葎茂れる宿のさびしきに",
+        "yomiKanaNoSpace": "やえむぐらしげれるやどのさびしきに",
+        "toriNoSpace": "人こそ見えね秋は来にけり",
+        "toriKanaNoSpace": "ひとこそみえねあきはきにけり",
+        "kimariji": "やえ",
+        "kimarijiCount": 2,
+        "author": "恵慶法師"
+    },
+    {
+        "poemId": "p048",
+        "order": 48,
+        "yomi": "風をいたみ 岩打つ波の おのれのみ",
+        "yomiKana": "かぜをいたみ いわうつなみの おのれのみ",
+        "tori": "くだけて物を 思ふ頃かな",
+        "toriKana": "くだけてものを おもうころかな",
+        "yomiTokens": [
+            "風をいたみ",
+            "岩打つ波の",
+            "おのれのみ"
+        ],
+        "yomiKanaTokens": [
+            "かぜをいたみ",
+            "いわうつなみの",
+            "おのれのみ"
+        ],
+        "toriTokens": [
+            "くだけて物を",
+            "思ふ頃かな"
+        ],
+        "toriKanaTokens": [
+            "くだけてものを",
+            "おもうころかな"
+        ],
+        "yomiNoSpace": "風をいたみ岩打つ波のおのれのみ",
+        "yomiKanaNoSpace": "かぜをいたみいわうつなみのおのれのみ",
+        "toriNoSpace": "くだけて物を思ふ頃かな",
+        "toriKanaNoSpace": "くだけてものをおもうころかな",
+        "kimariji": "かぜを",
+        "kimarijiCount": 3,
+        "author": "源重之"
+    },
+    {
+        "poemId": "p049",
+        "order": 49,
+        "yomi": "御垣守 衛士の焚く火の 夜は燃え",
+        "yomiKana": "みかきもり えじのたくひの よるはもえ",
+        "tori": "昼は消えつつ 物をこそ思へ",
+        "toriKana": "ひるはきえつつ ものをこそおもえ",
+        "yomiTokens": [
+            "御垣守",
+            "衛士の焚く火の",
+            "夜は燃え"
+        ],
+        "yomiKanaTokens": [
+            "みかきもり",
+            "えじのたくひの",
+            "よるはもえ"
+        ],
+        "toriTokens": [
+            "昼は消えつつ",
+            "物をこそ思へ"
+        ],
+        "toriKanaTokens": [
+            "ひるはきえつつ",
+            "ものをこそおもえ"
+        ],
+        "yomiNoSpace": "御垣守衛士の焚く火の夜は燃え",
+        "yomiKanaNoSpace": "みかきもりえじのたくひのよるはもえ",
+        "toriNoSpace": "昼は消えつつ物をこそ思へ",
+        "toriKanaNoSpace": "ひるはきえつつものをこそおもえ",
+        "kimariji": "みかき",
+        "kimarijiCount": 3,
+        "author": "大中臣能宣朝臣"
+    },
+    {
+        "poemId": "p050",
+        "order": 50,
+        "yomi": "君がため 惜しからざりし 命さへ",
+        "yomiKana": "きみがため おしからざりし いのちさえ",
+        "tori": "長くもがなと 思ひけるかな",
+        "toriKana": "ながくもがなと おもいけるかな",
+        "yomiTokens": [
+            "君がため",
+            "惜しからざりし",
+            "命さへ"
+        ],
+        "yomiKanaTokens": [
+            "きみがため",
+            "おしからざりし",
+            "いのちさえ"
+        ],
+        "toriTokens": [
+            "長くもがなと",
+            "思ひけるかな"
+        ],
+        "toriKanaTokens": [
+            "ながくもがなと",
+            "おもいけるかな"
+        ],
+        "yomiNoSpace": "君がため惜しからざりし命さへ",
+        "yomiKanaNoSpace": "きみがためおしからざりしいのちさえ",
+        "toriNoSpace": "長くもがなと思ひけるかな",
+        "toriKanaNoSpace": "ながくもがなとおもいけるかな",
+        "kimariji": "きみがためお",
+        "kimarijiCount": 6,
+        "author": "藤原義孝"
+    },
+    {
+        "poemId": "p051",
+        "order": 51,
+        "yomi": "かくとだに えやは伊吹の さしも草",
+        "yomiKana": "かくとだに えやわいぶきの さしもぐさ",
+        "tori": "さしも知らじな 燃ゆる思ひを",
+        "toriKana": "さしもしらじな もゆるおもいを",
+        "yomiTokens": [
+            "かくとだに",
+            "えやは伊吹の",
+            "さしも草"
+        ],
+        "yomiKanaTokens": [
+            "かくとだに",
+            "えやわいぶきの",
+            "さしもぐさ"
+        ],
+        "toriTokens": [
+            "さしも知らじな",
+            "燃ゆる思ひを"
+        ],
+        "toriKanaTokens": [
+            "さしもしらじな",
+            "もゆるおもいを"
+        ],
+        "yomiNoSpace": "かくとだにえやは伊吹のさしも草",
+        "yomiKanaNoSpace": "かくとだにえやわいぶきのさしもぐさ",
+        "toriNoSpace": "さしも知らじな燃ゆる思ひを",
+        "toriKanaNoSpace": "さしもしらじなもゆるおもいを",
+        "kimariji": "かく",
+        "kimarijiCount": 2,
+        "author": "藤原実方朝臣"
+    },
+    {
+        "poemId": "p052",
+        "order": 52,
+        "yomi": "明けぬれば 暮るるものとは 知りながら",
+        "yomiKana": "あけぬれば くるるものとは しりながら",
+        "tori": "なほ恨めしき 朝ぼらけかな",
+        "toriKana": "なほうらめしき あさぼらけかな",
+        "yomiTokens": [
+            "明けぬれば",
+            "暮るるものとは",
+            "知りながら"
+        ],
+        "yomiKanaTokens": [
+            "あけぬれば",
+            "くるるものとは",
+            "しりながら"
+        ],
+        "toriTokens": [
+            "なほ恨めしき",
+            "朝ぼらけかな"
+        ],
+        "toriKanaTokens": [
+            "なほうらめしき",
+            "あさぼらけかな"
+        ],
+        "yomiNoSpace": "明けぬれば暮るるものとは知りながら",
+        "yomiKanaNoSpace": "あけぬればくるるものとはしりながら",
+        "toriNoSpace": "なほ恨めしき朝ぼらけかな",
+        "toriKanaNoSpace": "なほうらめしきあさぼらけかな",
+        "kimariji": "あけ",
+        "kimarijiCount": 2,
+        "author": "藤原道信朝臣"
+    },
+    {
+        "poemId": "p053",
+        "order": 53,
+        "yomi": "嘆きつつ 独り寝る夜の 明くる間は",
+        "yomiKana": "なげきつつ ひとりぬるよの あくるまは",
+        "tori": "いかに久しき 物とかは知る",
+        "toriKana": "いかにひさしき ものとかはしる",
+        "yomiTokens": [
+            "嘆きつつ",
+            "独り寝る夜の",
+            "明くる間は"
+        ],
+        "yomiKanaTokens": [
+            "なげきつつ",
+            "ひとりぬるよの",
+            "あくるまは"
+        ],
+        "toriTokens": [
+            "いかに久しき",
+            "物とかは知る"
+        ],
+        "toriKanaTokens": [
+            "いかにひさしき",
+            "ものとかはしる"
+        ],
+        "yomiNoSpace": "嘆きつつ独り寝る夜の明くる間は",
+        "yomiKanaNoSpace": "なげきつつひとりぬるよのあくるまは",
+        "toriNoSpace": "いかに久しき物とかは知る",
+        "toriKanaNoSpace": "いかにひさしきものとかはしる",
+        "kimariji": "なげき",
+        "kimarijiCount": 3,
+        "author": "右大将道綱母"
+    },
+    {
+        "poemId": "p054",
+        "order": 54,
+        "yomi": "忘れじの 行く末までは 難ければ",
+        "yomiKana": "わすれじの ゆくすえまでは かたければ",
+        "tori": "今日を限りの 命ともがな",
+        "toriKana": "きょうをかぎりの いのちともがな",
+        "yomiTokens": [
+            "忘れじの",
+            "行く末までは",
+            "難ければ"
+        ],
+        "yomiKanaTokens": [
+            "わすれじの",
+            "ゆくすえまでは",
+            "かたければ"
+        ],
+        "toriTokens": [
+            "今日を限りの",
+            "命ともがな"
+        ],
+        "toriKanaTokens": [
+            "きょうをかぎりの",
+            "いのちともがな"
+        ],
+        "yomiNoSpace": "忘れじの行く末までは難ければ",
+        "yomiKanaNoSpace": "わすれじのゆくすえまではかたければ",
+        "toriNoSpace": "今日を限りの命ともがな",
+        "toriKanaNoSpace": "きょうをかぎりのいのちともがな",
+        "kimariji": "わすれ",
+        "kimarijiCount": 3,
+        "author": "儀同三司母"
+    },
+    {
+        "poemId": "p055",
+        "order": 55,
+        "yomi": "滝の音は 絶えて久しく なりぬれど",
+        "yomiKana": "たきのおとは たえてひさしく なりぬれど",
+        "tori": "名こそ流れて なほ聞こえけれ",
+        "toriKana": "なこそながれて なおきこえけれ",
+        "yomiTokens": [
+            "滝の音は",
+            "絶えて久しく",
+            "なりぬれど"
+        ],
+        "yomiKanaTokens": [
+            "たきのおとは",
+            "たえてひさしく",
+            "なりぬれど"
+        ],
+        "toriTokens": [
+            "名こそ流れて",
+            "なほ聞こえけれ"
+        ],
+        "toriKanaTokens": [
+            "なこそながれて",
+            "なおきこえけれ"
+        ],
+        "yomiNoSpace": "滝の音は絶えて久しくなりぬれど",
+        "yomiKanaNoSpace": "たきのおとはたえてひさしくなりぬれど",
+        "toriNoSpace": "名こそ流れてなほ聞こえけれ",
+        "toriKanaNoSpace": "なこそながれてなおきこえけれ",
+        "kimariji": "たき",
+        "kimarijiCount": 2,
+        "author": "大納言公任"
+    },
+    {
+        "poemId": "p056",
+        "order": 56,
+        "yomi": "あらざらむ この世のほかの 思ひ出に",
+        "yomiKana": "あらざらん このよのほかの おもいでに",
+        "tori": "今ひとたびの 逢ふこともがな",
+        "toriKana": "いまひとたびの あうこともがな",
+        "yomiTokens": [
+            "あらざらむ",
+            "この世のほかの",
+            "思ひ出に"
+        ],
+        "yomiKanaTokens": [
+            "あらざらん",
+            "このよのほかの",
+            "おもいでに"
+        ],
+        "toriTokens": [
+            "今ひとたびの",
+            "逢ふこともがな"
+        ],
+        "toriKanaTokens": [
+            "いまひとたびの",
+            "あうこともがな"
+        ],
+        "yomiNoSpace": "あらざらむこの世のほかの思ひ出に",
+        "yomiKanaNoSpace": "あらざらんこのよのほかのおもいでに",
+        "toriNoSpace": "今ひとたびの逢ふこともがな",
+        "toriKanaNoSpace": "いまひとたびのあうこともがな",
+        "kimariji": "あらざ",
+        "kimarijiCount": 3,
+        "author": "和泉式部"
+    },
+    {
+        "poemId": "p057",
+        "order": 57,
+        "yomi": "めぐり逢ひて 見しやそれとも わかぬ間に",
+        "yomiKana": "めぐりあいて みしやそれとも わかぬまに",
+        "tori": "雲隠れにし 夜半の月かな",
+        "toriKana": "くもがくれにし よわのつきかな",
+        "yomiTokens": [
+            "めぐり逢ひて",
+            "見しやそれとも",
+            "わかぬ間に"
+        ],
+        "yomiKanaTokens": [
+            "めぐりあいて",
+            "みしやそれとも",
+            "わかぬまに"
+        ],
+        "toriTokens": [
+            "雲隠れにし",
+            "夜半の月かな"
+        ],
+        "toriKanaTokens": [
+            "くもがくれにし",
+            "よわのつきかな"
+        ],
+        "yomiNoSpace": "めぐり逢ひて見しやそれともわかぬ間に",
+        "yomiKanaNoSpace": "めぐりあいてみしやそれともわかぬまに",
+        "toriNoSpace": "雲隠れにし夜半の月かな",
+        "toriKanaNoSpace": "くもがくれにしよわのつきかな",
+        "kimariji": "め",
+        "kimarijiCount": 1,
+        "author": "紫式部"
+    },
+    {
+        "poemId": "p058",
+        "order": 58,
+        "yomi": "有馬山 猪名の笹原 風吹けば",
+        "yomiKana": "ありまやま いなのささはら かぜふけば",
+        "tori": "いでそよ人を 忘れやはする",
+        "toriKana": "いでそよひとを わすれやはする",
+        "yomiTokens": [
+            "有馬山",
+            "猪名の笹原",
+            "風吹けば"
+        ],
+        "yomiKanaTokens": [
+            "ありまやま",
+            "いなのささはら",
+            "かぜふけば"
+        ],
+        "toriTokens": [
+            "いでそよ人を",
+            "忘れやはする"
+        ],
+        "toriKanaTokens": [
+            "いでそよひとを",
+            "わすれやはする"
+        ],
+        "yomiNoSpace": "有馬山猪名の笹原風吹けば",
+        "yomiKanaNoSpace": "ありまやまいなのささはらかぜふけば",
+        "toriNoSpace": "いでそよ人を忘れやはする",
+        "toriKanaNoSpace": "いでそよひとをわすれやはする",
+        "kimariji": "ありま",
+        "kimarijiCount": 3,
+        "author": "大弐三位"
+    },
+    {
+        "poemId": "p059",
+        "order": 59,
+        "yomi": "やすらはで 寝なましものを さ夜更けて",
+        "yomiKana": "やすらわで ねなましものを さよふけて",
+        "tori": "傾くまでの 月を見しかな",
+        "toriKana": "かたぶくまでの つきをみしかな",
+        "yomiTokens": [
+            "やすらはで",
+            "寝なましものを",
+            "さ夜更けて"
+        ],
+        "yomiKanaTokens": [
+            "やすらわで",
+            "ねなましものを",
+            "さよふけて"
+        ],
+        "toriTokens": [
+            "傾くまでの",
+            "月を見しかな"
+        ],
+        "toriKanaTokens": [
+            "かたぶくまでの",
+            "つきをみしかな"
+        ],
+        "yomiNoSpace": "やすらはで寝なましものをさ夜更けて",
+        "yomiKanaNoSpace": "やすらわでねなましものをさよふけて",
+        "toriNoSpace": "傾くまでの月を見しかな",
+        "toriKanaNoSpace": "かたぶくまでのつきをみしかな",
+        "kimariji": "やす",
+        "kimarijiCount": 2,
+        "author": "赤染衛門"
+    },
+    {
+        "poemId": "p060",
+        "order": 60,
+        "yomi": "大江山 生野の道の 遠ければ",
+        "yomiKana": "おおえやま いくののみちの とおければ",
+        "tori": "まだ踏みも見ず 天の橋立",
+        "toriKana": "まだふみもみず あまのはしだて",
+        "yomiTokens": [
+            "大江山",
+            "生野の道の",
+            "遠ければ"
+        ],
+        "yomiKanaTokens": [
+            "おおえやま",
+            "いくののみちの",
+            "とおければ"
+        ],
+        "toriTokens": [
+            "まだ踏みも見ず",
+            "天の橋立"
+        ],
+        "toriKanaTokens": [
+            "まだふみもみず",
+            "あまのはしだて"
+        ],
+        "yomiNoSpace": "大江山生野の道の遠ければ",
+        "yomiKanaNoSpace": "おおえやまいくののみちのとおければ",
+        "toriNoSpace": "まだ踏みも見ず天の橋立",
+        "toriKanaNoSpace": "まだふみもみずあまのはしだて",
+        "kimariji": "おおえ",
+        "kimarijiCount": 3,
+        "author": "小式部内侍"
+    },    {
+        "poemId": "p061",
+        "order": 61,
+        "yomi": "いにしへの 奈良の都の 八重桜",
+        "yomiKana": "いにしえの ならのみやこの やえざくら",
+        "tori": "今日九重に 匂ひぬるかな",
+        "toriKana": "きょうここのえに においぬるかな",
+        "yomiTokens": [
+            "いにしへの",
+            "奈良の都の",
+            "八重桜"
+        ],
+        "yomiKanaTokens": [
+            "いにしえの",
+            "ならのみやこの",
+            "やえざくら"
+        ],
+        "toriTokens": [
+            "今日九重に",
+            "匂ひぬるかな"
+        ],
+        "toriKanaTokens": [
+            "きょうここのえに",
+            "においぬるかな"
+        ],
+        "yomiNoSpace": "いにしへの奈良の都の八重桜",
+        "yomiKanaNoSpace": "いにしえのならのみやこのやえざくら",
+        "toriNoSpace": "今日九重に匂ひぬるかな",
+        "toriKanaNoSpace": "きょうここのえににおいぬるかな",
+        "kimariji": "いに",
+        "kimarijiCount": 2,
+        "author": "伊勢大輔"
+    },
+    {
+        "poemId": "p062",
+        "order": 62,
+        "yomi": "夜をこめて 鳥の空音は 諮るとも",
+        "yomiKana": "よをこめて とりのそらねは はかるとも",
+        "tori": "世に逢坂の 関は許さじ",
+        "toriKana": "よにおおさかの せきはゆるさじ",
+        "yomiTokens": [
+            "夜をこめて",
+            "鳥の空音は",
+            "諮るとも"
+        ],
+        "yomiKanaTokens": [
+            "よをこめて",
+            "とりのそらねは",
+            "はかるとも"
+        ],
+        "toriTokens": [
+            "世に逢坂の",
+            "関は許さじ"
+        ],
+        "toriKanaTokens": [
+            "よにおおさかの",
+            "せきはゆるさじ"
+        ],
+        "yomiNoSpace": "夜をこめて鳥の空音は諮るとも",
+        "yomiKanaNoSpace": "よをこめてとりのそらねははかるとも",
+        "toriNoSpace": "世に逢坂の関は許さじ",
+        "toriKanaNoSpace": "よにおおさかのせきはゆるさじ",
+        "kimariji": "よを",
+        "kimarijiCount": 2,
+        "author": "清少納言"
+    },
+    {
+        "poemId": "p063",
+        "order": 63,
+        "yomi": "今はただ 思ひ絶えなむ とばかりを",
+        "yomiKana": "いまはただ おもいたえなん とばかりを",
+        "tori": "人づてならで 言ふよしもがな",
+        "toriKana": "ひとづてならで いうよしもがな",
+        "yomiTokens": [
+            "今はただ",
+            "思ひ絶えなむ",
+            "とばかりを"
+        ],
+        "yomiKanaTokens": [
+            "いまはただ",
+            "おもいたえなん",
+            "とばかりを"
+        ],
+        "toriTokens": [
+            "人づてならで",
+            "言ふよしもがな"
+        ],
+        "toriKanaTokens": [
+            "ひとづてならで",
+            "いうよしもがな"
+        ],
+        "yomiNoSpace": "今はただ思ひ絶えなむとばかりを",
+        "yomiKanaNoSpace": "いまはただおもいたえなんとばかりを",
+        "toriNoSpace": "人づてならで言ふよしもがな",
+        "toriKanaNoSpace": "ひとづてならでいうよしもがな",
+        "kimariji": "いまは",
+        "kimarijiCount": 3,
+        "author": "左京大夫道雅"
+    },
+    {
+        "poemId": "p064",
+        "order": 64,
+        "yomi": "朝ぼらけ 宇治の川霧 たえだえに",
+        "yomiKana": "あさぼらけ うじのかわぎり たえだえに",
+        "tori": "あらはれ渡る 瀬々の網代木",
+        "toriKana": "あらわれわたる せぜのあじろぎ",
+        "yomiTokens": [
+            "朝ぼらけ",
+            "宇治の川霧",
+            "たえだえに"
+        ],
+        "yomiKanaTokens": [
+            "あさぼらけ",
+            "うじのかわぎり",
+            "たえだえに"
+        ],
+        "toriTokens": [
+            "あらはれ渡る",
+            "瀬々の網代木"
+        ],
+        "toriKanaTokens": [
+            "あらわれわたる",
+            "せぜのあじろぎ"
+        ],
+        "yomiNoSpace": "朝ぼらけ宇治の川霧たえだえに",
+        "yomiKanaNoSpace": "あさぼらけうじのかわぎりたえだえに",
+        "toriNoSpace": "あらはれ渡る瀬々の網代木",
+        "toriKanaNoSpace": "あらわれわたるせぜのあじろぎ",
+        "kimariji": "あさぼらけう",
+        "kimarijiCount": 6,
+        "author": "権中納言定頼"
+    },
+    {
+        "poemId": "p065",
+        "order": 65,
+        "yomi": "恨みわび ほさぬ袖だに あるものを",
+        "yomiKana": "うらみわび ほさぬそでだに あるものを",
+        "tori": "恋に朽ちなむ 名こそ惜しけれ",
+        "toriKana": "こいにくちなん なこそおしけれ",
+        "yomiTokens": [
+            "恨みわび",
+            "ほさぬ袖だに",
+            "あるものを"
+        ],
+        "yomiKanaTokens": [
+            "うらみわび",
+            "ほさぬそでだに",
+            "あるものを"
+        ],
+        "toriTokens": [
+            "恋に朽ちなむ",
+            "名こそ惜しけれ"
+        ],
+        "toriKanaTokens": [
+            "こいにくちなん",
+            "なこそおしけれ"
+        ],
+        "yomiNoSpace": "恨みわびほさぬ袖だにあるものを",
+        "yomiKanaNoSpace": "うらみわびほさぬそでだにあるものを",
+        "toriNoSpace": "恋に朽ちなむ名こそ惜しけれ",
+        "toriKanaNoSpace": "こいにくちなんなこそおしけれ",
+        "kimariji": "うら",
+        "kimarijiCount": 2,
+        "author": "相模"
+    },
+    {
+        "poemId": "p066",
+        "order": 66,
+        "yomi": "もろともに あはれと思へ 山桜",
+        "yomiKana": "もろともに あわれとおもえ やまざくら",
+        "tori": "花よりほかに 知る人もなし",
+        "toriKana": "はなよりほかに しるひともなし",
+        "yomiTokens": [
+            "もろともに",
+            "あはれと思へ",
+            "山桜"
+        ],
+        "yomiKanaTokens": [
+            "もろともに",
+            "あわれとおもえ",
+            "やまざくら"
+        ],
+        "toriTokens": [
+            "花よりほかに",
+            "知る人もなし"
+        ],
+        "toriKanaTokens": [
+            "はなよりほかに",
+            "しるひともなし"
+        ],
+        "yomiNoSpace": "もろともにあはれと思へ山桜",
+        "yomiKanaNoSpace": "もろともにあわれとおもえやまざくら",
+        "toriNoSpace": "花よりほかに知る人もなし",
+        "toriKanaNoSpace": "はなよりほかにしるひともなし",
+        "kimariji": "もろ",
+        "kimarijiCount": 2,
+        "author": "大僧正行尊"
+    },
+    {
+        "poemId": "p067",
+        "order": 67,
+        "yomi": "春の夜の 夢ばかりなる 手枕に",
+        "yomiKana": "はるのよの ゆめばかりなる たまくらに",
+        "tori": "かひなく立たむ 名こそ惜しけれ",
+        "toriKana": "かいなくたたん なこそおしけれ",
+        "yomiTokens": [
+            "春の夜の",
+            "夢ばかりなる",
+            "手枕に"
+        ],
+        "yomiKanaTokens": [
+            "はるのよの",
+            "ゆめばかりなる",
+            "たまくらに"
+        ],
+        "toriTokens": [
+            "かひなく立たむ",
+            "名こそ惜しけれ"
+        ],
+        "toriKanaTokens": [
+            "かいなくたたん",
+            "なこそおしけれ"
+        ],
+        "yomiNoSpace": "春の夜の夢ばかりなる手枕に",
+        "yomiKanaNoSpace": "はるのよのゆめばかりなるたまくらに",
+        "toriNoSpace": "かひなく立たむ名こそ惜しけれ",
+        "toriKanaNoSpace": "かいなくたたんなこそおしけれ",
+        "kimariji": "はるの",
+        "kimarijiCount": 3,
+        "author": "周防内侍"
+    },
+    {
+        "poemId": "p068",
+        "order": 68,
+        "yomi": "心にも あらで憂き世に ながらへば",
+        "yomiKana": "こころにも あらでうきよに ながらえば",
+        "tori": "恋しかるべき 夜半の月かな",
+        "toriKana": "こいしかるべき よわのつきかな",
+        "yomiTokens": [
+            "心にも",
+            "あらで憂き世に",
+            "ながらへば"
+        ],
+        "yomiKanaTokens": [
+            "こころにも",
+            "あらでうきよに",
+            "ながらえば"
+        ],
+        "toriTokens": [
+            "恋しかるべき",
+            "夜半の月かな"
+        ],
+        "toriKanaTokens": [
+            "こいしかるべき",
+            "よわのつきかな"
+        ],
+        "yomiNoSpace": "心にもあらで憂き世にながらへば",
+        "yomiKanaNoSpace": "こころにもあらでうきよにながらえば",
+        "toriNoSpace": "恋しかるべき夜半の月かな",
+        "toriKanaNoSpace": "こいしかるべきよわのつきかな",
+        "kimariji": "こころに",
+        "kimarijiCount": 4,
+        "author": "三条院"
+    },
+    {
+        "poemId": "p069",
+        "order": 69,
+        "yomi": "嵐吹く 三室の山の もみぢ葉は",
+        "yomiKana": "あらしふく みむろのやまの もみじばは",
+        "tori": "竜田の川の 錦なりけり",
+        "toriKana": "たつたのかわの にしきなりけり",
+        "yomiTokens": [
+            "嵐吹く",
+            "三室の山の",
+            "もみぢ葉は"
+        ],
+        "yomiKanaTokens": [
+            "あらしふく",
+            "みむろのやまの",
+            "もみじばは"
+        ],
+        "toriTokens": [
+            "竜田の川の",
+            "錦なりけり"
+        ],
+        "toriKanaTokens": [
+            "たつたのかわの",
+            "にしきなりけり"
+        ],
+        "yomiNoSpace": "嵐吹く三室の山のもみぢ葉は",
+        "yomiKanaNoSpace": "あらしふくみむろのやまのもみじばは",
+        "toriNoSpace": "竜田の川の錦なりけり",
+        "toriKanaNoSpace": "たつたのかわのにしきなりけり",
+        "kimariji": "あらし",
+        "kimarijiCount": 3,
+        "author": "能因法師"
+    },
+    {
+        "poemId": "p070",
+        "order": 70,
+        "yomi": "寂しさに 宿を立ち出でて 眺むれば",
+        "yomiKana": "さびしさに やどをたちいでて ながむれば",
+        "tori": "いづこも同じ 秋の夕暮れ",
+        "toriKana": "いずこもおなじ あきのゆうぐれ",
+        "yomiTokens": [
+            "寂しさに",
+            "宿を立ち出でて",
+            "眺むれば"
+        ],
+        "yomiKanaTokens": [
+            "さびしさに",
+            "やどをたちいでて",
+            "ながむれば"
+        ],
+        "toriTokens": [
+            "いづこも同じ",
+            "秋の夕暮れ"
+        ],
+        "toriKanaTokens": [
+            "いずこもおなじ",
+            "あきのゆうぐれ"
+        ],
+        "yomiNoSpace": "寂しさに宿を立ち出でて眺むれば",
+        "yomiKanaNoSpace": "さびしさにやどをたちいでてながむれば",
+        "toriNoSpace": "いづこも同じ秋の夕暮れ",
+        "toriKanaNoSpace": "いずこもおなじあきのゆうぐれ",
+        "kimariji": "さ",
+        "kimarijiCount": 1,
+        "author": "良暹法師"
+    },
+    {
+        "poemId": "p071",
+        "order": 71,
+        "yomi": "夕されば 門田の稲葉 訪れて",
+        "yomiKana": "ゆうされば かどたのいなば おとずれて",
+        "tori": "葦のまろ屋に 秋風ぞ吹く",
+        "toriKana": "あしのまろやに あきかぜぞふく",
+        "yomiTokens": [
+            "夕されば",
+            "門田の稲葉",
+            "訪れて"
+        ],
+        "yomiKanaTokens": [
+            "ゆうされば",
+            "かどたのいなば",
+            "おとずれて"
+        ],
+        "toriTokens": [
+            "葦のまろ屋に",
+            "秋風ぞ吹く"
+        ],
+        "toriKanaTokens": [
+            "あしのまろやに",
+            "あきかぜぞふく"
+        ],
+        "yomiNoSpace": "夕されば門田の稲葉訪れて",
+        "yomiKanaNoSpace": "ゆうさればかどたのいなばおとずれて",
+        "toriNoSpace": "葦のまろ屋に秋風ぞ吹く",
+        "toriKanaNoSpace": "あしのまろやにあきかぜぞふく",
+        "kimariji": "ゆう",
+        "kimarijiCount": 2,
+        "author": "大納言経信"
+    },
+    {
+        "poemId": "p072",
+        "order": 72,
+        "yomi": "音に聞く 高師の浜の あだ波は",
+        "yomiKana": "おとにきく たかしのはまの あだなみは",
+        "tori": "かけじや袖の ぬれもこそすれ",
+        "toriKana": "かけじやそでの ぬれもこそすれ",
+        "yomiTokens": [
+            "音に聞く",
+            "高師の浜の",
+            "あだ波は"
+        ],
+        "yomiKanaTokens": [
+            "おとにきく",
+            "たかしのはまの",
+            "あだなみは"
+        ],
+        "toriTokens": [
+            "かけじや袖の",
+            "ぬれもこそすれ"
+        ],
+        "toriKanaTokens": [
+            "かけじやそでの",
+            "ぬれもこそすれ"
+        ],
+        "yomiNoSpace": "音に聞く高師の浜のあだ波は",
+        "yomiKanaNoSpace": "おとにきくたかしのはまのあだなみは",
+        "toriNoSpace": "かけじや袖のぬれもこそすれ",
+        "toriKanaNoSpace": "かけじやそでのぬれもこそすれ",
+        "kimariji": "おと",
+        "kimarijiCount": 2,
+        "author": "祐子内親王家紀伊"
+    },
+    {
+        "poemId": "p073",
+        "order": 73,
+        "yomi": "高砂の 尾の上の桜 咲きにけり",
+        "yomiKana": "たかさごの おのえのさくら さきにけり",
+        "tori": "外山の霞 立たずもあらなむ",
+        "toriKana": "とやまのかすみ たたずもあらなん",
+        "yomiTokens": [
+            "高砂の",
+            "尾の上の桜",
+            "咲きにけり"
+        ],
+        "yomiKanaTokens": [
+            "たかさごの",
+            "おのえのさくら",
+            "さきにけり"
+        ],
+        "toriTokens": [
+            "外山の霞",
+            "立たずもあらなむ"
+        ],
+        "toriKanaTokens": [
+            "とやまのかすみ",
+            "たたずもあらなん"
+        ],
+        "yomiNoSpace": "高砂の尾の上の桜咲きにけり",
+        "yomiKanaNoSpace": "たかさごのおのえのさくらさきにけり",
+        "toriNoSpace": "外山の霞立たずもあらなむ",
+        "toriKanaNoSpace": "とやまのかすみたたずもあらなん",
+        "kimariji": "たか",
+        "kimarijiCount": 2,
+        "author": "権中納言匡房"
+    },
+    {
+        "poemId": "p074",
+        "order": 74,
+        "yomi": "うかりける 人を初瀬の 山おろしよ",
+        "yomiKana": "うかりける ひとをはつせの やまおろしよ",
+        "tori": "激しかれとは 祈らぬものを",
+        "toriKana": "はげしかれとは いのらぬものを",
+        "yomiTokens": [
+            "うかりける",
+            "人を初瀬の",
+            "山おろしよ"
+        ],
+        "yomiKanaTokens": [
+            "うかりける",
+            "ひとをはつせの",
+            "やまおろしよ"
+        ],
+        "toriTokens": [
+            "激しかれとは",
+            "祈らぬものを"
+        ],
+        "toriKanaTokens": [
+            "はげしかれとは",
+            "いのらぬものを"
+        ],
+        "yomiNoSpace": "うかりける人を初瀬の山おろしよ",
+        "yomiKanaNoSpace": "うかりけるひとをはつせのやまおろしよ",
+        "toriNoSpace": "激しかれとは祈らぬものを",
+        "toriKanaNoSpace": "はげしかれとはいのらぬものを",
+        "kimariji": "うか",
+        "kimarijiCount": 2,
+        "author": "源俊頼朝臣"
+    },
+    {
+        "poemId": "p075",
+        "order": 75,
+        "yomi": "契りおきし させもが露を 命にて",
+        "yomiKana": "ちぎりおきし させもがつゆを いのちにて",
+        "tori": "あはれ今年の 秋もいぬめり",
+        "toriKana": "あわれことしの あきもいぬめり",
+        "yomiTokens": [
+            "契りおきし",
+            "させもが露を",
+            "命にて"
+        ],
+        "yomiKanaTokens": [
+            "ちぎりおきし",
+            "させもがつゆを",
+            "いのちにて"
+        ],
+        "toriTokens": [
+            "あはれ今年の",
+            "秋もいぬめり"
+        ],
+        "toriKanaTokens": [
+            "あわれことしの",
+            "あきもいぬめり"
+        ],
+        "yomiNoSpace": "契りおきしさせもが露を命にて",
+        "yomiKanaNoSpace": "ちぎりおきしさせもがつゆをいのちにて",
+        "toriNoSpace": "あはれ今年の秋もいぬめり",
+        "toriKanaNoSpace": "あわれことしのあきもいぬめり",
+        "kimariji": "ちぎりお",
+        "kimarijiCount": 4,
+        "author": "藤原基俊"
+    },
+    {
+        "poemId": "p076",
+        "order": 76,
+        "yomi": "わたの原 漕ぎ出でて見れば 久方の",
+        "yomiKana": "わたのはら こぎいでてみれば ひさかたの",
+        "tori": "雲居にまがふ 沖つ白波",
+        "toriKana": "くもいにまがう おきつしらなみ",
+        "yomiTokens": [
+            "わたの原",
+            "漕ぎ出でて見れば",
+            "久方の"
+        ],
+        "yomiKanaTokens": [
+            "わたのはら",
+            "こぎいでてみれば",
+            "ひさかたの"
+        ],
+        "toriTokens": [
+            "雲居にまがふ",
+            "沖つ白波"
+        ],
+        "toriKanaTokens": [
+            "くもいにまがう",
+            "おきつしらなみ"
+        ],
+        "yomiNoSpace": "わたの原漕ぎ出でて見れば久方の",
+        "yomiKanaNoSpace": "わたのはらこぎいでてみればひさかたの",
+        "toriNoSpace": "雲居にまがふ沖つ白波",
+        "toriKanaNoSpace": "くもいにまがうおきつしらなみ",
+        "kimariji": "わたのはらこ",
+        "kimarijiCount": 6,
+        "author": "法性寺入道前関白太政大臣"
+    },
+    {
+        "poemId": "p077",
+        "order": 77,
+        "yomi": "瀬を早み 岩にせかるる 滝川の",
+        "yomiKana": "せをはやみ いわにせかるる たきがわの",
+        "tori": "われても末に 逢はむとぞ思ふ",
+        "toriKana": "われてもすえに あわんとぞおもう",
+        "yomiTokens": [
+            "瀬を早み",
+            "岩にせかるる",
+            "滝川の"
+        ],
+        "yomiKanaTokens": [
+            "せをはやみ",
+            "いわにせかるる",
+            "たきがわの"
+        ],
+        "toriTokens": [
+            "われても末に",
+            "逢はむとぞ思ふ"
+        ],
+        "toriKanaTokens": [
+            "われてもすえに",
+            "あわんとぞおもう"
+        ],
+        "yomiNoSpace": "瀬を早み岩にせかるる滝川の",
+        "yomiKanaNoSpace": "せをはやみいわにせかるるたきがわの",
+        "toriNoSpace": "われても末に逢はむとぞ思ふ",
+        "toriKanaNoSpace": "われてもすえにあわんとぞおもう",
+        "kimariji": "せ",
+        "kimarijiCount": 1,
+        "author": "崇徳院"
+    },
+    {
+        "poemId": "p078",
+        "order": 78,
+        "yomi": "淡路島 通ふ千鳥の 鳴く声に",
+        "yomiKana": "あわじしま かようちどりの なくこえに",
+        "tori": "幾夜寝覚めぬ 須磨の関守",
+        "toriKana": "いくよねざめぬ すまのせきもり",
+        "yomiTokens": [
+            "淡路島",
+            "通ふ千鳥の",
+            "鳴く声に"
+        ],
+        "yomiKanaTokens": [
+            "あわじしま",
+            "かようちどりの",
+            "なくこえに"
+        ],
+        "toriTokens": [
+            "幾夜寝覚めぬ",
+            "須磨の関守"
+        ],
+        "toriKanaTokens": [
+            "いくよねざめぬ",
+            "すまのせきもり"
+        ],
+        "yomiNoSpace": "淡路島通ふ千鳥の鳴く声に",
+        "yomiKanaNoSpace": "あわじしまかようちどりのなくこえに",
+        "toriNoSpace": "幾夜寝覚めぬ須磨の関守",
+        "toriKanaNoSpace": "いくよねざめぬすまのせきもり",
+        "kimariji": "あわじ",
+        "kimarijiCount": 3,
+        "author": "源兼昌"
+    },
+    {
+        "poemId": "p079",
+        "order": 79,
+        "yomi": "秋風に たなびく雲の 絶え間より",
+        "yomiKana": "あきかぜに たなびくくもの たえまより",
+        "tori": "漏れ出づる月の 影のさやけさ",
+        "toriKana": "もれいずるつきの かげのさやけさ",
+        "yomiTokens": [
+            "秋風に",
+            "たなびく雲の",
+            "絶え間より"
+        ],
+        "yomiKanaTokens": [
+            "あきかぜに",
+            "たなびくくもの",
+            "たえまより"
+        ],
+        "toriTokens": [
+            "漏れ出づる月の",
+            "影のさやけさ"
+        ],
+        "toriKanaTokens": [
+            "もれいずるつきの",
+            "かげのさやけさ"
+        ],
+        "yomiNoSpace": "秋風にたなびく雲の絶え間より",
+        "yomiKanaNoSpace": "あきかぜになたびくくものたえまより",
+        "toriNoSpace": "漏れ出づる月の影のさやけさ",
+        "toriKanaNoSpace": "もれいずるつきのかげのさやけさ",
+        "kimariji": "あきか",
+        "kimarijiCount": 3,
+        "author": "左京大夫顕輔"
+    },
+    {
+        "poemId": "p080",
+        "order": 80,
+        "yomi": "長からむ 心も知らず 黒髪の",
+        "yomiKana": "ながからん こころもしらず くろかみの",
+        "tori": "乱れて今朝は 物をこそ思へ",
+        "toriKana": "みだれてけさは ものをこそおもえ",
+        "yomiTokens": [
+            "長からむ",
+            "心も知らず",
+            "黒髪の"
+        ],
+        "yomiKanaTokens": [
+            "ながからん",
+            "こころもしらず",
+            "くろかみの"
+        ],
+        "toriTokens": [
+            "乱れて今朝は",
+            "物をこそ思へ"
+        ],
+        "toriKanaTokens": [
+            "みだれてけさは",
+            "ものをこそおもえ"
+        ],
+        "yomiNoSpace": "長からむ心も知らず黒髪の",
+        "yomiKanaNoSpace": "ながからんこころもしらずくろかみの",
+        "toriNoSpace": "乱れて今朝は物をこそ思へ",
+        "toriKanaNoSpace": "みだれてけさはものをこそおもえ",
+        "kimariji": "ながか",
+        "kimarijiCount": 3,
+        "author": "待賢門院堀河"
+    },    {
+        "poemId": "p081",
+        "order": 81,
+        "yomi": "ほととぎす 鳴きつる方を 眺むれば",
+        "yomiKana": "ほととぎす なきつるかたを ながむれば",
+        "tori": "ただ有明の 月ぞ残れる",
+        "toriKana": "ただありあけの つきぞのこれる",
+        "yomiTokens": [
+            "ほととぎす",
+            "鳴きつる方を",
+            "眺むれば"
+        ],
+        "yomiKanaTokens": [
+            "ほととぎす",
+            "なきつるかたを",
+            "ながむれば"
+        ],
+        "toriTokens": [
+            "ただ有明の",
+            "月ぞ残れる"
+        ],
+        "toriKanaTokens": [
+            "ただありあけの",
+            "つきぞのこれる"
+        ],
+        "yomiNoSpace": "ほととぎす鳴きつる方を眺むれば",
+        "yomiKanaNoSpace": "ほととぎすなきつるかたをながむれば",
+        "toriNoSpace": "ただ有明の月ぞ残れる",
+        "toriKanaNoSpace": "ただありあけのつきぞのこれる",
+        "kimariji": "ほ",
+        "kimarijiCount": 1,
+        "author": "後徳大寺左大臣"
+    },
+    {
+        "poemId": "p082",
+        "order": 82,
+        "yomi": "思ひわび さても命は あるものを",
+        "yomiKana": "おもいわび さてもいのちは あるものを",
+        "tori": "憂きに堪へぬは 涙なりけり",
+        "toriKana": "うきにたえぬは なみだなりけり",
+        "yomiTokens": [
+            "思ひわび",
+            "さても命は",
+            "あるものを"
+        ],
+        "yomiKanaTokens": [
+            "おもいわび",
+            "さてもいのちは",
+            "あるものを"
+        ],
+        "toriTokens": [
+            "憂きに堪へぬは",
+            "涙なりけり"
+        ],
+        "toriKanaTokens": [
+            "うきにたえぬは",
+            "なみだなりけり"
+        ],
+        "yomiNoSpace": "思ひわびさても命はあるものを",
+        "yomiKanaNoSpace": "おもいわびさてもいのちはあるものを",
+        "toriNoSpace": "憂きに堪へぬは涙なりけり",
+        "toriKanaNoSpace": "うきにたえぬはなみだなりけり",
+        "kimariji": "おも",
+        "kimarijiCount": 2,
+        "author": "道因法師"
+    },
+    {
+        "poemId": "p083",
+        "order": 83,
+        "yomi": "世の中よ 道こそなけれ 思ひ入る",
+        "yomiKana": "よのなかよ みちこそなけれ おもいいる",
+        "tori": "山の奥にも 鹿ぞ鳴くなる",
+        "toriKana": "やまのおくにも しかぞなくなる",
+        "yomiTokens": [
+            "世の中よ",
+            "道こそなけれ",
+            "思ひ入る"
+        ],
+        "yomiKanaTokens": [
+            "よのなかよ",
+            "みちこそなけれ",
+            "おもいいる"
+        ],
+        "toriTokens": [
+            "山の奥にも",
+            "鹿ぞ鳴くなる"
+        ],
+        "toriKanaTokens": [
+            "やまのおくにも",
+            "しかぞなくなる"
+        ],
+        "yomiNoSpace": "世の中よ道こそなけれ思ひ入る",
+        "yomiKanaNoSpace": "よのなかよみちこそなけれおもいいる",
+        "toriNoSpace": "山の奥にも鹿ぞ鳴くなる",
+        "toriKanaNoSpace": "やまのおくにもしかぞなくなる",
+        "kimariji": "よのなかよ",
+        "kimarijiCount": 5,
+        "author": "皇太后宮大夫俊成"
+    },
+    {
+        "poemId": "p084",
+        "order": 84,
+        "yomi": "長らへば またこの頃や 忍ばれむ",
+        "yomiKana": "ながらえば またこのごろや しのばれん",
+        "tori": "憂しと見し世ぞ 今は恋しき",
+        "toriKana": "うしとみしよぞ いまはこいしき",
+        "yomiTokens": [
+            "長らへば",
+            "またこの頃や",
+            "忍ばれむ"
+        ],
+        "yomiKanaTokens": [
+            "ながらえば",
+            "またこのごろや",
+            "しのばれん"
+        ],
+        "toriTokens": [
+            "憂しと見し世ぞ",
+            "今は恋しき"
+        ],
+        "toriKanaTokens": [
+            "うしとみしよぞ",
+            "いまはこいしき"
+        ],
+        "yomiNoSpace": "長らへばまたこの頃や忍ばれむ",
+        "yomiKanaNoSpace": "ながらえばまたこのごろやしのばれん",
+        "toriNoSpace": "憂しと見し世ぞ今は恋しき",
+        "toriKanaNoSpace": "うしとみしよぞいまはこいしき",
+        "kimariji": "ながら",
+        "kimarijiCount": 3,
+        "author": "藤原清輔朝臣"
+    },
+    {
+        "poemId": "p085",
+        "order": 85,
+        "yomi": "夜もすがら 物思ふ頃は 明けやらで",
+        "yomiKana": "よもすがら ものおもうころは あけやらで",
+        "tori": "閨のひまさへ つれなかりけり",
+        "toriKana": "ねやのひまさえ つれなかりけり",
+        "yomiTokens": [
+            "夜もすがら",
+            "物思ふ頃は",
+            "明けやらで"
+        ],
+        "yomiKanaTokens": [
+            "よもすがら",
+            "ものおもうころは",
+            "あけやらで"
+        ],
+        "toriTokens": [
+            "閨のひまさへ",
+            "つれなかりけり"
+        ],
+        "toriKanaTokens": [
+            "ねやのひまさえ",
+            "つれなかりけり"
+        ],
+        "yomiNoSpace": "夜もすがら物思ふ頃は明けやらで",
+        "yomiKanaNoSpace": "よもすがらものおもうころはあけやらで",
+        "toriNoSpace": "閨のひまさへつれなかりけり",
+        "toriKanaNoSpace": "ねやのひまさえつれなかりけり",
+        "kimariji": "よも",
+        "kimarijiCount": 2,
+        "author": "俊恵法師"
+    },
+    {
+        "poemId": "p086",
+        "order": 86,
+        "yomi": "嘆けとて 月やは物を 思はする",
+        "yomiKana": "なげけとて つきやはものを おもわする",
+        "tori": "かこち顔なる 我が涙かな",
+        "toriKana": "かこちがおなる わがなみだかな",
+        "yomiTokens": [
+            "嘆けとて",
+            "月やは物を",
+            "思はする"
+        ],
+        "yomiKanaTokens": [
+            "なげけとて",
+            "つきやはものを",
+            "おもわする"
+        ],
+        "toriTokens": [
+            "かこち顔なる",
+            "我が涙かな"
+        ],
+        "toriKanaTokens": [
+            "かこちがおなる",
+            "わがなみだかな"
+        ],
+        "yomiNoSpace": "嘆けとて月やは物を思はする",
+        "yomiKanaNoSpace": "なげけとてつきやはものをおもわする",
+        "toriNoSpace": "かこち顔なる我が涙かな",
+        "toriKanaNoSpace": "かこちがおなるわがなみだかな",
+        "kimariji": "なげけ",
+        "kimarijiCount": 3,
+        "author": "西行法師"
+    },
+    {
+        "poemId": "p087",
+        "order": 87,
+        "yomi": "村雨の 露もまだ干ぬ 真木の葉に",
+        "yomiKana": "むらさめの つゆもまだひぬ まきのはに",
+        "tori": "霧立ちのぼる 秋の夕暮れ",
+        "toriKana": "きりたちのぼる あきのゆうぐれ",
+        "yomiTokens": [
+            "村雨の",
+            "露もまだ干ぬ",
+            "真木の葉に"
+        ],
+        "yomiKanaTokens": [
+            "むらさめの",
+            "つゆもまだひぬ",
+            "まきのはに"
+        ],
+        "toriTokens": [
+            "霧立ちのぼる",
+            "秋の夕暮れ"
+        ],
+        "toriKanaTokens": [
+            "きりたちのぼる",
+            "あきのゆうぐれ"
+        ],
+        "yomiNoSpace": "村雨の露もまだ干ぬ真木の葉に",
+        "yomiKanaNoSpace": "むらさめのつゆもまだひぬまきのはに",
+        "toriNoSpace": "霧立ちのぼる秋の夕暮れ",
+        "toriKanaNoSpace": "きりたちのぼるあきのゆうぐれ",
+        "kimariji": "む",
+        "kimarijiCount": 1,
+        "author": "寂蓮法師"
+    },
+    {
+        "poemId": "p088",
+        "order": 88,
+        "yomi": "難波江の 蘆のかりねの ひとよゆゑ",
+        "yomiKana": "なにわえの あしのかりねの ひとよゆえ",
+        "tori": "身を尽くしてや 恋ひわたるべき",
+        "toriKana": "みをつくしてや こいわたるべき",
+        "yomiTokens": [
+            "難波江の",
+            "蘆のかりねの",
+            "ひとよゆゑ"
+        ],
+        "yomiKanaTokens": [
+            "なにわえの",
+            "あしのかりねの",
+            "ひとよゆえ"
+        ],
+        "toriTokens": [
+            "身を尽くしてや",
+            "恋ひわたるべき"
+        ],
+        "toriKanaTokens": [
+            "みをつくしてや",
+            "こいわたるべき"
+        ],
+        "yomiNoSpace": "難波江の蘆のかりねのひとよゆゑ",
+        "yomiKanaNoSpace": "なにわえのあしのかりねのひとよゆえ",
+        "toriNoSpace": "身を尽くしてや恋ひわたるべき",
+        "toriKanaNoSpace": "みをつくしてやこいわたるべき",
+        "kimariji": "なにわえ",
+        "kimarijiCount": 4,
+        "author": "皇嘉門院別当"
+    },
+    {
+        "poemId": "p089",
+        "order": 89,
+        "yomi": "玉の緒よ 絶えなば絶えね ながらへば",
+        "yomiKana": "たまのおよ たえなばたえね ながらえば",
+        "tori": "忍ぶることの 弱りもぞする",
+        "toriKana": "しのぶることの よわりもぞする",
+        "yomiTokens": [
+            "玉の緒よ",
+            "絶えなば絶えね",
+            "ながらへば"
+        ],
+        "yomiKanaTokens": [
+            "たまのおよ",
+            "たえなばたえね",
+            "ながらえば"
+        ],
+        "toriTokens": [
+            "忍ぶることの",
+            "弱りもぞする"
+        ],
+        "toriKanaTokens": [
+            "しのぶることの",
+            "よわりもぞする"
+        ],
+        "yomiNoSpace": "玉の緒よ絶えなば絶えねながらへば",
+        "yomiKanaNoSpace": "たまのおよたえなばたえねながらえば",
+        "toriNoSpace": "忍ぶることの弱りもぞする",
+        "toriKanaNoSpace": "しのぶることのよわりもぞする",
+        "kimariji": "たま",
+        "kimarijiCount": 2,
+        "author": "式子内親王"
+    },
+    {
+        "poemId": "p090",
+        "order": 90,
+        "yomi": "見せばやな 雄島の海人の 袖だにも",
+        "yomiKana": "みせばやな おじまのあまの そでだにも",
+        "tori": "濡れにぞ濡れし 色は変はらず",
+        "toriKana": "ぬれにぞぬれし いろはかわらず",
+        "yomiTokens": [
+            "見せばやな",
+            "雄島の海人の",
+            "袖だにも"
+        ],
+        "yomiKanaTokens": [
+            "みせばやな",
+            "おじまのあまの",
+            "そでだにも"
+        ],
+        "toriTokens": [
+            "濡れにぞ濡れし",
+            "色は変はらず"
+        ],
+        "toriKanaTokens": [
+            "ぬれにぞぬれし",
+            "いろはかわらず"
+        ],
+        "yomiNoSpace": "見せばやな雄島の海人の袖だにも",
+        "yomiKanaNoSpace": "みせばやなおじまのあまのそでだにも",
+        "toriNoSpace": "濡れにぞ濡れし色は変はらず",
+        "toriKanaNoSpace": "ぬれにぞぬれしいろはかわらず",
+        "kimariji": "みせ",
+        "kimarijiCount": 2,
+        "author": "殷富門院大輔"
+    },
+    {
+        "poemId": "p091",
+        "order": 91,
+        "yomi": "きりぎりす 鳴くや霜夜の さむしろに",
+        "yomiKana": "きりぎりす なくやしもよの さむしろに",
+        "tori": "衣かたしき ひとりかも寝む",
+        "toriKana": "ころもかたしき ひとりかもねん",
+        "yomiTokens": [
+            "きりぎりす",
+            "鳴くや霜夜の",
+            "さむしろに"
+        ],
+        "yomiKanaTokens": [
+            "きりぎりす",
+            "なくやしもよの",
+            "さむしろに"
+        ],
+        "toriTokens": [
+            "衣かたしき",
+            "ひとりかも寝む"
+        ],
+        "toriKanaTokens": [
+            "ころもかたしき",
+            "ひとりかもねん"
+        ],
+        "yomiNoSpace": "きりぎりす鳴くや霜夜のさむしろに",
+        "yomiKanaNoSpace": "きりぎりすなくやしもよのさむしろに",
+        "toriNoSpace": "衣かたしきひとりかも寝む",
+        "toriKanaNoSpace": "ころもかたしきひとりかもねん",
+        "kimariji": "きり",
+        "kimarijiCount": 2,
+        "author": "後京極摂政前太政大臣"
+    },
+    {
+        "poemId": "p092",
+        "order": 92,
+        "yomi": "わが袖は 潮干に見えぬ 沖の石の",
+        "yomiKana": "わがそでは しおひにみえぬ おきのいしの",
+        "tori": "人こそ知らね 乾く間もなし",
+        "toriKana": "ひとこそしらね かわくまもなし",
+        "yomiTokens": [
+            "わが袖は",
+            "潮干に見えぬ",
+            "沖の石の"
+        ],
+        "yomiKanaTokens": [
+            "わがそでは",
+            "しおひにみえぬ",
+            "おきのいしの"
+        ],
+        "toriTokens": [
+            "人こそ知らね",
+            "乾く間もなし"
+        ],
+        "toriKanaTokens": [
+            "ひとこそしらね",
+            "かわくまもなし"
+        ],
+        "yomiNoSpace": "わが袖は潮干に見えぬ沖の石の",
+        "yomiKanaNoSpace": "わがそではしおひにみえぬおきのいしの",
+        "toriNoSpace": "人こそ知らね乾く間もなし",
+        "toriKanaNoSpace": "ひとこそしらねかわくまもなし",
+        "kimariji": "わがそ",
+        "kimarijiCount": 3,
+        "author": "二条院讃岐"
+    },
+    {
+        "poemId": "p093",
+        "order": 93,
+        "yomi": "世の中は 常にもがもな 渚漕ぐ",
+        "yomiKana": "よのなかは つねにもがもな なぎさこぐ",
+        "tori": "海人の小舟の 綱手かなしも",
+        "toriKana": "あまのおぶねの つなでかなしも",
+        "yomiTokens": [
+            "世の中は",
+            "常にもがもな",
+            "渚漕ぐ"
+        ],
+        "yomiKanaTokens": [
+            "よのなかは",
+            "つねにもがもな",
+            "なぎさこぐ"
+        ],
+        "toriTokens": [
+            "海人の小舟の",
+            "綱手かなしも"
+        ],
+        "toriKanaTokens": [
+            "あまのおぶねの",
+            "つなでかなしも"
+        ],
+        "yomiNoSpace": "世の中は常にもがもな渚漕ぐ",
+        "yomiKanaNoSpace": "よのなかはつねにもがもななぎさこぐ",
+        "toriNoSpace": "海人の小舟の綱手かなしも",
+        "toriKanaNoSpace": "あまのおぶねのつなでかなしも",
+        "kimariji": "よのなかは",
+        "kimarijiCount": 5,
+        "author": "鎌倉右大臣"
+    },
+    {
+        "poemId": "p094",
+        "order": 94,
+        "yomi": "み吉野の 山の秋風 さ夜更けて",
+        "yomiKana": "みよしのの やまのあきかぜ さよふけて",
+        "tori": "ふるさと寒く 衣打つなり",
+        "toriKana": "ふるさとさむく ころもうつなり",
+        "yomiTokens": [
+            "み吉野の",
+            "山の秋風",
+            "さ夜更けて"
+        ],
+        "yomiKanaTokens": [
+            "みよしのの",
+            "やまのあきかぜ",
+            "さよふけて"
+        ],
+        "toriTokens": [
+            "ふるさと寒く",
+            "衣打つなり"
+        ],
+        "toriKanaTokens": [
+            "ふるさとさむく",
+            "ころもうつなり"
+        ],
+        "yomiNoSpace": "み吉野の山の秋風さ夜更けて",
+        "yomiKanaNoSpace": "みよしののやまのあきかぜさよふけて",
+        "toriNoSpace": "ふるさと寒く衣打つなり",
+        "toriKanaNoSpace": "ふるさとさむくころもうつなり",
+        "kimariji": "みよ",
+        "kimarijiCount": 2,
+        "author": "参議雅経"
+    },
+    {
+        "poemId": "p095",
+        "order": 95,
+        "yomi": "おほけなく 憂き世の民に 覆ふかな",
+        "yomiKana": "おおけなく うきよのたみに おおうかな",
+        "tori": "わが立つ杣に 墨染の袖",
+        "toriKana": "わがたつそまに すみぞめのそで",
+        "yomiTokens": [
+            "おほけなく",
+            "憂き世の民に",
+            "覆ふかな"
+        ],
+        "yomiKanaTokens": [
+            "おおけなく",
+            "うきよのたみに",
+            "おおうかな"
+        ],
+        "toriTokens": [
+            "わが立つ杣に",
+            "墨染の袖"
+        ],
+        "toriKanaTokens": [
+            "わがたつそまに",
+            "すみぞめのそで"
+        ],
+        "yomiNoSpace": "おほけなく憂き世の民に覆ふかな",
+        "yomiKanaNoSpace": "おおけなくうきよのたみにおおうかな",
+        "toriNoSpace": "わが立つ杣に墨染の袖",
+        "toriKanaNoSpace": "わがたつそまにすみぞめのそで",
+        "kimariji": "おおけ",
+        "kimarijiCount": 4,
+        "author": "前大僧正慈円"
+    },
+    {
+        "poemId": "p096",
+        "order": 96,
+        "yomi": "花さそふ 嵐の庭の 雪ならで",
+        "yomiKana": "はなさそう あらしのにわの ゆきならで",
+        "tori": "ふりゆくものは わが身なりけり",
+        "toriKana": "ふりゆくものは わがみなりけり",
+        "yomiTokens": [
+            "花さそふ",
+            "嵐の庭の",
+            "雪ならで"
+        ],
+        "yomiKanaTokens": [
+            "はなさそう",
+            "あらしのにわの",
+            "ゆきならで"
+        ],
+        "toriTokens": [
+            "ふりゆくものは",
+            "わが身なりけり"
+        ],
+        "toriKanaTokens": [
+            "ふりゆくものは",
+            "わがみなりけり"
+        ],
+        "yomiNoSpace": "花さそふ嵐の庭の雪ならで",
+        "yomiKanaNoSpace": "はなさそうあらしのにわのゆきならで",
+        "toriNoSpace": "ふりゆくものはわが身なりけり",
+        "toriKanaNoSpace": "ふりゆくものはわがみなりけり",
+        "kimariji": "はなさ",
+        "kimarijiCount": 3,
+        "author": "入道前太政大臣"
+    },
+    {
+        "poemId": "p097",
+        "order": 97,
+        "yomi": "来ぬ人を 松帆の浦の 夕なぎに",
+        "yomiKana": "こぬひとを まつほのうらの ゆうなぎに",
+        "tori": "焼くや藻塩の 身もこがれつつ",
+        "toriKana": "やくやもしおの みもこがれつつ",
+        "yomiTokens": [
+            "来ぬ人を",
+            "松帆の浦の",
+            "夕なぎに"
+        ],
+        "yomiKanaTokens": [
+            "こぬひとを",
+            "まつほのうらの",
+            "ゆうなぎに"
+        ],
+        "toriTokens": [
+            "焼くや藻塩の",
+            "身もこがれつつ"
+        ],
+        "toriKanaTokens": [
+            "やくやもしおの",
+            "みもこがれつつ"
+        ],
+        "yomiNoSpace": "来ぬ人を松帆の浦の夕なぎに",
+        "yomiKanaNoSpace": "こぬひとをまつほのうらのゆうなぎに",
+        "toriNoSpace": "焼くや藻塩の身もこがれつつ",
+        "toriKanaNoSpace": "やくやもしおのみもこがれつつ",
+        "kimariji": "こぬ",
+        "kimarijiCount": 2,
+        "author": "権中納言定家"
+    },
+    {
+        "poemId": "p098",
+        "order": 98,
+        "yomi": "風そよぐ 楢の小川の 夕暮は",
+        "yomiKana": "かぜそよぐ ならのおがわの ゆうぐれは",
+        "tori": "御禊ぞ夏の しるしなりける",
+        "toriKana": "みそぎぞなつの しるしなりける",
+        "yomiTokens": [
+            "風そよぐ",
+            "楢の小川の",
+            "夕暮は"
+        ],
+        "yomiKanaTokens": [
+            "かぜそよぐ",
+            "ならのおがわの",
+            "ゆうぐれは"
+        ],
+        "toriTokens": [
+            "御禊ぞ夏の",
+            "しるしなりける"
+        ],
+        "toriKanaTokens": [
+            "みそぎぞなつの",
+            "しるしなりける"
+        ],
+        "yomiNoSpace": "風そよぐ楢の小川の夕暮は",
+        "yomiKanaNoSpace": "かぜそよぐならのおがわのゆうぐれは",
+        "toriNoSpace": "御禊ぞ夏のしるしなりける",
+        "toriKanaNoSpace": "みそぎぞなつのしるしなりける",
+        "kimariji": "かぜそ",
+        "kimarijiCount": 3,
+        "author": "従二位家隆"
+    },
+    {
+        "poemId": "p099",
+        "order": 99,
+        "yomi": "人も惜し 人も恨めし あぢきなく",
+        "yomiKana": "ひともおし ひともうらめし あじきなく",
+        "tori": "世を思ふゆゑに 物思ふ身は",
+        "toriKana": "よをおもうゆえに ものおもうみは",
+        "yomiTokens": [
+            "人も惜し",
+            "人も恨めし",
+            "あぢきなく"
+        ],
+        "yomiKanaTokens": [
+            "ひともおし",
+            "ひともうらめし",
+            "あじきなく"
+        ],
+        "toriTokens": [
+            "世を思ふゆゑに",
+            "物思ふ身は"
+        ],
+        "toriKanaTokens": [
+            "よをおもうゆえに",
+            "ものおもうみは"
+        ],
+        "yomiNoSpace": "人も惜し人も恨めしあぢきなく",
+        "yomiKanaNoSpace": "ひともおしひともうらめしあじきなく",
+        "toriNoSpace": "世を思ふゆゑに物思ふ身は",
+        "toriKanaNoSpace": "よをおもうゆえにものおもうみは",
+        "kimariji": "ひとも",
+        "kimarijiCount": 3,
+        "author": "後鳥羽院"
+    },
+    {
+        "poemId": "p100",
+        "order": 100,
+        "yomi": "百敷や 古き軒端の しのぶにも",
+        "yomiKana": "ももしきや ふるきのきばの しのぶにも",
+        "tori": "なほ余りある 昔なりけり",
+        "toriKana": "なおあまりある むかしなりけり",
+        "yomiTokens": [
+            "百敷や",
+            "古き軒端の",
+            "しのぶにも"
+        ],
+        "yomiKanaTokens": [
+            "ももしきや",
+            "ふるきのきばの",
+            "しのぶにも"
+        ],
+        "toriTokens": [
+            "なほ余りある",
+            "昔なりけり"
+        ],
+        "toriKanaTokens": [
+            "なおあまりある",
+            "むかしなりけり"
+        ],
+        "yomiNoSpace": "百敷や古き軒端のしのぶにも",
+        "yomiKanaNoSpace": "ももしきやふるきのきばのしのぶにも",
+        "toriNoSpace": "なほ余りある昔なりけり",
+        "toriKanaNoSpace": "なおあまりあるむかしなりけり",
+        "kimariji": "もも",
+        "kimarijiCount": 2,
+        "author": "順徳院"
+    }
+]
