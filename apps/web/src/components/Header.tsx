@@ -35,7 +35,7 @@ export function Header() {
       <div className="container mx-auto px-4 py-4 max-w-6xl">
         {/* Title */}
         <button onClick={() => navigate('/')} className="text-left hover:opacity-80 transition-opacity mb-4">
-          <h1 className="text-xl md:text-2xl font-bold text-karuta-black">百人一首 競技かるた練習</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-karuta-black">百人一首 AI競技カルタ</h1>
           <p className="text-xs md:text-sm text-neutral-700 mt-1">Hyakunin Isshu Practice</p>
         </button>
 
