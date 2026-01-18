@@ -12,7 +12,6 @@ export function ProfilePage() {
     loading,
     error,
     loginWithGoogle,
-    loginAnonymously,
     loginWithEmail,
     registerWithEmail,
     refreshProfile,
@@ -200,12 +199,6 @@ export function ProfilePage() {
               >
                 メールでログイン
               </button>
-              <button
-                onClick={loginAnonymously}
-                className="w-full py-2 text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                匿名でログイン
-              </button>
             </div>
           )}
 
@@ -224,7 +217,6 @@ export function ProfilePage() {
           <ul className="text-sm text-blue-800 space-y-1">
             <li>• <strong>Googleログイン</strong>: データが永続化され、別のデバイスからもアクセスできます</li>
             <li>• <strong>メールログイン</strong>: メールアドレスとパスワードで登録・ログインできます</li>
-            <li>• <strong>匿名ログイン</strong>: すぐに始められますが、データはこのブラウザにのみ保存されます</li>
           </ul>
         </div>
       </div>

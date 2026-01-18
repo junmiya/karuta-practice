@@ -7,28 +7,34 @@ export interface PracticeFilter {
 }
 
 /**
- * Generate 8 tori choices: 1 correct + 7 random decoys
+ * Generate 12 tori choices: 1 correct + 11 random decoys
  */
 function generateChoices(correctPoem: Poem, allPoems: Poem[]): {
   choices: string[];
   choiceKanas: string[];
+  choicePoems: Poem[];
   correctIndex: number;
 } {
-  const choices: string[] = [correctPoem.tori];
-  const choiceKanas: string[] = [correctPoem.toriKana];
+  const choicePoems: Poem[] = [correctPoem];
 
   const decoyPoems = allPoems
     .filter(p => p.poemId !== correctPoem.poemId)
     .sort(() => Math.random() - 0.5)
-    .slice(0, 7);
+    .slice(0, 11);
+
+  choicePoems.push(...decoyPoems);
+
+  const choices: string[] = [correctPoem.tori];
+  const choiceKanas: string[] = [correctPoem.toriKana];
 
   choices.push(...decoyPoems.map(p => p.tori));
   choiceKanas.push(...decoyPoems.map(p => p.toriKana));
 
-  // Shuffle choices (keeping tori and toriKana in sync)
-  const shuffled = choices
-    .map((choice, index) => ({
-      choice,
+  // Shuffle choices (keeping tori, toriKana, and poems in sync)
+  const shuffled = choicePoems
+    .map((poem, index) => ({
+      poem,
+      choice: choices[index],
       choiceKana: choiceKanas[index],
       originalIndex: index
     }))
@@ -39,6 +45,7 @@ function generateChoices(correctPoem: Poem, allPoems: Poem[]): {
   return {
     choices: shuffled.map(item => item.choice),
     choiceKanas: shuffled.map(item => item.choiceKana),
+    choicePoems: shuffled.map(item => item.poem),
     correctIndex,
   };
 }
@@ -54,12 +61,13 @@ export function createPracticeSession(
   const allPoems = getAllPoemsSync(); // Use all poems for decoys
 
   const questions: Question[] = selectedPoems.map(poem => {
-    const { choices, choiceKanas, correctIndex } = generateChoices(poem, allPoems);
+    const { choices, choiceKanas, choicePoems, correctIndex } = generateChoices(poem, allPoems);
 
     return {
       poem,
       choices,
       choiceKanas,
+      choicePoems,
       correctIndex,
       startTime: 0,
       answered: false,

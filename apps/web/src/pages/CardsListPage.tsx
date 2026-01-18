@@ -8,7 +8,7 @@ export function CardsListPage() {
   const navigate = useNavigate();
   const [showKana, setShowKana] = useState(false);
   const [showKimariji, setShowKimariji] = useState(true);
-  const [displayCount, setDisplayCount] = useState<8 | 16 | 100>(16);
+  const [displayCount, setDisplayCount] = useState<12 | 100>(12);
   const [selectedKimariji, setSelectedKimariji] = useState<number[]>([]);
   const [searchText, setSearchText] = useState('');
 
@@ -129,7 +129,7 @@ export function CardsListPage() {
             {/* Display Count */}
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600">表示数:</span>
-              {([8, 16, 100] as const).map(count => (
+              {([12, 100] as const).map(count => (
                 <button
                   key={count}
                   onClick={() => setDisplayCount(count)}
@@ -139,7 +139,7 @@ export function CardsListPage() {
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {count === 100 ? '全て' : count}
+                  {count === 100 ? '全て' : `${count}枚`}
                 </button>
               ))}
             </div>
@@ -183,7 +183,11 @@ export function CardsListPage() {
 
       {/* Cards Grid */}
       {displayPoems.length > 0 ? (
-        <div className="flex flex-wrap justify-center gap-4">
+        <div className={
+          displayCount === 12
+            ? "grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-4 max-w-4xl mx-auto"
+            : "flex flex-wrap justify-center gap-4"
+        }>
           {displayPoems.map(poem => (
             <PoemCard
               key={poem.poemId}

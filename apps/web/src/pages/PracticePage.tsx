@@ -1,6 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { usePracticeSession } from '@/hooks/usePracticeSession';
+import { KarutaGrid } from '@/components/KarutaGrid';
+import type { Poem } from '@/types/poem';
 import type { PracticeFilter } from '@/services/practice.service';
 
 export function PracticePage() {
@@ -51,8 +53,11 @@ export function PracticePage() {
     );
   }
 
-  const handleAnswer = (index: number) => {
+  const handleAnswer = (poem: Poem) => {
     if (currentQuestion.answered) return;
+
+    const index = currentQuestion.choicePoems.findIndex(p => p.poemId === poem.poemId);
+    if (index === -1) return;
 
     answerQuestion(index);
 
@@ -65,9 +70,17 @@ export function PracticePage() {
   const questionNumber = session.currentQuestionIndex + 1;
   const totalQuestions = session.questions.length;
 
-  // 表示する選択肢（ひらがなON/OFFに応じて切り替え）
-  const displayChoices = showKanaOnly ? currentQuestion.choiceKanas : currentQuestion.choices;
+  // ひらがな表示用の読み
   const displayYomi = showKanaOnly ? currentQuestion.poem.yomiKana : currentQuestion.poem.yomi;
+
+  // KarutaGrid用のpoemId
+  const correctPoemId = currentQuestion.choicePoems[currentQuestion.correctIndex]?.poemId;
+  const selectedPoemId = currentQuestion.selectedIndex !== null
+    ? currentQuestion.choicePoems[currentQuestion.selectedIndex]?.poemId
+    : null;
+  const wrongPoemId = currentQuestion.answered && !currentQuestion.isCorrect
+    ? selectedPoemId
+    : null;
 
   // 決まり字を強調表示するための関数
   const renderYomiWithKimariji = () => {
@@ -101,7 +114,7 @@ export function PracticePage() {
 
     return (
       <>
-        <span className="text-karuta-ukon font-bold underline decoration-karuta-ukon decoration-2 underline-offset-4">
+        <span className="text-karuta-tansei font-bold underline decoration-karuta-tansei decoration-2 underline-offset-4">
           {kimarijiPart}
         </span>
         <span>{restPart}</span>
@@ -115,132 +128,101 @@ export function PracticePage() {
     : '全て';
 
   return (
-    <div className="max-w-3xl mx-auto py-6">
+    <div className="max-w-4xl mx-auto py-8 text-neutral-800">
       {/* Progress & Controls */}
-      <div className="mb-8">
+      <div className="mb-8 bg-white p-4 rounded-xl shadow-sm border border-neutral-100">
         <div className="flex items-center justify-between mb-4">
           <div>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold font-serif text-karuta-shikon">問 {questionNumber}</span>
-              <span className="text-sm text-neutral-500">/ {totalQuestions}</span>
+              <span className="text-3xl font-bold font-sans text-karuta-tansei">
+                {questionNumber} <span className="text-base font-medium text-neutral-400">/ {totalQuestions}</span>
+              </span>
             </div>
             {filter && (
-              <p className="text-xs text-karuta-ukon font-medium mt-1">
+              <p className="text-xs text-karuta-tansei font-bold bg-blue-50 px-2 py-0.5 rounded inline-block mt-1">
                 {filterLabel}決まり
               </p>
             )}
           </div>
 
-          {/* トグルボタン群 */}
-          <div className="flex gap-2">
+          {/* トグルボタン群 - Pill shaped */}
+          <div className="flex gap-2 bg-neutral-100 p-1 rounded-full">
             {/* 決まり字トグル */}
             <button
               onClick={() => setShowKimariji(!showKimariji)}
-              className={`px-4 py-2 text-sm font-medium transition-all rounded-sm border ${showKimariji
-                ? 'bg-karuta-ukon text-white border-karuta-ukon shadow-sm'
-                : 'bg-white text-neutral-600 border-neutral-300 hover:border-karuta-ukon hover:text-karuta-ukon'
+              className={`px-4 py-1.5 text-sm font-bold transition-all rounded-full ${showKimariji
+                ? 'bg-white text-karuta-accent shadow-sm'
+                : 'text-neutral-500 hover:text-neutral-700'
                 }`}
-              title={showKimariji ? '決まり字を隠す' : '決まり字を表示'}
             >
-              決
+              決まり字
             </button>
 
             {/* ひらがなトグル */}
             <button
               onClick={() => setShowKanaOnly(!showKanaOnly)}
-              className={`px-4 py-2 text-sm font-medium transition-all rounded-sm border ${showKanaOnly
-                ? 'bg-karuta-shikon text-white border-karuta-shikon shadow-sm'
-                : 'bg-white text-neutral-600 border-neutral-300 hover:border-karuta-shikon hover:text-karuta-shikon'
+              className={`px-4 py-1.5 text-sm font-bold transition-all rounded-full ${showKanaOnly
+                ? 'bg-white text-karuta-tansei shadow-sm'
+                : 'text-neutral-500 hover:text-neutral-700'
                 }`}
-              title={showKanaOnly ? '漢字表示に切り替え' : 'ひらがな表示に切り替え'}
             >
-              {showKanaOnly ? 'あ' : '漢'}
+              {showKanaOnly ? 'かな' : '漢字'}
             </button>
           </div>
         </div>
 
-        <div className="w-full bg-neutral-200 h-1 rounded-full overflow-hidden">
+        <div className="w-full bg-neutral-100 h-2 rounded-full overflow-hidden">
           <div
-            className="bg-karuta-shikon h-full transition-all duration-500 ease-out"
+            className="bg-karuta-tansei h-full transition-all duration-500 ease-out rounded-full shadow-[0_0_10px_rgba(11,139,219,0.5)]"
             style={{ width: `${(questionNumber / totalQuestions) * 100}%` }}
           />
         </div>
       </div>
 
-      {/* Yomi (上の句) */}
-      <div className="card bg-white mb-8 border-t-4 border-karuta-shikon shadow-sm">
-        <div className="flex items-center justify-between mb-4 border-b border-neutral-100 pb-2">
-          <h2 className="text-sm text-neutral-500 font-serif tracking-wider">読札（上の句）</h2>
-          {showKimariji && (
-            <span className="text-xs px-2 py-1 bg-karuta-ukon text-white rounded-sm font-medium">
-              {currentQuestion.poem.kimarijiCount}字決まり「{currentQuestion.poem.kimariji}」
-            </span>
-          )}
-        </div>
-        <p className="text-3xl font-bold text-karuta-shikon leading-relaxed font-serif py-4 text-center">
-          {renderYomiWithKimariji()}
-        </p>
+      {/* Yomi (上の句) - Clean & Focus */}
+      <div className="card bg-white mb-10 border-0 shadow-lg rounded-2xl relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-karuta-tansei"></div>
 
-        {/* Result Feedback Overlay */}
+        <div className="p-8 text-center">
+          <div className="mb-6 flex justify-center">
+            {showKimariji && (
+              <span className="text-xs px-3 py-1 bg-karuta-accent/10 text-karuta-accent rounded-full font-bold border border-karuta-accent/20">
+                {currentQuestion.poem.kimarijiCount}字決まり「{currentQuestion.poem.kimariji}」
+              </span>
+            )}
+          </div>
+
+          <p className="text-3xl md:text-4xl font-bold text-neutral-800 leading-normal font-serif py-2">
+            {renderYomiWithKimariji()}
+          </p>
+        </div>
+
+        {/* Result Feedback Overlay - Modern Toast style */}
         {currentQuestion.answered && (
-          <div className={`mt-2 p-3 rounded-sm text-center font-bold animate-fade-in ${currentQuestion.isCorrect
-            ? 'bg-green-50 text-green-800 border-l-4 border-green-600'
-            : 'bg-red-50 text-red-800 border-l-4 border-red-600'
+          <div className={`absolute bottom-0 left-0 w-full py-3 text-center font-bold animate-slide-up-fade ${currentQuestion.isCorrect
+            ? 'bg-green-500 text-white'
+            : 'bg-red-500 text-white'
             }`}>
-            <span className="text-lg mr-2">{currentQuestion.isCorrect ? '正解 ⭕' : '不正解 ❌'}</span>
-            <span className="text-sm font-normal opacity-75">{currentQuestion.elapsedMs}ms</span>
+            <span className="text-xl mr-3">{currentQuestion.isCorrect ? 'Excellent! ⭕' : 'Missed... ❌'}</span>
+            <span className="text-sm font-mono opacity-90">{currentQuestion.elapsedMs}ms</span>
           </div>
         )}
       </div>
 
-      {/* Tori choices (取札・下の句) */}
+      {/* Tori choices (取札・下の句) - 12枚グリッド */}
       <div>
-        <h3 className="text-sm text-neutral-500 mb-4 text-center font-serif tracking-wider">
-          ― 取札を選択 ―
+        <h3 className="text-xs font-bold text-neutral-400 mb-6 text-center tracking-widest uppercase">
+          Select the correct card
         </h3>
-        <div className="flex flex-wrap justify-center gap-3">
-          {displayChoices.map((choice, index) => {
-            const isSelected = currentQuestion.selectedIndex === index;
-            const isCorrect = index === currentQuestion.correctIndex;
-            const showResult = currentQuestion.answered;
-
-            let buttonClass = 'relative karuta-card border transition-all p-1 overflow-hidden rounded-sm ';
-
-            if (showResult) {
-              if (isCorrect) {
-                // Correct answer highlight
-                buttonClass += 'border-green-500 bg-green-50 shadow-md ring-2 ring-green-200 ';
-              } else if (isSelected) {
-                // Wrong selection highlight
-                buttonClass += 'border-red-500 bg-red-50 shadow-md ring-2 ring-red-200 ';
-              } else {
-                // Dim others
-                buttonClass += 'border-neutral-200 bg-neutral-100 opacity-40 grayscale ';
-              }
-            } else {
-              // Normal state
-              buttonClass += 'border-neutral-300 bg-white hover:border-karuta-ukon hover:shadow-lg hover:-translate-y-0.5 cursor-pointer hover:z-10 ';
-            }
-
-            return (
-              <button
-                key={index}
-                onClick={() => handleAnswer(index)}
-                disabled={currentQuestion.answered}
-                className={buttonClass}
-              >
-                {!showResult && <span className="absolute top-1 left-1 text-[10px] text-neutral-300 font-sans">{index + 1}</span>}
-                <div className="karuta-card-container border border-neutral-100/50 h-full w-full">
-                  {choice.split('　').reverse().map((line, i) => (
-                    <div key={i} className="karuta-line text-karuta-black">
-                      {line}
-                    </div>
-                  ))}
-                </div>
-              </button>
-            );
-          })}
-        </div>
+        <KarutaGrid
+          poems={currentQuestion.choicePoems}
+          showKana={showKanaOnly}
+          selectedPoemId={selectedPoemId}
+          correctPoemId={currentQuestion.answered ? correctPoemId : undefined}
+          wrongPoemId={wrongPoemId}
+          disabled={currentQuestion.answered}
+          onSelect={handleAnswer}
+        />
       </div>
     </div>
   );

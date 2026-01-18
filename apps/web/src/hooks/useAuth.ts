@@ -85,10 +85,11 @@ export function useAuth() {
     try {
       await signInAnonymous();
     } catch (err) {
+      console.error('Anonymous login error:', err);
       setState((prev) => ({
         ...prev,
         loading: false,
-        error: 'Anonymous login failed',
+        error: '匿名ログインに失敗しました',
       }));
     }
   }, []);
