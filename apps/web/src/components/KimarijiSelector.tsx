@@ -35,10 +35,6 @@ export function KimarijiSelector({
     );
   };
 
-  const selectAll = () => {
-    onChange([1, 2, 3, 4, 5, 6]);
-  };
-
   const clearAll = () => {
     onChange([]);
   };

@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Container } from '@/components/ui/Container';
 import { cn } from '@/lib/utils';
+import { JapaneseLock } from './icons/JapaneseLock';
 
 export function Header() {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ export function Header() {
       )}
     >
       {label}
-      {required && !isProfileComplete && <span className="text-xs ml-0.5 opacity-60">🔒</span>}
+      {required && !isProfileComplete && <JapaneseLock className="inline-block w-3 h-3 ml-1 mb-0.5 text-neutral-400" />}
     </button>
   );
 

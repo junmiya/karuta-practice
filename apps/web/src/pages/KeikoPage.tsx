@@ -19,7 +19,6 @@ import { getActiveSeasonStage1 } from '@/services/stage1.service';
 import { getAllPoems, getPoemCountByKimariji } from '@/services/poems.service';
 import { PoemDetailModal } from '@/components/PoemDetailModal';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { StatCard } from '@/components/ui/StatCard';
 import { Heading, Text } from '@/components/ui/Typography';
 import { Badge } from '@/components/ui/Badge';

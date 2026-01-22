@@ -51,9 +51,9 @@ export function PracticePage() {
 
   if (!currentQuestion) {
     return (
-      <Container className="text-center py-12">
+      <div className="karuta-container text-center py-12">
         <p>読み込み中...</p>
-      </Container>
+      </div>
     );
   }
 

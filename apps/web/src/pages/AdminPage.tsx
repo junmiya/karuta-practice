@@ -6,7 +6,6 @@ import { useState, useEffect } from 'react';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '@/services/firebase';
 import { useAuth } from '@/hooks/useAuth';
-import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -142,24 +141,24 @@ export function AdminPage() {
   // Auth check
   if (authLoading) {
     return (
-      <Container className="space-y-6">
+      <div className="karuta-container space-y-6 py-2">
         <PageHeader title="管理者ページ" subtitle="シーズン管理・手動運用操作" />
         <LoadingState />
-      </Container>
+      </div>
     );
   }
 
   if (!user) {
     return (
-      <Container className="space-y-6">
+      <div className="karuta-container space-y-6 py-2">
         <PageHeader title="管理者ページ" subtitle="シーズン管理・手動運用操作" />
         <AuthRequiredState message="管理者ページにアクセスするにはログインが必要です" />
-      </Container>
+      </div>
     );
   }
 
   return (
-    <Container className="space-y-6">
+    <div className="karuta-container space-y-6 py-2">
       {/* Header */}
       <PageHeader title="管理者ページ" subtitle="シーズン管理・手動運用操作" />
 
@@ -276,6 +275,6 @@ export function AdminPage() {
           <li>• 確定後は原則再計算しません（重大不正時のみ）。</li>
         </ul>
       </InfoBox>
-    </Container>
+    </div>
   );
 }
