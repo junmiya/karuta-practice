@@ -125,15 +125,15 @@ export function KeikoPage() {
           onClick={startPractice}
           className="py-2 px-3 bg-red-50 border border-karuta-red/30 rounded-lg hover:bg-red-100 transition-colors text-left"
         >
-          <span className="text-sm font-bold text-karuta-red">練習</span>
-          <span className="text-xs text-gray-500 ml-1">({selectedPoemCount}首)</span>
+          <div className="text-sm font-bold text-karuta-red">練習</div>
+          <div className="text-xs text-gray-500">10問・8択・{selectedPoemCount}首</div>
         </button>
         <button
           onClick={() => navigate('/practice12')}
           className="py-2 px-3 bg-amber-50 border border-karuta-accent/30 rounded-lg hover:bg-amber-100 transition-colors text-left"
         >
-          <span className="text-sm font-bold text-karuta-accent">研鑽</span>
-          <span className="text-xs text-gray-500 ml-1">(12枚)</span>
+          <div className="text-sm font-bold text-karuta-accent">研鑽</div>
+          <div className="text-xs text-gray-500">無制限・12枚実戦</div>
         </button>
       </div>
 
