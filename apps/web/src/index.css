@@ -128,8 +128,8 @@ body {
 .karuta-line-grid {
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  font-size: 2.75cqi;
-  line-height: 1.2;
+  font-size: 2.4cqi;
+  line-height: 1.15;
   color: #212121;
   font-weight: 400;
   letter-spacing: 0;

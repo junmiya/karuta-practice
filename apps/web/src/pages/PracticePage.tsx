@@ -51,7 +51,7 @@ export function PracticePage() {
 
   if (!currentQuestion) {
     return (
-      <div className="karuta-container text-center py-12">
+      <div className="karuta-container space-y-2 py-2 text-center">
         <p>読み込み中...</p>
       </div>
     );
@@ -132,7 +132,7 @@ export function PracticePage() {
     : '全て';
 
   return (
-    <div className="karuta-container py-1 text-foreground">
+    <div className="karuta-container space-y-1 py-2 text-foreground">
       {/* Progress & Controls */}
       <Card className="mb-1 p-1 bg-white">
         <div className="flex items-center justify-between mb-1">

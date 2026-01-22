@@ -17,6 +17,19 @@ import {
   type KimarijiStats,
 } from '@/services/stats.service';
 import { getAllPoems } from '@/services/poems.service';
+import {
+  ResponsiveContainer,
+  ComposedChart,
+  Line,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  BarChart,
+  Cell,
+} from 'recharts';
+import { colors } from '@/lib/design-tokens';
 
 export function SeisekiPage() {
   const navigate = useNavigate();
@@ -71,21 +84,40 @@ export function SeisekiPage() {
   );
 
   const dailyStats: DailyStats[] = useMemo(
-    () => calculateDailyStats(sessions).slice(0, 7),
+    () => calculateDailyStats(sessions).slice(0, 14),
     [sessions]
   );
 
-  // Find max score for daily chart scaling
-  const maxDailyScore = useMemo(
-    () => Math.max(...dailyStats.map(d => d.bestScore), 100),
-    [dailyStats]
-  );
+  // Prepare chart data with formatted dates and accuracy
+  const dailyChartData = useMemo(() => {
+    return dailyStats.slice().reverse().map((day) => {
+      const accuracy = day.totalQuestions > 0
+        ? Math.round((day.totalCorrect / day.totalQuestions) * 100)
+        : 0;
+      const parts = day.dayKeyJst.split('-');
+      return {
+        date: `${parts[1]}/${parts[2]}`,
+        bestScore: day.bestScore,
+        accuracy,
+        sessions: day.sessionCount,
+      };
+    });
+  }, [dailyStats]);
 
   const formatDate = (dayKeyJst: string) => {
     // dayKeyJst format: YYYY-MM-DD
     const parts = dayKeyJst.split('-');
     return `${parts[1]}/${parts[2]}`;
   };
+
+  // Prepare kimariji chart data
+  const kimarijiChartData = useMemo(() => {
+    return kimarijiStats.map((stat) => ({
+      name: `${stat.kimarijiCount}字`,
+      accuracy: stat.accuracy,
+      attempts: stat.totalAttempts,
+    }));
+  }, [kimarijiStats]);
 
   return (
     <Container className="space-y-2">
@@ -127,73 +159,158 @@ export function SeisekiPage() {
             </div>
           </div>
 
-          {/* Daily Chart */}
-          {dailyStats.length > 0 && (
+          {/* Daily Chart - Score & Accuracy Trends */}
+          {dailyChartData.length > 0 && (
             <Card padding="sm">
-              <h4 className="text-sm font-medium text-gray-700 mb-3">日別ベストスコア（直近7日）</h4>
-              <div className="flex items-end gap-1 h-32">
-                {dailyStats.slice().reverse().map((day) => {
-                  const height = Math.max((day.bestScore / maxDailyScore) * 100, 5);
-                  return (
-                    <div key={day.dayKeyJst} className="flex-1 flex flex-col items-center">
-                      <span className="text-xs text-gray-600 font-medium mb-1">
-                        {day.bestScore}
-                      </span>
-                      <div
-                        className="w-full bg-karuta-gold rounded-t transition-all duration-300"
-                        style={{ height: `${height}%` }}
-                      />
-                      <span className="text-xs text-gray-400 mt-1">
-                        {formatDate(day.dayKeyJst)}
-                      </span>
-                    </div>
-                  );
-                })}
+              <h4 className="text-sm font-medium text-gray-700 mb-3">日別推移（直近14日）</h4>
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={dailyChartData} margin={{ top: 5, right: 10, left: -15, bottom: 5 }}>
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 10 }}
+                      tickLine={false}
+                      axisLine={{ stroke: colors.gray300 }}
+                    />
+                    <YAxis
+                      yAxisId="left"
+                      domain={[0, 'auto']}
+                      tick={{ fontSize: 10 }}
+                      tickLine={false}
+                      axisLine={false}
+                      width={35}
+                    />
+                    <YAxis
+                      yAxisId="right"
+                      orientation="right"
+                      domain={[0, 100]}
+                      tick={{ fontSize: 10 }}
+                      tickLine={false}
+                      axisLine={false}
+                      width={30}
+                      tickFormatter={(value) => `${value}%`}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        fontSize: 12,
+                        backgroundColor: 'rgba(255,255,255,0.95)',
+                        border: `1px solid ${colors.gray200}`,
+                        borderRadius: 8,
+                      }}
+                      formatter={(value, name) => {
+                        if (name === 'accuracy') return [`${value}%`, '正答率'];
+                        if (name === 'bestScore') return [value, 'ベストスコア'];
+                        return [value, String(name)];
+                      }}
+                    />
+                    <Legend
+                      verticalAlign="top"
+                      height={24}
+                      formatter={(value) => {
+                        if (value === 'bestScore') return 'スコア';
+                        if (value === 'accuracy') return '正答率';
+                        return value;
+                      }}
+                      wrapperStyle={{ fontSize: 11 }}
+                    />
+                    <Bar
+                      yAxisId="left"
+                      dataKey="bestScore"
+                      fill={colors.accent}
+                      radius={[4, 4, 0, 0]}
+                      maxBarSize={32}
+                    />
+                    <Line
+                      yAxisId="right"
+                      type="monotone"
+                      dataKey="accuracy"
+                      stroke={colors.tansei}
+                      strokeWidth={2}
+                      dot={{ fill: colors.tansei, strokeWidth: 0, r: 3 }}
+                      activeDot={{ r: 5, fill: colors.tansei }}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
               </div>
             </Card>
           )}
 
-          {/* Kimariji Stats */}
+          {/* Kimariji Stats - Horizontal Bar Chart */}
           <Card>
             <Heading as="h3" size="h3" className="mb-4">決まり字別の正答率</Heading>
-            <div className="space-y-4">
-              {kimarijiStats.map((stat) => {
-                const hasData = stat.totalAttempts > 0;
-                return (
-                  <div key={stat.kimarijiCount}>
-                    <div className="flex justify-between items-center mb-1">
-                      <Text size="sm" className="text-gray-700">
-                        {stat.kimarijiCount}字決まり
-                      </Text>
-                      <div className="flex items-center gap-2">
-                        <Text size="sm" color="muted">
-                          ({stat.correctAttempts}/{stat.totalAttempts})
-                        </Text>
-                        <Text size="sm" className={hasData ? 'font-bold' : 'text-gray-400'}>
-                          {hasData ? `${stat.accuracy}%` : '--'}
-                        </Text>
-                      </div>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div
-                        className={`h-3 rounded-full transition-all duration-500 ${
-                          stat.accuracy >= 80 ? 'bg-green-500' :
-                          stat.accuracy >= 60 ? 'bg-karuta-gold' :
-                          stat.accuracy >= 40 ? 'bg-orange-400' :
-                          'bg-red-400'
-                        }`}
-                        style={{ width: hasData ? `${stat.accuracy}%` : '0%' }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            {kimarijiStats.every(s => s.totalAttempts === 0) && (
-              <Text size="sm" color="muted" className="mt-4 text-center">
+            {kimarijiStats.every(s => s.totalAttempts === 0) ? (
+              <Text size="sm" color="muted" className="text-center py-4">
                 決まり字別統計にはより多くの練習データが必要です
               </Text>
+            ) : (
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={kimarijiChartData}
+                    layout="vertical"
+                    margin={{ top: 5, right: 40, left: 10, bottom: 5 }}
+                  >
+                    <XAxis
+                      type="number"
+                      domain={[0, 100]}
+                      tick={{ fontSize: 10 }}
+                      tickLine={false}
+                      axisLine={{ stroke: colors.gray300 }}
+                      tickFormatter={(value) => `${value}%`}
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="name"
+                      tick={{ fontSize: 12 }}
+                      tickLine={false}
+                      axisLine={false}
+                      width={35}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        fontSize: 12,
+                        backgroundColor: 'rgba(255,255,255,0.95)',
+                        border: `1px solid ${colors.gray200}`,
+                        borderRadius: 8,
+                      }}
+                      formatter={(value, _name, props) => {
+                        const attempts = (props.payload as { attempts: number }).attempts;
+                        return [`${value}% (${attempts}問)`, '正答率'];
+                      }}
+                    />
+                    <Bar dataKey="accuracy" radius={[0, 4, 4, 0]} maxBarSize={24}>
+                      {kimarijiChartData.map((entry, index) => {
+                        const fillColor =
+                          entry.accuracy >= 80 ? colors.success :
+                          entry.accuracy >= 60 ? colors.accent :
+                          entry.accuracy >= 40 ? '#fb923c' :
+                          colors.red;
+                        return <Cell key={`cell-${index}`} fill={fillColor} />;
+                      })}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             )}
+            {/* Legend for color coding */}
+            <div className="flex items-center justify-center gap-4 mt-3 text-xs text-gray-500">
+              <div className="flex items-center gap-1">
+                <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: colors.success }} />
+                <span>80%+</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: colors.accent }} />
+                <span>60-79%</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#fb923c' }} />
+                <span>40-59%</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: colors.red }} />
+                <span>&lt;40%</span>
+              </div>
+            </div>
           </Card>
 
           {/* Recent Records */}
