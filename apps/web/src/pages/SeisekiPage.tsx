@@ -135,13 +135,13 @@ export function SeisekiPage() {
         />
       ) : (
         <>
-          {/* Summary Stats - 1行 */}
-          <div className="flex items-center justify-between bg-white/90 border border-gray-200 rounded-lg px-3 py-2">
-            <div className="flex items-baseline gap-1">
+          {/* Summary Stats - グリッド */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-white/90 border border-gray-200 rounded-lg p-2 sm:p-3">
+            <div className="flex items-baseline gap-1 justify-center sm:justify-start">
               <span className="text-lg font-bold text-karuta-red">{overallStats.totalSessions}</span>
               <span className="text-xs text-gray-400">回</span>
             </div>
-            <div className="flex items-baseline gap-1">
+            <div className="flex items-baseline gap-1 justify-center sm:justify-start">
               <span className="text-lg font-bold text-karuta-gold">
                 {overallStats.totalQuestions > 0
                   ? Math.round((overallStats.totalCorrect / overallStats.totalQuestions) * 100)
@@ -149,11 +149,11 @@ export function SeisekiPage() {
               </span>
               <span className="text-xs text-gray-400">正答</span>
             </div>
-            <div className="flex items-baseline gap-1">
+            <div className="flex items-baseline gap-1 justify-center sm:justify-start">
               <span className="text-lg font-bold text-gray-600">{overallStats.avgResponseMs}</span>
               <span className="text-xs text-gray-400">ms</span>
             </div>
-            <div className="flex items-baseline gap-1">
+            <div className="flex items-baseline gap-1 justify-center sm:justify-start">
               <span className="text-lg font-bold text-green-600">{overallStats.bestScore}</span>
               <span className="text-xs text-gray-400">点</span>
             </div>
@@ -315,15 +315,15 @@ export function SeisekiPage() {
 
           {/* Recent Records */}
           <Card>
-            <Heading as="h3" size="h3" className="mb-4">最近の提出記録</Heading>
-            <div className="overflow-x-auto">
+            <Heading as="h3" size="h3" className="mb-3">最近の提出記録</Heading>
+            <div className="overflow-x-auto -mx-2 sm:mx-0">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-200">
                     <th className="text-left py-2 px-2 font-medium text-gray-600">日付</th>
                     <th className="text-right py-2 px-2 font-medium text-gray-600">スコア</th>
                     <th className="text-right py-2 px-2 font-medium text-gray-600">正答</th>
-                    <th className="text-right py-2 px-2 font-medium text-gray-600">平均時間</th>
+                    <th className="text-right py-2 px-2 font-medium text-gray-600 hidden sm:table-cell">平均</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -338,7 +338,7 @@ export function SeisekiPage() {
                       <td className="py-2 px-2 text-right">
                         {session.correctCount}/50
                       </td>
-                      <td className="py-2 px-2 text-right text-gray-600">
+                      <td className="py-2 px-2 text-right text-gray-600 hidden sm:table-cell">
                         {session.avgMs}ms
                       </td>
                     </tr>

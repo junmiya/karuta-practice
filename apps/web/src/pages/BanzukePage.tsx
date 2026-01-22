@@ -242,15 +242,15 @@ export function BanzukePage() {
           ) : (
             <Card>
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b-2 border-gray-200">
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">順位</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">表示名</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">スコア</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">正答数</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">平均時間</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">提出時刻</th>
+                      <th className="text-left py-2 px-2 sm:px-3 font-semibold text-gray-700">順位</th>
+                      <th className="text-left py-2 px-2 sm:px-3 font-semibold text-gray-700">表示名</th>
+                      <th className="text-right py-2 px-2 sm:px-3 font-semibold text-gray-700">スコア</th>
+                      <th className="text-right py-2 px-2 sm:px-3 font-semibold text-gray-700">正答</th>
+                      <th className="text-right py-2 px-2 sm:px-3 font-semibold text-gray-700 hidden sm:table-cell">平均</th>
+                      <th className="text-right py-2 px-2 sm:px-3 font-semibold text-gray-700 hidden md:table-cell">時刻</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -262,28 +262,28 @@ export function BanzukePage() {
                             key={entry.id}
                             className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                           >
-                            <td className="py-3 px-4">
+                            <td className="py-2 px-2 sm:px-3">
                               <span className={cn(
                                 "font-bold",
-                                rank === 1 ? "text-yellow-600 text-xl" :
-                                  rank === 2 ? "text-gray-400 text-lg" :
-                                    rank === 3 ? "text-orange-600 text-lg" :
+                                rank === 1 ? "text-yellow-600 text-lg" :
+                                  rank === 2 ? "text-gray-400" :
+                                    rank === 3 ? "text-orange-600" :
                                       "text-gray-600"
                               )}>
-                                {rank === 1 ? '1' : rank === 2 ? '2' : rank === 3 ? '3' : rank}
+                                {rank}
                               </span>
                             </td>
-                            <td className="py-3 px-4 font-medium">{entry.nickname}</td>
-                            <td className="py-3 px-4 text-right font-bold text-karuta-gold">
+                            <td className="py-2 px-2 sm:px-3 font-medium truncate max-w-[100px] sm:max-w-none">{entry.nickname}</td>
+                            <td className="py-2 px-2 sm:px-3 text-right font-bold text-karuta-gold">
                               {entry.score}
                             </td>
-                            <td className="py-3 px-4 text-right">
-                              {entry.correctCount} / 50
+                            <td className="py-2 px-2 sm:px-3 text-right">
+                              {entry.correctCount}/50
                             </td>
-                            <td className="py-3 px-4 text-right text-gray-600">
+                            <td className="py-2 px-2 sm:px-3 text-right text-gray-600 hidden sm:table-cell">
                               {entry.avgMs}ms
                             </td>
-                            <td className="py-3 px-4 text-right text-sm text-gray-500">
+                            <td className="py-2 px-2 sm:px-3 text-right text-gray-500 hidden md:table-cell">
                               {formatTime(entry.serverSubmittedAt)}
                             </td>
                           </tr>
