@@ -16,7 +16,6 @@ import { initializeSeasons } from '@/services/admin.service';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Heading, Text } from '@/components/ui/Typography';
-import { Container } from '@/components/ui/Container';
 import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
 import type { Season, Entry, Division, SeasonStatus } from '@/types/entry';
@@ -95,15 +94,15 @@ export function EntryPage() {
   // Auth check
   if (authLoading || loading) {
     return (
-      <Container size="md" className="py-8 text-center">
+      <div className="karuta-container py-2 text-center">
         <Text>読み込み中...</Text>
-      </Container>
+      </div>
     );
   }
 
   if (!user) {
     return (
-      <Container size="md" className="py-8">
+      <div className="karuta-container py-2">
         <Card centered>
           <Heading as="h1" className="mb-4">ログインが必要です</Heading>
           <Text color="muted" className="mb-6">
@@ -115,7 +114,7 @@ export function EntryPage() {
             ログインページへ
           </Button>
         </Card>
-      </Container>
+      </div>
     );
   }
 
@@ -134,7 +133,7 @@ export function EntryPage() {
 
   if (!season) {
     return (
-      <Container size="md" className="py-8">
+      <div className="karuta-container py-2">
         <Card centered>
           <Heading as="h1" className="mb-4">シーズン情報なし</Heading>
           <Text color="muted" className="mb-6">
@@ -149,7 +148,7 @@ export function EntryPage() {
             </Button>
           )}
         </Card>
-      </Container>
+      </div>
     );
   }
 
@@ -159,7 +158,7 @@ export function EntryPage() {
 
   if (existingEntry) {
     return (
-      <Container size="md" className="py-8">
+      <div className="karuta-container py-2">
         <Card centered>
           <Heading as="h1" className="mb-4">エントリー済み</Heading>
           <Text color="muted" className="mb-4">
@@ -186,14 +185,14 @@ export function EntryPage() {
             </div>
           )}
         </Card>
-      </Container>
+      </div>
     );
   }
 
   // シーズンが受付中でない場合はエントリー不可
   if (!isSeasonOpen) {
     return (
-      <Container size="md" className="py-8">
+      <div className="karuta-container py-2">
         <Card centered>
           <Badge variant={statusInfo.variant} className="text-sm px-3 py-1 mb-4">
             {statusInfo.label}
@@ -209,12 +208,12 @@ export function EntryPage() {
             番付を確認する
           </Button>
         </Card>
-      </Container>
+      </div>
     );
   }
 
   return (
-    <Container size="md" className="py-8">
+    <div className="karuta-container py-2">
       <Card>
         <Heading as="h1" className="mb-6 text-center">{season.name} エントリー</Heading>
 
@@ -294,7 +293,7 @@ export function EntryPage() {
           エントリー後は部門の変更はできません
         </Text>
       </Card>
-    </Container>
+    </div>
   );
 }
 

@@ -9,7 +9,6 @@ import { KarutaGrid } from '@/components/KarutaGrid';
 import { useOfficialSession } from '@/hooks/useOfficialSession';
 import { getUserEntry } from '@/services/entry.service';
 import { getCurrentSeason } from '@/services/stage1.service';
-import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -117,38 +116,38 @@ export function OfficialPage() {
   // Auth check
   if (authLoading) {
     return (
-      <Container className="text-center py-8">
+      <div className="karuta-container text-center py-2">
         <p>読み込み中...</p>
-      </Container>
+      </div>
     );
   }
 
   if (!user) {
     return (
-      <Container className="py-8">
+      <div className="karuta-container py-2">
         <Card className="text-center">
           <Heading as="h1" size="h2" className="mb-4">ログインが必要です</Heading>
           <Button onClick={() => navigate('/profile')}>
             ログインページへ
           </Button>
         </Card>
-      </Container>
+      </div>
     );
   }
 
   // Loading state
   if (!initialized || isLoading) {
     return (
-      <Container className="text-center py-8">
+      <div className="karuta-container text-center py-2">
         <p>セッション準備中...</p>
-      </Container>
+      </div>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <Container className="py-8">
+      <div className="karuta-container py-2">
         <Card className="text-center border-red-200 bg-red-50">
           <Heading as="h1" size="h2" className="mb-4 text-red-600">エラー</Heading>
           <Text className="mb-4 text-red-800">{error}</Text>
@@ -156,14 +155,14 @@ export function OfficialPage() {
             ホームに戻る
           </Button>
         </Card>
-      </Container>
+      </div>
     );
   }
 
   // Result state
   if (result) {
     return (
-      <Container className="py-8">
+      <div className="karuta-container py-2">
         <Card className="text-center">
           {result.status === 'confirmed' ? (
             <>
@@ -209,14 +208,14 @@ export function OfficialPage() {
             </Button>
           </div>
         </Card>
-      </Container>
+      </div>
     );
   }
 
   // Complete state - ready to submit
   if (isComplete) {
     return (
-      <Container className="py-8">
+      <div className="karuta-container py-2">
         <Card className="text-center">
           <Heading as="h1" size="h2" className="mb-4">50問完了</Heading>
           <div className="text-lg mb-6 text-gray-700">
@@ -237,23 +236,23 @@ export function OfficialPage() {
             確定ボタンを押すとサーバーで検証され、公式記録として登録されます
           </Text>
         </Card>
-      </Container>
+      </div>
     );
   }
 
   // Active question state
   if (!currentQuestion) {
     return (
-      <Container className="text-center py-8">
+      <div className="karuta-container text-center py-2">
         <p>問題を準備中...</p>
-      </Container>
+      </div>
     );
   }
 
   const progress = ((currentRoundIndex + 1) / 50) * 100;
 
   return (
-    <Container className="py-6 space-y-6">
+    <div className="karuta-container space-y-2 py-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -333,6 +332,6 @@ export function OfficialPage() {
           </Card>
         </div>
       )}
-    </Container>
+    </div>
   );
 }

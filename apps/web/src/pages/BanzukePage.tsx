@@ -11,7 +11,6 @@ import {
 import { useRanking } from '@/hooks/useRanking';
 import { RankingList } from '@/components/RankingList';
 import { useAuth } from '@/hooks/useAuth';
-import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { LoadingState, ErrorState } from '@/components/ui/PageStates';
 import { cn } from '@/lib/utils';
@@ -152,7 +151,7 @@ export function BanzukePage() {
   };
 
   return (
-    <Container className="space-y-2">
+    <div className="karuta-container space-y-2 py-2">
       {/* Control Panel - 2行 */}
       <div className="bg-white/90 border border-gray-200 rounded-lg p-2 space-y-2">
         {/* Line 1: View mode + Division */}
@@ -314,6 +313,6 @@ export function BanzukePage() {
           )}
         </>
       )}
-    </Container>
+    </div>
   );
 }

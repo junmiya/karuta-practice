@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Heading, Text } from '@/components/ui/Typography';
@@ -120,7 +119,7 @@ export function SeisekiPage() {
   }, [kimarijiStats]);
 
   return (
-    <Container className="space-y-2">
+    <div className="karuta-container space-y-2 py-2">
       {!isAuthenticated || !isProfileComplete ? (
         <AuthRequiredState message="成績を記録・閲覧するにはログインとプロフィール設定が必要です" />
       ) : loading ? (
@@ -355,6 +354,6 @@ export function SeisekiPage() {
           </Card>
         </>
       )}
-    </Container>
+    </div>
   );
 }

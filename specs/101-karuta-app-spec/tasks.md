@@ -40,6 +40,8 @@
 | c07c922 | 決まり字ハイライト修正（ひらがな時のみ） | PoemCard.tsx |
 | c07c922 | KensanPage → KeikoPage リネーム | KeikoPage.tsx |
 | c07c922 | KimarijiSelector 1行コンパクトモード | KimarijiSelector.tsx |
+| (latest) | レスポンシブ最適化（フォントサイズ・グリッド） | index.css, CardSizeProvider |
+| (latest) | 鍵アイコンの和錠化（SVG） | Header.tsx, JapaneseLock.tsx |
 
 ---
 
@@ -280,7 +282,7 @@
 - [x] T075 [P] UI改善 (ToriText 5文字改行、決まり字ハイライト)
 - [x] T076 Firebase deploy (Hosting, Functions デプロイ済)
 - [ ] T077 スペーシング・デザイン統一（各ページの余白調整）
-- [ ] T078 レスポンシブ最適化確認（スマホ/タブレット/PC）
+- [x] T078 レスポンシブ最適化確認（スマホ/タブレット/PC）
 - [ ] T079 称号システム検証（名人/永世称号付与）
 - [ ] T080 UI競技ロック（公式中の設定変更禁止）
 

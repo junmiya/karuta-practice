@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
@@ -9,7 +8,7 @@ export function KyogiPage() {
   const { isAuthenticated, isProfileComplete } = useAuthContext();
 
   return (
-    <Container className="space-y-3">
+    <div className="karuta-container space-y-2 py-2">
       {/* Entry Card */}
       <Card padding="sm" className="bg-white/80">
         {isAuthenticated && isProfileComplete ? (
@@ -58,6 +57,6 @@ export function KyogiPage() {
           </div>
         </div>
       </Card>
-    </Container>
+    </div>
   );
 }
