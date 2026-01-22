@@ -7,24 +7,33 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import {
-  getActiveSeason,
   getUserEntry,
   createEntry,
   canEnterDanDivision,
 } from '@/services/entry.service';
+import { getCurrentSeason } from '@/services/stage1.service';
 import { initializeSeasons } from '@/services/admin.service';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Heading, Text } from '@/components/ui/Typography';
 import { Container } from '@/components/ui/Container';
+import { Badge, type BadgeVariant } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
-import type { SeasonLegacy, Entry, Division } from '@/types/entry';
+import type { Season, Entry, Division, SeasonStatus } from '@/types/entry';
+
+// シーズン状態に応じたラベルと説明
+const SEASON_STATUS_INFO: Record<SeasonStatus, { label: string; description: string; variant: BadgeVariant }> = {
+  open: { label: '受付中', description: 'エントリーを受け付けています', variant: 'success' },
+  frozen: { label: '集計中', description: 'シーズン終了、番付集計中です。新規エントリーはできません。', variant: 'warning' },
+  finalized: { label: '確定済', description: '番付が確定しました。次のシーズンをお待ちください。', variant: 'info' },
+  archived: { label: '過去', description: 'アーカイブ済みのシーズンです。', variant: 'secondary' },
+};
 
 export function EntryPage() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
 
-  const [season, setSeason] = useState<SeasonLegacy | null>(null);
+  const [season, setSeason] = useState<Season | null>(null);
   const [existingEntry, setExistingEntry] = useState<Entry | null>(null);
   const [canDan, setCanDan] = useState(false);
   const [selectedDivision, setSelectedDivision] = useState<Division>('kyu');
@@ -42,17 +51,14 @@ export function EntryPage() {
       }
 
       try {
-        const [activeSeason, , danEligible] = await Promise.all([
-          getActiveSeason(),
-          user ? getActiveSeason().then((s) =>
-            s ? getUserEntry(user.uid, s.seasonId) : null
-          ) : null,
+        const [currentSeason, danEligible] = await Promise.all([
+          getCurrentSeason(),
           user ? canEnterDanDivision(user.uid) : false,
         ]);
 
-        setSeason(activeSeason);
-        if (activeSeason && user) {
-          const userEntry = await getUserEntry(user.uid, activeSeason.seasonId);
+        setSeason(currentSeason);
+        if (currentSeason && user) {
+          const userEntry = await getUserEntry(user.uid, currentSeason.seasonId);
           setExistingEntry(userEntry);
         }
         setCanDan(danEligible);
@@ -147,6 +153,10 @@ export function EntryPage() {
     );
   }
 
+  // シーズンが受付中かどうか
+  const isSeasonOpen = season.status === 'open';
+  const statusInfo = SEASON_STATUS_INFO[season.status];
+
   if (existingEntry) {
     return (
       <Container size="md" className="py-8">
@@ -155,10 +165,48 @@ export function EntryPage() {
           <Text color="muted" className="mb-4">
             {season.name}に{existingEntry.division === 'kyu' ? '級位の部' : '段位の部'}でエントリー済みです。
           </Text>
+          {isSeasonOpen ? (
+            <Button
+              onClick={() => navigate('/official')}
+            >
+              公式競技を開始する
+            </Button>
+          ) : (
+            <div className="space-y-3">
+              <Badge variant={statusInfo.variant} className="text-sm px-3 py-1">
+                {statusInfo.label}
+              </Badge>
+              <Text size="sm" color="muted">{statusInfo.description}</Text>
+              <Button
+                variant="secondary"
+                onClick={() => navigate('/banzuke')}
+              >
+                番付を確認する
+              </Button>
+            </div>
+          )}
+        </Card>
+      </Container>
+    );
+  }
+
+  // シーズンが受付中でない場合はエントリー不可
+  if (!isSeasonOpen) {
+    return (
+      <Container size="md" className="py-8">
+        <Card centered>
+          <Badge variant={statusInfo.variant} className="text-sm px-3 py-1 mb-4">
+            {statusInfo.label}
+          </Badge>
+          <Heading as="h1" className="mb-4">{season.name}</Heading>
+          <Text color="muted" className="mb-6">
+            {statusInfo.description}
+          </Text>
           <Button
-            onClick={() => navigate('/official')}
+            variant="secondary"
+            onClick={() => navigate('/banzuke')}
           >
-            公式競技を開始する
+            番付を確認する
           </Button>
         </Card>
       </Container>

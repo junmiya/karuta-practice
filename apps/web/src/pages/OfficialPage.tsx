@@ -7,19 +7,23 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { KarutaGrid } from '@/components/KarutaGrid';
 import { useOfficialSession } from '@/hooks/useOfficialSession';
-import { getActiveSeason, getUserEntry } from '@/services/entry.service';
+import { getUserEntry } from '@/services/entry.service';
+import { getCurrentSeason } from '@/services/stage1.service';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 import { Heading, Text } from '@/components/ui/Typography';
 import { ControlBar } from '@/components/ControlBar';
 import type { Poem } from '@/types/poem';
+import type { SeasonStatus } from '@/types/entry';
 
 export function OfficialPage() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
 
   const [seasonId, setSeasonId] = useState<string | null>(null);
+  const [seasonStatus, setSeasonStatus] = useState<SeasonStatus | null>(null);
   const [entryId, setEntryId] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [showKana, setShowKana] = useState(false);
@@ -31,8 +35,14 @@ export function OfficialPage() {
     async function init() {
       if (!user) return;
 
-      const season = await getActiveSeason();
+      const season = await getCurrentSeason();
       if (!season) {
+        navigate('/entry');
+        return;
+      }
+
+      // シーズンがアーカイブ済みの場合はエントリーページへ
+      if (season.status === 'archived') {
         navigate('/entry');
         return;
       }
@@ -44,6 +54,7 @@ export function OfficialPage() {
       }
 
       setSeasonId(season.seasonId);
+      setSeasonStatus(season.status);
       setEntryId(`${user.uid}_${season.seasonId}`);
       setInitialized(true);
     }
@@ -246,7 +257,15 @@ export function OfficialPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <Heading as="h1" size="h2">公式競技</Heading>
+          <div className="flex items-center gap-2">
+            <Heading as="h1" size="h2">公式競技</Heading>
+            {seasonStatus === 'frozen' && (
+              <Badge variant="warning" className="text-xs">集計中</Badge>
+            )}
+            {seasonStatus === 'finalized' && (
+              <Badge variant="info" className="text-xs">確定済</Badge>
+            )}
+          </div>
           <Text size="sm" color="muted">
             問 {currentRoundIndex + 1} / 50 ・ 正答: {stats.correctCount}/{stats.totalCount}
           </Text>

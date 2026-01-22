@@ -142,6 +142,37 @@ export async function getLatestFinalizedSeason(): Promise<Season | null> {
 }
 
 /**
+ * 現在のシーズンを取得（archived以外の最新シーズン）
+ * エントリーページで状態に応じたUI表示に使用
+ */
+export async function getCurrentSeason(): Promise<Season | null> {
+  const q = query(
+    collection(db, COLLECTIONS.SEASONS),
+    where('status', 'in', ['open', 'frozen', 'finalized']),
+    orderBy('startDate', 'desc'),
+    limit(1)
+  );
+
+  const snapshot = await getDocs(q);
+  if (snapshot.empty) {
+    return null;
+  }
+
+  const data = snapshot.docs[0].data();
+  return {
+    seasonId: data.seasonId,
+    name: data.name,
+    status: data.status as SeasonStatus,
+    startDate: data.startDate?.toDate() || new Date(),
+    freezeDate: data.freezeDate?.toDate(),
+    finalizeDate: data.finalizeDate?.toDate(),
+    archiveDate: data.archiveDate?.toDate(),
+    createdAt: data.createdAt?.toDate() || new Date(),
+    updatedAt: data.updatedAt?.toDate() || new Date(),
+  };
+}
+
+/**
  * 全シーズンを取得
  */
 export async function getAllSeasons(): Promise<Season[]> {
