@@ -1,8 +1,8 @@
 /**
- * Admin page for manual season operations (S1_T14)
+ * Admin Dashboard - シーズン管理・統計・手動運用操作
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '@/services/firebase';
 import { useAuth } from '@/hooks/useAuth';
@@ -23,6 +23,21 @@ interface Season {
   updatedAt: string | null;
 }
 
+interface SeasonStats {
+  seasonId: string;
+  entries: {
+    total: number;
+    kyu: number;
+    dan: number;
+  };
+  sessions: {
+    total: number;
+    confirmed: number;
+    invalid: number;
+    pending: number;
+  };
+}
+
 const statusLabels: Record<string, { label: string; variant: 'info' | 'warning' | 'success' | 'secondary' }> = {
   open: { label: '開催中', variant: 'info' },
   frozen: { label: '凍結中', variant: 'warning' },
@@ -30,42 +45,78 @@ const statusLabels: Record<string, { label: string; variant: 'info' | 'warning' 
   archived: { label: 'アーカイブ', variant: 'secondary' },
 };
 
+type TabType = 'seasons' | 'create';
+
 export function AdminPage() {
   const { user, loading: authLoading } = useAuth();
 
+  const [activeTab, setActiveTab] = useState<TabType>('seasons');
   const [seasons, setSeasons] = useState<Season[]>([]);
+  const [seasonStats, setSeasonStats] = useState<Record<string, SeasonStats>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
+  // New season form
+  const [newYear, setNewYear] = useState(new Date().getFullYear());
+  const [newTerm, setNewTerm] = useState<'spring' | 'summer' | 'autumn' | 'winter'>('spring');
+  const [creating, setCreating] = useState(false);
+
   // Fetch seasons
-  useEffect(() => {
-    async function fetchSeasons() {
-      if (!user) return;
+  const fetchSeasons = useCallback(async () => {
+    if (!user) return;
 
-      try {
-        setLoading(true);
-        const adminGetSeasons = httpsCallable<unknown, { success: boolean; seasons: Season[] }>(
-          functions,
-          'adminGetSeasons'
-        );
-        const result = await adminGetSeasons({});
-        if (result.data.success) {
-          setSeasons(result.data.seasons);
-        }
-      } catch (err) {
-        console.error('Failed to fetch seasons:', err);
-        setError('シーズン情報の取得に失敗しました');
-      } finally {
-        setLoading(false);
+    try {
+      setLoading(true);
+      const adminGetSeasons = httpsCallable<unknown, { success: boolean; seasons: Season[] }>(
+        functions,
+        'adminGetSeasons'
+      );
+      const result = await adminGetSeasons({});
+      if (result.data.success) {
+        setSeasons(result.data.seasons);
       }
+    } catch (err) {
+      console.error('Failed to fetch seasons:', err);
+      setError('シーズン情報の取得に失敗しました');
+    } finally {
+      setLoading(false);
     }
+  }, [user]);
 
+  useEffect(() => {
     if (!authLoading && user) {
       fetchSeasons();
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, fetchSeasons]);
+
+  // Fetch stats for a season
+  const fetchSeasonStats = async (seasonId: string) => {
+    try {
+      const adminGetSeasonStats = httpsCallable<{ seasonId: string }, { success: boolean; stats: SeasonStats }>(
+        functions,
+        'adminGetSeasonStats'
+      );
+      const result = await adminGetSeasonStats({ seasonId });
+      if (result.data.success) {
+        setSeasonStats((prev) => ({ ...prev, [seasonId]: result.data.stats }));
+      }
+    } catch (err) {
+      console.error('Failed to fetch stats:', err);
+    }
+  };
+
+  // Load stats for open/frozen seasons
+  useEffect(() => {
+    seasons
+      .filter((s) => s.status === 'open' || s.status === 'frozen')
+      .forEach((s) => {
+        if (!seasonStats[s.seasonId]) {
+          fetchSeasonStats(s.seasonId);
+        }
+      });
+  }, [seasons, seasonStats]);
 
   const handleFreeze = async (seasonId: string) => {
     if (!confirm(`シーズン ${seasonId} を凍結しますか？\n凍結後は新規提出が反映されなくなります。`)) {
@@ -81,16 +132,7 @@ export function AdminPage() {
       );
       await adminFreezeSeason({ seasonId });
       setMessage(`${seasonId} を凍結しました`);
-
-      // Refresh seasons
-      const adminGetSeasons = httpsCallable<unknown, { success: boolean; seasons: Season[] }>(
-        functions,
-        'adminGetSeasons'
-      );
-      const result = await adminGetSeasons({});
-      if (result.data.success) {
-        setSeasons(result.data.seasons);
-      }
+      await fetchSeasons();
     } catch (err: unknown) {
       console.error('Failed to freeze season:', err);
       const errorMessage = err instanceof Error ? err.message : '凍結に失敗しました';
@@ -114,22 +156,59 @@ export function AdminPage() {
       );
       await adminFinalizeSeason({ seasonId });
       setMessage(`${seasonId} を確定しました`);
-
-      // Refresh seasons
-      const adminGetSeasons = httpsCallable<unknown, { success: boolean; seasons: Season[] }>(
-        functions,
-        'adminGetSeasons'
-      );
-      const result = await adminGetSeasons({});
-      if (result.data.success) {
-        setSeasons(result.data.seasons);
-      }
+      await fetchSeasons();
     } catch (err: unknown) {
       console.error('Failed to finalize season:', err);
       const errorMessage = err instanceof Error ? err.message : '確定に失敗しました';
       setError(errorMessage);
     } finally {
       setActionLoading(null);
+    }
+  };
+
+  const handleUpdateRankings = async (seasonId: string) => {
+    try {
+      setActionLoading(`ranking-${seasonId}`);
+      setMessage(null);
+      const adminUpdateRankings = httpsCallable<{ seasonId: string }, { success: boolean; message: string }>(
+        functions,
+        'adminUpdateRankings'
+      );
+      const result = await adminUpdateRankings({ seasonId });
+      setMessage(result.data.message);
+      // Refresh stats
+      fetchSeasonStats(seasonId);
+    } catch (err: unknown) {
+      console.error('Failed to update rankings:', err);
+      const errorMessage = err instanceof Error ? err.message : 'ランキング更新に失敗しました';
+      setError(errorMessage);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleCreateSeason = async () => {
+    if (!confirm(`${newYear}年${newTerm === 'spring' ? '春' : newTerm === 'summer' ? '夏' : newTerm === 'autumn' ? '秋' : '冬'}場所を作成しますか？`)) {
+      return;
+    }
+
+    try {
+      setCreating(true);
+      setMessage(null);
+      const adminCreateSeason = httpsCallable<
+        { year: number; term: string },
+        { success: boolean; season: { seasonId: string; name: string } }
+      >(functions, 'adminCreateSeason');
+      const result = await adminCreateSeason({ year: newYear, term: newTerm });
+      setMessage(`${result.data.season.name} を作成しました`);
+      await fetchSeasons();
+      setActiveTab('seasons');
+    } catch (err: unknown) {
+      console.error('Failed to create season:', err);
+      const errorMessage = err instanceof Error ? err.message : 'シーズン作成に失敗しました';
+      setError(errorMessage);
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -142,7 +221,7 @@ export function AdminPage() {
   if (authLoading) {
     return (
       <div className="karuta-container space-y-6 py-2">
-        <PageHeader title="管理者ページ" subtitle="シーズン管理・手動運用操作" />
+        <PageHeader title="管理者ダッシュボード" subtitle="シーズン管理・統計・手動運用" />
         <LoadingState />
       </div>
     );
@@ -151,126 +230,259 @@ export function AdminPage() {
   if (!user) {
     return (
       <div className="karuta-container space-y-6 py-2">
-        <PageHeader title="管理者ページ" subtitle="シーズン管理・手動運用操作" />
+        <PageHeader title="管理者ダッシュボード" subtitle="シーズン管理・統計・手動運用" />
         <AuthRequiredState message="管理者ページにアクセスするにはログインが必要です" />
       </div>
     );
   }
 
   return (
-    <div className="karuta-container space-y-6 py-2">
+    <div className="karuta-container space-y-4 py-2">
       {/* Header */}
-      <PageHeader title="管理者ページ" subtitle="シーズン管理・手動運用操作" />
+      <PageHeader title="管理者ダッシュボード" subtitle="シーズン管理・統計・手動運用" />
+
+      {/* Tab Navigation */}
+      <div className="flex gap-2 border-b border-gray-200 pb-2">
+        <button
+          onClick={() => setActiveTab('seasons')}
+          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+            activeTab === 'seasons'
+              ? 'bg-karuta-red text-white'
+              : 'text-gray-600 hover:bg-gray-100'
+          }`}
+        >
+          シーズン管理
+        </button>
+        <button
+          onClick={() => setActiveTab('create')}
+          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+            activeTab === 'create'
+              ? 'bg-karuta-red text-white'
+              : 'text-gray-600 hover:bg-gray-100'
+          }`}
+        >
+          新規シーズン
+        </button>
+      </div>
 
       {/* Messages */}
       {message && (
         <Card className="bg-green-50 border-green-200">
           <Text className="text-green-800">{message}</Text>
+          <Button variant="ghost" size="sm" onClick={() => setMessage(null)} className="mt-2">
+            閉じる
+          </Button>
         </Card>
       )}
       {error && (
         <Card className="bg-red-50 border-red-200">
           <Text className="text-red-800">{error}</Text>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setError(null)}
-            className="mt-2"
-          >
+          <Button variant="ghost" size="sm" onClick={() => setError(null)} className="mt-2">
             閉じる
           </Button>
         </Card>
       )}
 
-      {/* Seasons List */}
-      <Card>
-        <Heading as="h3" size="h3" className="mb-4">シーズン一覧</Heading>
+      {/* Seasons Tab */}
+      {activeTab === 'seasons' && (
+        <Card>
+          <Heading as="h3" size="h3" className="mb-4">シーズン一覧</Heading>
 
-        {loading ? (
-          <LoadingState message="シーズン情報を読み込み中..." />
-        ) : seasons.length === 0 ? (
-          <Text color="muted" className="text-center py-8">
-            シーズンがありません
-          </Text>
-        ) : (
-          <div className="space-y-4">
-            {seasons.map((season) => {
-              const statusInfo = statusLabels[season.status] || { label: season.status, variant: 'secondary' as const };
-              const isActionLoading = actionLoading === season.seasonId;
+          {loading ? (
+            <LoadingState message="シーズン情報を読み込み中..." />
+          ) : seasons.length === 0 ? (
+            <Text color="muted" className="text-center py-8">
+              シーズンがありません
+            </Text>
+          ) : (
+            <div className="space-y-4">
+              {seasons.map((season) => {
+                const statusInfo = statusLabels[season.status] || { label: season.status, variant: 'secondary' as const };
+                const isActionLoading = actionLoading === season.seasonId;
+                const isRankingLoading = actionLoading === `ranking-${season.seasonId}`;
+                const stats = seasonStats[season.seasonId];
 
-              return (
-                <div
-                  key={season.seasonId}
-                  className="border border-gray-200 rounded-lg p-4"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <Text className="font-bold">{season.name}</Text>
-                        <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
+                return (
+                  <div
+                    key={season.seasonId}
+                    className="border border-gray-200 rounded-lg p-4"
+                  >
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <Text className="font-bold">{season.name}</Text>
+                          <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
+                        </div>
+                        <Text size="sm" color="muted">{season.seasonId}</Text>
                       </div>
-                      <Text size="sm" color="muted">{season.seasonId}</Text>
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-2 text-sm mb-4">
-                    <div>
-                      <Text size="sm" color="muted">開始日</Text>
-                      <Text size="sm">{formatDate(season.startDate)}</Text>
-                    </div>
-                    <div>
-                      <Text size="sm" color="muted">凍結日</Text>
-                      <Text size="sm">{formatDate(season.freezeDate)}</Text>
-                    </div>
-                    <div>
-                      <Text size="sm" color="muted">確定日</Text>
-                      <Text size="sm">{formatDate(season.finalizeDate)}</Text>
-                    </div>
-                    <div>
-                      <Text size="sm" color="muted">更新日</Text>
-                      <Text size="sm">{formatDate(season.updatedAt)}</Text>
-                    </div>
-                  </div>
+                    {/* Stats */}
+                    {stats && (
+                      <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                          <div>
+                            <Text size="sm" color="muted">エントリー</Text>
+                            <Text className="font-bold text-lg">{stats.entries.total}</Text>
+                            <Text size="xs" color="muted">
+                              級{stats.entries.kyu} / 段{stats.entries.dan}
+                            </Text>
+                          </div>
+                          <div>
+                            <Text size="sm" color="muted">セッション</Text>
+                            <Text className="font-bold text-lg">{stats.sessions.total}</Text>
+                          </div>
+                          <div>
+                            <Text size="sm" color="muted">確定</Text>
+                            <Text className="font-bold text-lg text-green-600">{stats.sessions.confirmed}</Text>
+                          </div>
+                          <div>
+                            <Text size="sm" color="muted">無効</Text>
+                            <Text className="font-bold text-lg text-red-600">{stats.sessions.invalid}</Text>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
-                  <div className="flex gap-2">
-                    {season.status === 'open' && (
-                      <Button
-                        onClick={() => handleFreeze(season.seasonId)}
-                        disabled={isActionLoading}
-                        variant="secondary"
-                        size="sm"
-                        className="bg-yellow-100 hover:bg-yellow-200 border-yellow-300"
-                      >
-                        {isActionLoading ? '処理中...' : '凍結'}
-                      </Button>
-                    )}
-                    {season.status === 'frozen' && (
-                      <Button
-                        onClick={() => handleFinalize(season.seasonId)}
-                        disabled={isActionLoading}
-                        variant="secondary"
-                        size="sm"
-                        className="bg-green-100 hover:bg-green-200 border-green-300"
-                      >
-                        {isActionLoading ? '処理中...' : '確定'}
-                      </Button>
-                    )}
-                    {(season.status === 'finalized' || season.status === 'archived') && (
-                      <Text size="sm" color="muted">操作不可</Text>
-                    )}
+                    {/* Dates */}
+                    <div className="grid grid-cols-2 gap-2 text-sm mb-4">
+                      <div>
+                        <Text size="sm" color="muted">開始日</Text>
+                        <Text size="sm">{formatDate(season.startDate)}</Text>
+                      </div>
+                      <div>
+                        <Text size="sm" color="muted">凍結日</Text>
+                        <Text size="sm">{formatDate(season.freezeDate)}</Text>
+                      </div>
+                      <div>
+                        <Text size="sm" color="muted">確定日</Text>
+                        <Text size="sm">{formatDate(season.finalizeDate)}</Text>
+                      </div>
+                      <div>
+                        <Text size="sm" color="muted">更新日</Text>
+                        <Text size="sm">{formatDate(season.updatedAt)}</Text>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex flex-wrap gap-2">
+                      {season.status === 'open' && (
+                        <>
+                          <Button
+                            onClick={() => handleFreeze(season.seasonId)}
+                            disabled={isActionLoading}
+                            variant="secondary"
+                            size="sm"
+                            className="bg-yellow-100 hover:bg-yellow-200 border-yellow-300"
+                          >
+                            {isActionLoading ? '処理中...' : '凍結'}
+                          </Button>
+                          <Button
+                            onClick={() => handleUpdateRankings(season.seasonId)}
+                            disabled={isRankingLoading}
+                            variant="secondary"
+                            size="sm"
+                          >
+                            {isRankingLoading ? '更新中...' : 'ランキング更新'}
+                          </Button>
+                          <Button
+                            onClick={() => fetchSeasonStats(season.seasonId)}
+                            variant="ghost"
+                            size="sm"
+                          >
+                            統計更新
+                          </Button>
+                        </>
+                      )}
+                      {season.status === 'frozen' && (
+                        <>
+                          <Button
+                            onClick={() => handleFinalize(season.seasonId)}
+                            disabled={isActionLoading}
+                            variant="secondary"
+                            size="sm"
+                            className="bg-green-100 hover:bg-green-200 border-green-300"
+                          >
+                            {isActionLoading ? '処理中...' : '確定'}
+                          </Button>
+                          <Button
+                            onClick={() => fetchSeasonStats(season.seasonId)}
+                            variant="ghost"
+                            size="sm"
+                          >
+                            統計更新
+                          </Button>
+                        </>
+                      )}
+                      {(season.status === 'finalized' || season.status === 'archived') && (
+                        <Text size="sm" color="muted">操作不可</Text>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* Create Season Tab */}
+      {activeTab === 'create' && (
+        <Card>
+          <Heading as="h3" size="h3" className="mb-4">新規シーズン作成</Heading>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">年</label>
+              <input
+                type="number"
+                value={newYear}
+                onChange={(e) => setNewYear(parseInt(e.target.value, 10))}
+                min={2024}
+                max={2030}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-karuta-red focus:border-karuta-red"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">期</label>
+              <select
+                value={newTerm}
+                onChange={(e) => setNewTerm(e.target.value as 'spring' | 'summer' | 'autumn' | 'winter')}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-karuta-red focus:border-karuta-red"
+              >
+                <option value="spring">春場所 (4-6月)</option>
+                <option value="summer">夏場所 (7-9月)</option>
+                <option value="autumn">秋場所 (10-12月)</option>
+                <option value="winter">冬場所 (1-3月)</option>
+              </select>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-3">
+              <Text size="sm" color="muted">
+                作成されるシーズンID: <span className="font-mono font-bold">{newYear}_{newTerm}</span>
+              </Text>
+            </div>
+
+            <Button
+              onClick={handleCreateSeason}
+              disabled={creating}
+              fullWidth
+              size="lg"
+            >
+              {creating ? '作成中...' : 'シーズンを作成'}
+            </Button>
           </div>
-        )}
-      </Card>
+        </Card>
+      )}
 
       {/* Info */}
       <InfoBox title="操作について" variant="info">
         <ul className="space-y-1">
           <li>• <strong>凍結</strong>: シーズンを集計停止状態にします。新規提出は反映されなくなります。</li>
           <li>• <strong>確定</strong>: 凍結中のシーズンを確定し、公式番付として固定します。</li>
+          <li>• <strong>ランキング更新</strong>: 手動でランキングキャッシュを更新します。</li>
           <li>• 通常は凍結から24時間後に自動確定されます。</li>
           <li>• 確定後は原則再計算しません（重大不正時のみ）。</li>
         </ul>

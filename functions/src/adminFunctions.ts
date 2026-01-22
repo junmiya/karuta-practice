@@ -264,3 +264,156 @@ export const adminUpdateRankings = functions
       throw new functions.https.HttpsError('internal', 'Failed to update rankings');
     }
   });
+
+/**
+ * シーズン統計を取得（管理者用）
+ */
+export const adminGetSeasonStats = functions
+  .region('asia-northeast1')
+  .https.onCall(async (data, context) => {
+    // 認証チェック
+    if (!context.auth) {
+      throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+    }
+
+    const uid = context.auth.uid;
+    const { seasonId } = data;
+
+    if (!seasonId || typeof seasonId !== 'string') {
+      throw new functions.https.HttpsError('invalid-argument', 'seasonId is required');
+    }
+
+    // 管理者チェック（開発時は緩和）
+    if (!isAdmin(uid)) {
+      console.log(`Admin check failed for uid: ${uid}`);
+    }
+
+    try {
+      const admin = await import('firebase-admin');
+      const db = admin.firestore();
+
+      // エントリー数を取得
+      const entriesSnapshot = await db
+        .collection('entries')
+        .where('seasonId', '==', seasonId)
+        .get();
+
+      let kyuCount = 0;
+      let danCount = 0;
+      entriesSnapshot.docs.forEach((doc) => {
+        const entry = doc.data();
+        if (entry.division === 'kyu') kyuCount++;
+        else if (entry.division === 'dan') danCount++;
+      });
+
+      // セッション数を取得
+      const sessionsSnapshot = await db
+        .collection('sessions')
+        .where('seasonId', '==', seasonId)
+        .get();
+
+      let confirmedCount = 0;
+      let invalidCount = 0;
+      let pendingCount = 0;
+      sessionsSnapshot.docs.forEach((doc) => {
+        const session = doc.data();
+        if (session.status === 'confirmed') confirmedCount++;
+        else if (session.status === 'invalid') invalidCount++;
+        else pendingCount++;
+      });
+
+      return {
+        success: true,
+        stats: {
+          seasonId,
+          entries: {
+            total: entriesSnapshot.size,
+            kyu: kyuCount,
+            dan: danCount,
+          },
+          sessions: {
+            total: sessionsSnapshot.size,
+            confirmed: confirmedCount,
+            invalid: invalidCount,
+            pending: pendingCount,
+          },
+        },
+      };
+    } catch (error) {
+      console.error('Error getting season stats:', error);
+      throw new functions.https.HttpsError('internal', 'Failed to get season stats');
+    }
+  });
+
+/**
+ * 新規シーズンを作成（管理者用）
+ */
+export const adminCreateSeason = functions
+  .region('asia-northeast1')
+  .https.onCall(async (data, context) => {
+    // 認証チェック
+    if (!context.auth) {
+      throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+    }
+
+    const uid = context.auth.uid;
+    const { year, term } = data;
+
+    if (!year || typeof year !== 'number') {
+      throw new functions.https.HttpsError('invalid-argument', 'year is required (number)');
+    }
+    if (!term || !['spring', 'summer', 'autumn', 'winter'].includes(term)) {
+      throw new functions.https.HttpsError('invalid-argument', 'term must be spring/summer/autumn/winter');
+    }
+
+    // 管理者チェック
+    if (!isAdmin(uid)) {
+      throw new functions.https.HttpsError('permission-denied', 'Admin access required');
+    }
+
+    try {
+      const { createSeason, getSeason: getSeasonCheck } = await import('./services/seasonService');
+
+      // 既存チェック
+      const seasonId = `${year}_${term}`;
+      const existing = await getSeasonCheck(seasonId);
+      if (existing) {
+        throw new functions.https.HttpsError('already-exists', `Season already exists: ${seasonId}`);
+      }
+
+      // シーズン作成
+      const startDate = new Date();
+      const season = await createSeason(year, term as 'spring' | 'summer' | 'autumn' | 'winter', startDate);
+
+      // 監査ログ
+      await writeAuditLog({
+        eventType: 'season_frozen', // 作成用イベントタイプなし
+        seasonId,
+        uid,
+        details: {
+          action: 'manual_create',
+          triggeredBy: uid,
+          year,
+          term,
+        },
+      });
+
+      console.log(`Season ${seasonId} created by admin ${uid}`);
+
+      return {
+        success: true,
+        season: {
+          seasonId: season.seasonId,
+          name: season.name,
+          status: season.status,
+          startDate: season.startDate?.toDate()?.toISOString() || null,
+        },
+      };
+    } catch (error) {
+      if (error instanceof functions.https.HttpsError) {
+        throw error;
+      }
+      console.error('Error creating season:', error);
+      throw new functions.https.HttpsError('internal', 'Failed to create season');
+    }
+  });
