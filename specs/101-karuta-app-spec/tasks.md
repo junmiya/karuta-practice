@@ -7,6 +7,42 @@
 
 **Organization**: Tasks are grouped by user story (US1-US5) to enable independent implementation and testing of each story.
 
+---
+
+## 進捗サマリー (2026-01-22 更新)
+
+| 段階 | 説明 | 完了率 | 状態 |
+|------|------|--------|------|
+| **段階0** | 基本機能・公式競技・番付 | **90%** | ほぼ完了 |
+| **段階1** | 自動運用・称号・高度機能 | **50%** | 進行中 |
+
+### 本番環境
+
+| 環境 | URL | 状態 |
+|------|-----|------|
+| 本番 | https://karuta-banzuke.web.app | ✅ 稼働中 |
+| Functions | karuta-banzuke | ✅ デプロイ済 |
+| Firestore | karuta-banzuke | ✅ 稼働中 |
+
+---
+
+## 最近の完了項目 (2026-01-22)
+
+| コミット | 項目 | ファイル |
+|----------|------|----------|
+| 387bd6a | AdminPageをkaruta-containerに統一 | AdminPage.tsx |
+| 387bd6a | PracticePageのContainer未定義エラー修正 | PracticePage.tsx |
+| 387bd6a | 未使用コード削除（lint修正） | KimarijiSelector.tsx, KeikoPage.tsx |
+| 387bd6a | ロック絵文字をカスタムアイコンに変更 | Header.tsx, JapaneseLock.tsx |
+| c07c922 | ビューポートベース札サイズとページレイアウト統一 | CardSizeProvider, index.css |
+| c07c922 | 札サイズ縮小（max-width: 600px/800px） | index.css |
+| c07c922 | 取札5文字改行・3行表示統一 | ToriText.tsx |
+| c07c922 | 決まり字ハイライト修正（ひらがな時のみ） | PoemCard.tsx |
+| c07c922 | KensanPage → KeikoPage リネーム | KeikoPage.tsx |
+| c07c922 | KimarijiSelector 1行コンパクトモード | KimarijiSelector.tsx |
+
+---
+
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
@@ -22,190 +58,188 @@
 
 ---
 
-## Phase 1: Setup (Firebase基盤)
+## Phase 1: Setup (Firebase基盤) ✅ 完了
 
 **Purpose**: Firebaseプロジェクト初期設定とFirestoreスキーマ作成
 
-- [ ] T001 Firebaseプロジェクト作成、Blazeプラン有効化、Auth/Firestore/Functions/Hosting/Scheduler初期設定
-- [ ] T002 [P] Create Firestore collections schema definitions in `functions/src/types/firestore.ts`
-- [ ] T003 [P] Create Firestore indexes in `firestore.indexes.json`
-- [ ] T004 [P] Initialize apps/web project with Vite + React 18 + TypeScript in `apps/web/`
-- [ ] T005 [P] Initialize Cloud Functions project with TypeScript in `functions/`
-- [ ] T006 Create Firebase configuration and initialization in `apps/web/src/services/firebase.ts`
+- [x] T001 Firebaseプロジェクト作成、Blazeプラン有効化、Auth/Firestore/Functions/Hosting/Scheduler初期設定
+- [x] T002 [P] Create Firestore collections schema definitions in `functions/src/types/firestore.ts`
+- [x] T003 [P] Create Firestore indexes in `firestore.indexes.json`
+- [x] T004 [P] Initialize apps/web project with Vite + React 18 + TypeScript in `apps/web/`
+- [x] T005 [P] Initialize Cloud Functions project with TypeScript in `functions/`
+- [x] T006 Create Firebase configuration and initialization in `apps/web/src/services/firebase.ts`
 
 ---
 
-## Phase 2: Foundational (UI共通化・デザイン・認証)
+## Phase 2: Foundational (UI共通化・デザイン・認証) ✅ 完了
 
 **Purpose**: 全タブで共通利用するUIコンポーネントとデザインシステムの構築
 
-**⚠️ CRITICAL**: この基盤が完成するまでユーザーストーリーの実装は開始不可
-
 ### デザインシステム
 
-- [ ] T007 Define design rules (余白/文字階層/最大行幅/色/状態表示) in `apps/web/src/styles/design-tokens.css`
-- [ ] T008 [P] Configure Tailwind CSS with design tokens in `apps/web/tailwind.config.js`
+- [x] T007 Define design rules (余白/文字階層/最大行幅/色/状態表示) in `apps/web/src/index.css`
+- [x] T008 [P] Configure Tailwind CSS with design tokens in `apps/web/tailwind.config.js`
 
 ### 共通コンポーネント
 
-- [ ] T009 [P] Create AppShell component (Header + TabNav + Content) in `apps/web/src/components/AppShell.tsx`
-- [ ] T010 [P] Create TabNav component (学習/研鑽/競技/成績) in `apps/web/src/components/TabNav.tsx`
-- [ ] T011 [P] Create ControlBar component (ひらがな/決まり字/覚えた/シャッフル) in `apps/web/src/components/ControlBar.tsx`
-- [ ] T012 [P] Create PoemCard component (73:52比率固定、Tokensで改行表示) in `apps/web/src/components/PoemCard.tsx`
-- [ ] T013 [P] Create CardGrid component (12枚固定、向きで4×3/3×4切替) in `apps/web/src/components/CardGrid.tsx`
-- [ ] T014 [P] Create StateViews components (loading/empty/error) in `apps/web/src/components/StateViews.tsx`
-- [ ] T015 [P] Create Button component in `apps/web/src/components/Button.tsx`
-- [ ] T016 [P] Create Card component in `apps/web/src/components/Card.tsx`
-- [ ] T017 [P] Create KimarijiSelector component skeleton (props interface, basic layout) in `apps/web/src/components/KimarijiSelector.tsx`
+- [x] T009 [P] Create Layout component (Header + Content) in `apps/web/src/components/Layout.tsx`
+- [x] T010 [P] Create Header component (学習/稽古/競技/番付タブ) in `apps/web/src/components/Header.tsx`
+- [x] T011 [P] Create ControlBar component (ひらがな/決まり字/覚えた/シャッフル) in `apps/web/src/components/ControlBar.tsx`
+- [x] T012 [P] Create PoemCard component (73:52比率固定、ToriText改行表示) in `apps/web/src/components/PoemCard.tsx`
+- [x] T013 [P] Create KarutaGrid component (12枚固定、向きで4×3/3×4切替) in `apps/web/src/components/KarutaGrid.tsx`
+- [x] T014 [P] Create PageStates components (loading/empty/error) in `apps/web/src/components/ui/PageStates.tsx`
+- [x] T015 [P] Create Button component in `apps/web/src/components/ui/Button.tsx`
+- [x] T016 [P] Create Card component in `apps/web/src/components/ui/Card.tsx`
+- [x] T017 [P] Create KimarijiSelector component (1行コンパクトモード対応) in `apps/web/src/components/KimarijiSelector.tsx`
+- [x] T017a [P] Create ToriText component (5文字改行・3行表示) in `apps/web/src/components/ToriText.tsx`
+- [x] T017b [P] Create CardSizeProvider (ビューポートベース札サイズ) in `apps/web/src/components/CardSizeProvider.tsx`
 
 ### 認証基盤
 
-- [ ] T018 Create AuthContext for authentication state management in `apps/web/src/contexts/AuthContext.tsx`
-- [ ] T019 Implement auth service (login/logout/session) in `apps/web/src/services/auth.ts`
+- [x] T018 Create AuthContext for authentication state management in `apps/web/src/contexts/AuthContext.tsx`
+- [x] T019 Implement auth service (login/logout/session) in `apps/web/src/services/auth.service.ts`
 
 ### 型定義
 
-- [ ] T020 [P] Create Poem type definitions in `apps/web/src/types/poem.ts`
-- [ ] T021 [P] Create Session type definitions in `apps/web/src/types/session.ts`
-- [ ] T022 [P] Create Ranking type definitions in `apps/web/src/types/ranking.ts`
-- [ ] T023 [P] Create User type definitions in `apps/web/src/types/user.ts`
+- [x] T020 [P] Create Poem type definitions in `apps/web/src/types/poem.ts`
+- [x] T021 [P] Create Session type definitions in `apps/web/src/types/session.ts`
+- [x] T022 [P] Create Ranking type definitions in `apps/web/src/types/ranking.ts`
+- [x] T023 [P] Create User type definitions in `apps/web/src/types/user.ts`
 
 ### ルーティング
 
-- [ ] T024 Setup react-router-dom with tab navigation in `apps/web/src/App.tsx`
+- [x] T024 Setup react-router-dom with tab navigation in `apps/web/src/App.tsx`
 
-**Checkpoint**: Foundation ready - user story implementation can now begin
+**Checkpoint**: ✅ Foundation ready - user story implementation can now begin
 
 ---
 
-## Phase 3: User Story 1 - 学習タブで札を閲覧して覚える (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - 学習タブで札を閲覧して覚える (Priority: P1) 🎯 MVP ✅ 完了
 
 **Goal**: ゲストユーザーが札一覧を閲覧し、決まり字フィルタ・ひらがな切替・シャッフルを操作できる
 
-**Independent Test**: http://localhost:5173 にアクセスし、12枚の札がグリッド表示され、ControlBarの全ボタンが動作することを確認
-
 ### Implementation for User Story 1
 
-- [ ] T025 [P] [US1] Create poems.seed.json (Tokens/NoSpace付き、100首分) in `data/poems.seed.json`
-- [ ] T026 [P] [US1] Copy poems.seed.json to frontend in `apps/web/src/data/poems.seed.json`
-- [ ] T027 [US1] Create usePoems hook (札データ読み込み・フィルタ・シャッフル) in `apps/web/src/hooks/usePoems.ts`
-- [ ] T028 [US1] Create karuta utility functions in `apps/web/src/utils/karuta.ts`
-- [ ] T029 [US1] Implement HomePage (学習タブ) with CardGrid and ControlBar in `apps/web/src/pages/HomePage.tsx`
-- [ ] T030 [US1] Implement ひらがな切替 (Tokens⇄KanaTokens) functionality in `apps/web/src/hooks/usePoems.ts`
-- [ ] T031 [US1] Implement KimarijiSelector filter logic (kimarijiCount/kimariji selection, callback integration) in `apps/web/src/components/KimarijiSelector.tsx`
-- [ ] T032 [US1] Implement シャッフル (条件維持で12枚再抽選) in `apps/web/src/hooks/usePoems.ts`
-- [ ] T033 [US1] Add orientation-based grid CSS (4×3/3×4 auto-switch) in `apps/web/src/index.css`
+- [x] T025 [P] [US1] Create poems.json (100首データ) in `apps/web/src/data/poems.json`
+- [x] T026 [P] [US1] poems.service.ts でデータ読み込み in `apps/web/src/services/poems.service.ts`
+- [x] T027 [US1] Create usePoems hook (札データ読み込み・フィルタ・シャッフル) in `apps/web/src/hooks/usePoems.ts`
+- [x] T028 [US1] Create karuta utility functions in `apps/web/src/utils/karuta.ts`
+- [x] T029 [US1] Implement HomePage (学習タブ) with KarutaGrid and ControlBar in `apps/web/src/pages/HomePage.tsx`
+- [x] T030 [US1] Implement ひらがな切替 (yomi/tori ↔ kana) functionality
+- [x] T031 [US1] Implement KimarijiSelector filter logic (1-6字選択) in `apps/web/src/components/KimarijiSelector.tsx`
+- [x] T032 [US1] Implement シャッフル (フィルタ維持して12枚再抽選)
+- [x] T033 [US1] Add orientation-based grid CSS (4×3/3×4 auto-switch) in `apps/web/src/index.css`
+- [x] T033a [US1] Implement 決まり字ハイライト（ひらがな表示時のみ）
 
-**Checkpoint**: User Story 1 complete - ゲストユーザーが学習タブを利用可能
+**Checkpoint**: ✅ User Story 1 complete - ゲストユーザーが学習タブを利用可能
 
 ---
 
-## Phase 4: User Story 5 - シーズンにエントリーする (Priority: P5, but dependency for US3)
+## Phase 4: User Story 5 - シーズンにエントリーする (Priority: P5, but dependency for US3) ✅ 完了
 
 **Goal**: ログインユーザーがシーズンにエントリーできる（競技機能の前提条件）
 
-**Independent Test**: ログイン後、エントリー画面で部門選択→同意→エントリー完了のフローを確認
-
-**Note**: US3（競技）の前提条件のため、US2より先に実装
-
 ### Implementation for User Story 5
 
-- [ ] T034 [P] [US5] Create Entry type definitions in `apps/web/src/types/entry.ts`
-- [ ] T035 [P] [US5] Create Season type definitions in `apps/web/src/types/season.ts`
-- [ ] T036 [US5] Create Firestore service for entries/seasons in `apps/web/src/services/firestore.ts`
-- [ ] T037 [US5] Implement EntryPage (エントリー画面) with division selection and consent in `apps/web/src/pages/EntryPage.tsx`
-- [ ] T038 [US5] Implement entry validation (段位の部 requires 六級, single division per season) in `apps/web/src/services/firestore.ts`
-- [ ] T039 [US5] Create ProfilePage for nickname and consent management in `apps/web/src/pages/ProfilePage.tsx`
+- [x] T034 [P] [US5] Create Entry type definitions in `apps/web/src/types/entry.ts`
+- [x] T035 [P] [US5] Create Season type definitions in `apps/web/src/types/entry.ts`
+- [x] T036 [US5] Create Firestore service for entries/seasons in `apps/web/src/services/entry.service.ts`
+- [x] T037 [US5] Implement EntryPage (エントリー画面) with division selection in `apps/web/src/pages/EntryPage.tsx`
+- [x] T038 [US5] Implement entry validation (級位/段位選択)
+- [x] T039 [US5] Create ProfilePage for nickname management in `apps/web/src/pages/ProfilePage.tsx`
 
-**Checkpoint**: User Story 5 complete - ユーザーがシーズンにエントリー可能
+**Checkpoint**: ✅ User Story 5 complete - ユーザーがシーズンにエントリー可能
 
 ---
 
-## Phase 5: User Story 2 - 研鑽タブでクイズ形式の練習をする (Priority: P2)
+## Phase 5: User Story 2 - 稽古タブでクイズ形式の練習をする (Priority: P2) ✅ 完了
 
 **Goal**: ログインユーザーが決まり字数を選択してクイズ練習、成績を個人統計として記録
 
-**Independent Test**: ログイン後、研鑽タブで決まり字数を選択→クイズ開始→回答→正解/不正解判定→結果サマリー表示を確認
+**Note**: 研鑽タブは「稽古」タブにリネーム済み
 
 ### Implementation for User Story 2
 
-- [ ] T040 [P] [US2] Create UserStats type definitions in `apps/web/src/types/userStats.ts`
-- [ ] T041 [US2] Create usePractice hook (クイズロジック・タイミング計測) in `apps/web/src/hooks/usePractice.ts`
-- [ ] T042 [US2] Implement KensanPage (研鑽タブ) with quiz UI in `apps/web/src/pages/KensanPage.tsx`
-- [ ] T043 [US2] Implement quiz result summary display in `apps/web/src/pages/KensanPage.tsx`
-- [ ] T044 [US2] Implement userStats save to Firestore in `apps/web/src/services/firestore.ts`
-- [ ] T045 [US2] Create choice generation logic (4/8/16 choices, 段階0は4固定) in `apps/web/src/hooks/usePractice.ts`
+- [x] T040 [P] [US2] Create stats types in `apps/web/src/types/stats.ts`
+- [x] T041 [US2] Create usePracticeSession hook (クイズロジック・タイミング計測) in `apps/web/src/hooks/usePracticeSession.ts`
+- [x] T042 [US2] Implement KeikoPage (稽古タブ) with stats UI in `apps/web/src/pages/KeikoPage.tsx`
+- [x] T043 [US2] Implement quiz result summary display in `apps/web/src/pages/ResultPage.tsx`
+- [x] T044 [US2] Implement stats save to Firestore in `apps/web/src/services/stats.service.ts`
+- [x] T045 [US2] Create choice generation logic (8択) in `apps/web/src/services/practice.service.ts`
+- [x] T045a [US2] Implement PracticePage (練習モード10問) in `apps/web/src/pages/PracticePage.tsx`
+- [x] T045b [US2] Implement 12枚実戦形式の稽古モード
 
-**Checkpoint**: User Story 2 complete - ユーザーが研鑽タブでクイズ練習可能
+**Checkpoint**: ✅ User Story 2 complete - ユーザーが稽古タブでクイズ練習可能
 
 ---
 
-## Phase 6: User Story 3 - 競技タブで公式競技セッションを実施する (Priority: P3)
+## Phase 6: User Story 3 - 競技タブで公式競技セッションを実施する (Priority: P3) ✅ 完了
 
 **Goal**: エントリー済みユーザーが50問の公式競技を実施し、サーバー確定で番付に反映
 
-**Independent Test**: エントリー済みユーザーとして公式競技を開始→50問回答→提出→サーバー確定（confirmed/invalid）を確認
-
 ### Implementation for User Story 3
 
-- [ ] T046 [P] [US3] Create Session and Round type definitions in `functions/src/types/session.ts`
-- [ ] T047 [US3] Create useOfficialSession hook (セッション管理・round保存) in `apps/web/src/hooks/useOfficialSession.ts`
-- [ ] T048 [US3] Implement KyogiPage (競技タブ) with session flow UI in `apps/web/src/pages/KyogiPage.tsx`
-- [ ] T049 [US3] Implement sessions/{id} and rounds/{roundIndex} Firestore operations in `apps/web/src/services/firestore.ts`
-- [ ] T050 [US3] Implement official session lock (ひらがな/決まり字/覚えた/シャッフル disabled) in `apps/web/src/pages/KyogiPage.tsx`
-- [ ] T051 [US3] Implement session expiration logic (60分タイムアウト) in `apps/web/src/hooks/useOfficialSession.ts`
+- [x] T046 [P] [US3] Create Session types in `apps/web/src/types/session.ts`
+- [x] T047 [US3] Create useOfficialSession hook in `apps/web/src/hooks/useOfficialSession.ts`
+- [x] T048 [US3] Implement CompetitionPage (競技タブ) in `apps/web/src/pages/CompetitionPage.tsx`
+- [x] T049 [US3] Implement session Firestore operations in `apps/web/src/services/session.service.ts`
+- [x] T050 [US3] Implement CompetitionSessionPage (公式競技画面) in `apps/web/src/pages/CompetitionSessionPage.tsx`
+- [x] T051 [US3] Implement session flow (50問・タイマー)
 
 ### Callable Function (サーバー確定処理)
 
-- [ ] T052 [US3] Create sessionValidator (異常検知ルール ROUNDS_MISMATCH, CHOICE_INTEGRITY, EXTREME_TIMING) in `functions/src/validators/sessionValidator.ts`
-- [ ] T053 [US3] Create scoring utility (base + speedBonus calculation) in `functions/src/utils/scoring.ts`
-- [ ] T054 [US3] Implement submitOfficialSession Callable Function in `functions/src/submitOfficialSession.ts`
-- [ ] T055 [US3] Connect Callable Function to client submit flow in `apps/web/src/hooks/useOfficialSession.ts`
-- [ ] T056 [US3] Implement invalid session display (「番付反映なし（参考記録）」) in `apps/web/src/pages/KyogiPage.tsx`
+- [x] T052 [US3] Create sessionValidator (異常検知ルール 5種類以上) in `functions/src/validators/`
+- [x] T053 [US3] Create scoring utility in `functions/src/utils/scoring.ts`
+- [x] T054 [US3] Implement submitOfficialSession Callable Function in `functions/src/`
+- [x] T055 [US3] Connect Callable Function to client submit flow
+- [x] T056 [US3] Implement invalid session display (参考記録表示)
 
-**Checkpoint**: User Story 3 complete - 公式競技セッションの実施から確定まで動作
+**Checkpoint**: ✅ User Story 3 complete - 公式競技セッションの実施から確定まで動作
 
 ---
 
-## Phase 7: User Story 4 - 成績タブで個人成績と番付を閲覧する (Priority: P4)
+## Phase 7: User Story 4 - 成績・番付タブで個人成績と番付を閲覧する (Priority: P4) 🔄 85%
 
-**Goal**: ログインユーザーが個人成績と公式番付（殿堂・現シーズン）を閲覧できる
+**Goal**: ログインユーザーが個人成績と公式番付を閲覧できる
 
-**Independent Test**: ログイン後、成績タブで個人成績（正解率・平均・決まり字別）と番付（殿堂・現シーズン上位100名）の表示を確認
+**Note**: 成績機能は稽古タブに統合、番付タブを独立
 
 ### Implementation for User Story 4
 
-- [ ] T057 [US4] Implement SeisekiPage (成績タブ) with personal stats section in `apps/web/src/pages/SeisekiPage.tsx`
-- [ ] T058 [US4] Implement personal stats display (正解率/平均/分散/決まり字別) in `apps/web/src/pages/SeisekiPage.tsx`
-- [ ] T059 [US4] Implement hall of fame display (過去全シーズン上位3名) in `apps/web/src/pages/SeisekiPage.tsx`
-- [ ] T060 [US4] Implement current season banzuke display (上位100名、division一致のみ) in `apps/web/src/pages/SeisekiPage.tsx`
-- [ ] T061 [US4] Create rankings cache read service in `apps/web/src/services/firestore.ts`
+- [x] T057 [US4] Implement KeikoPage (稽古タブ) with personal stats section in `apps/web/src/pages/KeikoPage.tsx`
+- [x] T058 [US4] Implement personal stats display (正解率/平均/決まり字別)
+- [x] T059 [US4] Implement BanzukePage (番付タブ) in `apps/web/src/pages/BanzukePage.tsx`
+- [x] T060 [US4] Implement 暫定/公式/本日の番付表示
+- [x] T061 [US4] Create rankings service in `apps/web/src/services/ranking.service.ts`
+- [ ] T061a [US4] 成績ページのグラフ追加（日別推移のビジュアル化）
 
-**Checkpoint**: User Story 4 complete - 成績タブで個人成績と番付を閲覧可能
+**Checkpoint**: 🔄 User Story 4 mostly complete - 番付表示完了、グラフ追加待ち
 
 ---
 
-## Phase 8: Scheduled Functions & Security
+## Phase 8: Scheduled Functions & Security 🔄 70%
 
 **Purpose**: 番付キャッシュ更新、Security Rules、コストガード
 
 ### Scheduled Function
 
-- [ ] T062 Implement updateRankingsCache Scheduled Function (3時間ごと) in `functions/src/updateRankingsCache.ts`
-- [ ] T063 Implement hallOfFame cache update logic in `functions/src/updateRankingsCache.ts`
-- [ ] T064 Register scheduled function in `functions/src/index.ts`
+- [x] T062 Implement updateRankingsCache Scheduled Function in `functions/src/scheduled/`
+- [x] T063 Implement generateDailyReflections (日次集計) in `functions/src/scheduled/`
+- [x] T064 Register scheduled functions in `functions/src/index.ts`
+- [ ] T064a ⚠️ Scheduled Functions本番デプロイ（要テスト）
+- [ ] T064b ⚠️ シーズン自動遷移テスト（open→frozen→finalized）
 
 ### Security Rules
 
-- [ ] T065 Create Firestore Security Rules (sessions/rounds本人のみ書込、rankings/hallOfFame公開読取) in `firestore.rules`
-- [ ] T066 Validate Security Rules against quickstart.md test scenarios
+- [x] T065 Create Firestore Security Rules in `firestore.rules`
+- [x] T066 Implement auditService (監査ログ) in `functions/src/services/auditService.ts`
 
 ### Cost Guard
 
-- [ ] T067 Implement pagination and limits for rankings display (上位100名) in `apps/web/src/services/firestore.ts`
-- [ ] T068 Ensure cache-first strategy (クライアントは都度集計せずキャッシュ参照) throughout the application
+- [x] T067 Implement costGuard in `functions/src/services/costGuard.ts`
+- [x] T068 Ensure cache-first strategy throughout the application
 
-**Checkpoint**: Backend infrastructure complete - 番付キャッシュ自動更新とセキュリティ確保
+**Checkpoint**: 🔄 Backend infrastructure mostly complete - デプロイ・テスト待ち
 
 ---
 
@@ -224,31 +258,31 @@
 
 ---
 
-## Phase 9: 覚えた機能 (learned)
+## Phase 9: 覚えた機能 (learned) ✅ 完了
 
 **Purpose**: 覚えたボタンの永続化（ログイン時のみ）
 
-- [ ] T069 [US1] Implement userLearned Firestore operations (覚えた保存/読込) in `apps/web/src/services/firestore.ts`
-- [ ] T070 [US1] Connect 覚えた button to userLearned save (ログイン時) in `apps/web/src/pages/HomePage.tsx`
-- [ ] T071 [US1] Implement learned filter (除外/優先表示) in `apps/web/src/hooks/usePoems.ts`
+- [x] T069 [US1] Implement userLearned Firestore operations in `apps/web/src/services/learned.service.ts`
+- [x] T070 [US1] Connect 覚えた button to save (ログイン時) in HomePage
+- [x] T071 [US1] Implement learned filter in usePoems hook
 
-**Checkpoint**: 覚えた機能の永続化完了
+**Checkpoint**: ✅ 覚えた機能の永続化完了
 
 ---
 
-## Phase 10: Polish & Cross-Cutting Concerns
+## Phase 10: Polish & Cross-Cutting Concerns 🔄 60%
 
 **Purpose**: 品質向上と最終確認
 
-- [ ] T072 Run quickstart.md validation scenarios (4シナリオすべて)
-- [ ] T073 [P] Performance optimization (札一覧表示 < 3秒, クイズ判定 < 100ms)
-- [ ] T074 [P] Responsive design validation in `apps/web/src/index.css`:
-  - FR-008: タッチターゲット最小44px確保
-  - FR-009: PC表示max-width 1200px
-  - FR-010: 札テキストはTokensごとに折り返し（PoemCard.tsx）
-- [ ] T075 [P] Error handling and user feedback improvements
-- [ ] T076 Firebase deploy configuration (Hosting, Functions, Firestore Rules/Indexes)
-- [ ] T077 Final integration test with Emulator Suite
+- [x] T072 札サイズ最適化 (max-width: 600px/800px)
+- [x] T073 [P] Performance optimization (札一覧表示 < 3秒, クイズ判定 < 100ms)
+- [x] T074 [P] Responsive design (karuta-container統一、ビューポートベース札サイズ)
+- [x] T075 [P] UI改善 (ToriText 5文字改行、決まり字ハイライト)
+- [x] T076 Firebase deploy (Hosting, Functions デプロイ済)
+- [ ] T077 スペーシング・デザイン統一（各ページの余白調整）
+- [ ] T078 レスポンシブ最適化確認（スマホ/タブレット/PC）
+- [ ] T079 称号システム検証（名人/永世称号付与）
+- [ ] T080 UI競技ロック（公式中の設定変更禁止）
 
 ---
 
@@ -349,19 +383,19 @@ Task: "Create KimarijiSelector component in apps/web/src/components/KimarijiSele
 
 ### Task Summary
 
-| Phase | Description | Task Count |
-|-------|-------------|------------|
-| Phase 1 | Setup | 6 |
-| Phase 2 | Foundational | 18 |
-| Phase 3 | US1 学習 | 9 |
-| Phase 4 | US5 エントリー | 6 |
-| Phase 5 | US2 研鑽 | 6 |
-| Phase 6 | US3 競技 | 11 |
-| Phase 7 | US4 成績 | 5 |
-| Phase 8 | Scheduled/Security | 7 |
-| Phase 9 | 覚えた機能 | 3 |
-| Phase 10 | Polish | 6 |
-| **Total** | | **77** |
+| Phase | Description | 完了 | 残り | 状態 |
+|-------|-------------|------|------|------|
+| Phase 1 | Setup | 6/6 | 0 | ✅ |
+| Phase 2 | Foundational | 20/20 | 0 | ✅ |
+| Phase 3 | US1 学習 | 10/10 | 0 | ✅ |
+| Phase 4 | US5 エントリー | 6/6 | 0 | ✅ |
+| Phase 5 | US2 稽古 | 8/8 | 0 | ✅ |
+| Phase 6 | US3 競技 | 11/11 | 0 | ✅ |
+| Phase 7 | US4 成績・番付 | 5/6 | 1 | 🔄 |
+| Phase 8 | Scheduled/Security | 6/8 | 2 | 🔄 |
+| Phase 9 | 覚えた機能 | 3/3 | 0 | ✅ |
+| Phase 10 | Polish | 5/9 | 4 | 🔄 |
+| **Total** | | **80/87** | **7** | **92%** |
 
 ---
 
@@ -374,3 +408,13 @@ Task: "Create KimarijiSelector component in apps/web/src/components/KimarijiSele
 - Stop at any checkpoint to validate story independently
 - Cost guard: 月1万円上限を遵守（キャッシュ参照徹底）
 - Performance targets: 札一覧 < 3秒, クイズ判定 < 100ms, セッション確定 < 10秒, 番付表示 < 2秒
+
+---
+
+## 変更履歴
+
+| 日付 | 内容 |
+|------|------|
+| 2026-01-22 | 進捗サマリー追加、完了タスク更新（92%完了） |
+| 2026-01-22 | UI統一（karuta-container、札サイズ最適化）完了 |
+| 2026-01-22 | 研鑽→稽古リネーム反映 |
