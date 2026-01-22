@@ -5,6 +5,7 @@ import { KarutaGrid } from '@/components/KarutaGrid';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { ControlBar } from '@/components/ControlBar';
+import { POEM_RANGES } from '@/components/PoemRangeSelector';
 import { cn } from '@/lib/utils';
 import type { Poem } from '@/types/poem';
 import type { PracticeFilter } from '@/services/practice.service';
@@ -12,19 +13,36 @@ import type { PracticeFilter } from '@/services/practice.service';
 export function PracticePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [showKanaOnly, setShowKanaOnly] = useState(false);
+  const [showYomiKana, setShowYomiKana] = useState(false);
+  const [showToriKana, setShowToriKana] = useState(false);
   const [showKimariji, setShowKimariji] = useState(false);
 
   // Parse filter from URL params
   const filter: PracticeFilter | undefined = useMemo(() => {
+    const result: PracticeFilter = {};
+
+    // Parse kimariji filter
     const kimarijiParam = searchParams.get('kimariji');
     if (kimarijiParam) {
       const counts = kimarijiParam.split(',').map(Number).filter(n => !isNaN(n) && n >= 1 && n <= 6);
       if (counts.length > 0) {
-        return { kimarijiCounts: counts };
+        result.kimarijiCounts = counts;
       }
     }
-    return undefined;
+
+    // Parse poem range filter (format: range=1-20,21-40)
+    const rangeParam = searchParams.get('range');
+    if (rangeParam) {
+      const ranges = rangeParam.split(',').map(r => {
+        const [start, end] = r.split('-').map(Number);
+        return { start, end };
+      }).filter(r => !isNaN(r.start) && !isNaN(r.end) && r.start >= 1 && r.end <= 100);
+      if (ranges.length > 0) {
+        result.poemRanges = ranges;
+      }
+    }
+
+    return Object.keys(result).length > 0 ? result : undefined;
   }, [searchParams]);
 
   const {
@@ -75,7 +93,7 @@ export function PracticePage() {
   const totalQuestions = session.questions.length;
 
   // ひらがな表示用の読み
-  const displayYomi = showKanaOnly ? currentQuestion.poem.yomiKana : currentQuestion.poem.yomi;
+  const displayYomi = showYomiKana ? currentQuestion.poem.yomiKana : currentQuestion.poem.yomi;
 
   // KarutaGrid用のpoemId
   const correctPoemId = currentQuestion.choicePoems[currentQuestion.correctIndex]?.poemId;
@@ -96,7 +114,7 @@ export function PracticePage() {
     const kimarijiLength = poem.kimarijiCount;
 
     // ひらがな表示の場合、yomiKanaの先頭から決まり字の文字数分を強調
-    const yomiText = showKanaOnly ? poem.yomiKana : poem.yomi;
+    const yomiText = showYomiKana ? poem.yomiKana : poem.yomi;
 
     // 決まり字部分を抽出（スペースを除いた文字数でカウント）
     let charCount = 0;
@@ -127,9 +145,18 @@ export function PracticePage() {
   };
 
   // フィルタ情報の表示
-  const filterLabel = filter?.kimarijiCounts
-    ? filter.kimarijiCounts.map(n => `${n}字`).join('・')
-    : '全て';
+  const filterLabels: string[] = [];
+  if (filter?.kimarijiCounts) {
+    filterLabels.push(filter.kimarijiCounts.map(n => `${n}字`).join('・'));
+  }
+  if (filter?.poemRanges) {
+    const rangeLabels = filter.poemRanges.map(r => {
+      const predefined = POEM_RANGES.find(pr => pr.start === r.start && pr.end === r.end);
+      return predefined ? predefined.label : `${r.start}-${r.end}`;
+    });
+    filterLabels.push(rangeLabels.join('・'));
+  }
+  const filterLabel = filterLabels.length > 0 ? filterLabels.join(' / ') : '全て';
 
   return (
     <div className="karuta-container space-y-1 py-2 text-foreground">
@@ -151,8 +178,10 @@ export function PracticePage() {
 
           {/* コントロールバー */}
           <ControlBar
-            showKana={showKanaOnly}
-            onToggleKana={() => setShowKanaOnly(!showKanaOnly)}
+            showYomiKana={showYomiKana}
+            onToggleYomiKana={() => setShowYomiKana(!showYomiKana)}
+            showToriKana={showToriKana}
+            onToggleToriKana={() => setShowToriKana(!showToriKana)}
             showKimariji={showKimariji}
             onToggleKimariji={() => setShowKimariji(!showKimariji)}
           />
@@ -200,7 +229,7 @@ export function PracticePage() {
       <div>
         <KarutaGrid
           poems={currentQuestion.choicePoems}
-          showKana={showKanaOnly}
+          showKana={showToriKana}
           selectedPoemId={selectedPoemId}
           correctPoemId={currentQuestion.answered ? correctPoemId : undefined}
           wrongPoemId={wrongPoemId}

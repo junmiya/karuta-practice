@@ -12,17 +12,21 @@ export function Practice12Page() {
     correctPoemId,
     selectedPoemId,
     correctPoem,
-    showKana,
+    showYomiKana,
+    showToriKana,
     showKimariji,
     kimarijiFilter,
+    poemRangeFilter,
     questionCount,
     correctCount,
     isAnswered,
     isCorrect,
     filteredPoemsCount,
-    toggleKana,
+    toggleYomiKana,
+    toggleToriKana,
     toggleKimariji,
     setKimarijiFilter,
+    setPoemRangeFilter,
     shuffle,
     selectPoem,
     nextQuestion,
@@ -48,11 +52,11 @@ export function Practice12Page() {
   const renderYomi = () => {
     if (!correctPoem) return null;
 
-    const yomiTokens = showKana
+    const yomiTokens = showYomiKana
       ? (correctPoem.yomiKanaTokens || correctPoem.yomiKana.split(/[\s\u3000]+/))
       : (correctPoem.yomiTokens || correctPoem.yomi.split(/[\s\u3000]+/));
 
-    const yomiText = showKana
+    const yomiText = showYomiKana
       ? (correctPoem.yomiKanaNoSpace || correctPoem.yomiKana.replace(/[\s\u3000]+/g, ''))
       : (correctPoem.yomiNoSpace || correctPoem.yomi.replace(/[\s\u3000]+/g, ''));
 
@@ -100,13 +104,17 @@ export function Practice12Page() {
 
       {/* Controls */}
       <PracticeControls
-        showKana={showKana}
+        showYomiKana={showYomiKana}
+        showToriKana={showToriKana}
         showKimariji={showKimariji}
         kimarijiFilter={kimarijiFilter}
-        onToggleKana={toggleKana}
+        poemRangeFilter={poemRangeFilter}
+        onToggleYomiKana={toggleYomiKana}
+        onToggleToriKana={toggleToriKana}
         onToggleKimariji={toggleKimariji}
         onShuffle={shuffle}
         onKimarijiFilterChange={setKimarijiFilter}
+        onPoemRangeFilterChange={setPoemRangeFilter}
       />
 
       {/* Yomi display - コンパクト */}
@@ -137,7 +145,7 @@ export function Practice12Page() {
       {/* 12-card grid */}
       <KarutaGrid
         poems={selectedPoems}
-        showKana={showKana}
+        showKana={showToriKana}
         selectedPoemId={selectedPoemId}
         correctPoemId={isAnswered ? correctPoemId : null}
         wrongPoemId={isAnswered && !isCorrect ? selectedPoemId : null}

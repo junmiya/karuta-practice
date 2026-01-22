@@ -9,15 +9,18 @@ import { Heading, Text } from '@/components/ui/Typography';
 import { PoemDetailModal } from '@/components/PoemDetailModal';
 import { Container } from '@/components/ui/Container';
 import { KimarijiSelector } from '@/components/KimarijiSelector';
+import { PoemRangeSelector, type PoemRange } from '@/components/PoemRangeSelector';
 import { ControlBar } from '@/components/ControlBar';
 import type { Poem } from '@/types/poem';
 
 export function CardsListPage() {
   const navigate = useNavigate();
-  const [showKana, setShowKana] = useState(false);
+  const [showYomiKana, setShowYomiKana] = useState(false);
+  const [showToriKana, setShowToriKana] = useState(false);
   const [showKimariji, setShowKimariji] = useState(true);
   const [displayCount, setDisplayCount] = useState<12 | 100>(12);
   const [selectedKimariji, setSelectedKimariji] = useState<number[]>([]);
+  const [selectedPoemRange, setSelectedPoemRange] = useState<PoemRange[]>([]);
   const [searchText, setSearchText] = useState('');
   const [selectedPoem, setSelectedPoem] = useState<Poem | null>(null);
 
@@ -29,6 +32,13 @@ export function CardsListPage() {
     // Filter by kimariji count
     if (selectedKimariji.length > 0) {
       result = result.filter(p => selectedKimariji.includes(p.kimarijiCount));
+    }
+
+    // Filter by poem range (order)
+    if (selectedPoemRange.length > 0) {
+      result = result.filter(p =>
+        selectedPoemRange.some(range => p.order >= range.start && p.order <= range.end)
+      );
     }
 
     // Filter by search text
@@ -45,7 +55,7 @@ export function CardsListPage() {
     }
 
     return result;
-  }, [allPoems, selectedKimariji, searchText]);
+  }, [allPoems, selectedKimariji, selectedPoemRange, searchText]);
 
   // Display poems (limited by displayCount)
   const displayPoems = useMemo(() => {
@@ -101,6 +111,15 @@ export function CardsListPage() {
             />
           </div>
 
+          {/* Poem Range Filter */}
+          <div>
+            <PoemRangeSelector
+              selected={selectedPoemRange}
+              onChange={setSelectedPoemRange}
+              label="札番号で絞り込み"
+            />
+          </div>
+
           {/* Display Options */}
           <div className="flex flex-wrap items-center gap-2">
             {/* Display Count */}
@@ -121,8 +140,10 @@ export function CardsListPage() {
 
             {/* Control Bar */}
             <ControlBar
-              showKana={showKana}
-              onToggleKana={() => setShowKana(!showKana)}
+              showYomiKana={showYomiKana}
+              onToggleYomiKana={() => setShowYomiKana(!showYomiKana)}
+              showToriKana={showToriKana}
+              onToggleToriKana={() => setShowToriKana(!showToriKana)}
               showKimariji={showKimariji}
               onToggleKimariji={() => setShowKimariji(!showKimariji)}
               className="ml-auto"
@@ -153,7 +174,8 @@ export function CardsListPage() {
               <KarutaCard
                 poem={poem}
                 mode="flip"
-                showKana={showKana}
+                showYomiKana={showYomiKana}
+                showToriKana={showToriKana}
                 showKimariji={showKimariji}
               />
               <Button
