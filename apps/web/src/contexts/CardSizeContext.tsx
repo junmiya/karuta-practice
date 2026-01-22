@@ -33,6 +33,7 @@ const GRID_GAP = 4;
 const GRID_PADDING = 4;
 const MIN_CARD_WIDTH = 60;
 const MAX_CARD_WIDTH = 180;
+const SMARTPHONE_MAX_WIDTH = 640; // スマートフォンの最大幅
 
 const defaultCardSize: CardSize = {
   gridMaxWidth: 600,
@@ -72,10 +73,13 @@ export function CardSizeProvider({ children }: CardSizeProviderProps) {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     const isLandscape = viewportWidth > viewportHeight;
+    const isSmartphone = viewportWidth <= SMARTPHONE_MAX_WIDTH;
 
-    // グリッドレイアウト: 横向き=4×3, 縦向き=3×4
-    const columns = isLandscape ? 4 : 3;
-    const rows = isLandscape ? 3 : 4;
+    // グリッドレイアウト:
+    // - スマートフォン: 向きに応じて切替（横向き=4×3, 縦向き=3×4）
+    // - タブレット/PC: 常に4×3（横4列、縦3行）
+    const columns = isSmartphone ? (isLandscape ? 4 : 3) : 4;
+    const rows = isSmartphone ? (isLandscape ? 3 : 4) : 3;
 
     // 利用可能な高さを計算
     const availableHeight = viewportHeight - headerHeight - controlPanelHeight - BOTTOM_MARGIN;
