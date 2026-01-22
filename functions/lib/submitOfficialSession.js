@@ -46,6 +46,8 @@ const HttpsError = functions.https.HttpsError;
 const scoreCalculator_1 = require("./services/scoreCalculator");
 const sessionValidator_1 = require("./validators/sessionValidator");
 const rankingUpdater_1 = require("./services/rankingUpdater");
+const auditService_1 = require("./services/auditService");
+const costGuard_1 = require("./lib/costGuard");
 const db = admin.firestore();
 // Helper to get JST date key
 function getJstDateKey() {
@@ -58,12 +60,23 @@ function getJstDateKey() {
 exports.submitOfficialSession = functions
     .region('asia-northeast1')
     .https.onCall(async (data, context) => {
+    // Track function invocation
+    (0, costGuard_1.incrementFunctionCount)();
     // 1. Authentication check
     if (!context.auth) {
         throw new HttpsError('unauthenticated', 'ログインが必要です');
     }
     const uid = context.auth.uid;
     const { sessionId } = data;
+    // 2. Cost guard: Check if user is blocked
+    if ((0, costGuard_1.isUserBlocked)(uid)) {
+        throw new HttpsError('resource-exhausted', '一時的にアクセスが制限されています');
+    }
+    // 3. Cost guard: Rate limiting
+    if ((0, costGuard_1.checkSubmitRateLimit)(uid)) {
+        (0, costGuard_1.recordSuspiciousAccess)(uid);
+        throw new HttpsError('resource-exhausted', 'リクエストが多すぎます。しばらく待ってから再試行してください');
+    }
     if (!sessionId) {
         throw new HttpsError('invalid-argument', 'sessionIdが必要です');
     }
@@ -132,9 +145,12 @@ exports.submitOfficialSession = functions
             await sessionRef.update({
                 status: 'invalid',
                 invalidReasons: validationResult.reasons,
+                invalidReasonCodes: validationResult.reasonCodes || [],
                 correctCount,
                 totalElapsedMs,
             });
+            // Audit log for invalidation
+            await (0, auditService_1.logSessionInvalidated)(sessionId, uid, sessionData.seasonId, validationResult.reasons, validationResult.reasonCodes || [], validationResult.ruleVersion || '1.0.0').catch((err) => console.error('Audit log failed:', err));
             return {
                 status: 'invalid',
                 reasons: validationResult.reasons,
@@ -172,6 +188,9 @@ exports.submitOfficialSession = functions
         });
         // 12. Update user stats
         await (0, rankingUpdater_1.updateUserStats)(uid, scoreResult.score);
+        // 13. Audit log for confirmation
+        await (0, auditService_1.logSessionConfirmed)(sessionId, uid, sessionData.seasonId, scoreResult.score, correctCount, '1.1.0' // ruleVersion
+        ).catch((err) => console.error('Audit log failed:', err));
         return {
             status: 'confirmed',
             score: scoreResult.score,

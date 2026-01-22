@@ -22,6 +22,13 @@ export function getAllPoemsSync(): Poem[] {
 }
 
 /**
+ * Get a poem by its ID
+ */
+export function getPoemById(poemId: string): Poem | undefined {
+  return poems.find(p => p.poemId === poemId);
+}
+
+/**
  * Get a random selection of N poems with optional filter
  */
 export function getRandomPoems(count: number, filter?: { kimarijiCounts?: number[] }): Poem[] {

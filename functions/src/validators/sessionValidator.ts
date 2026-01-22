@@ -28,7 +28,12 @@ export type InvalidReason =
 export interface ValidationResult {
   isValid: boolean;
   reasons: InvalidReason[];
+  reasonCodes: string[];
+  ruleVersion: string;
 }
+
+// Current rule version for audit tracking
+export const RULE_VERSION = '1.1.0';
 
 /**
  * Validate a session against 5 anomaly detection rules
@@ -84,6 +89,8 @@ export function validateSession(
   return {
     isValid: reasons.length === 0,
     reasons,
+    reasonCodes: reasons, // InvalidReason types are already code-like
+    ruleVersion: RULE_VERSION,
   };
 }
 

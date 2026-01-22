@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ユーザー
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // 覚えた札
+    match /userLearned/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // エントリー
+    match /entries/{entryId} {
+      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+    }
+
+    // セッション
+    match /sessions/{sessionId} {
+      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow update: if request.auth != null && resource.data.uid == request.auth.uid;
+
+      match /rounds/{roundIndex} {
+        allow read, write: if request.auth != null
+                          && get(/databases/$(database)/documents/sessions/$(sessionId)).data.uid == request.auth.uid;
+      }
+    }
+
+    // シーズン・番付・殿堂（公開読み取り）
+    match /seasons/{seasonId} {
+      allow read: if true;
+    }
+    match /rankings/{id} {
+      allow read: if true;
+    }
+    match /hallOfFame/{id} {
+      allow read: if true;
+    }
+
+    // ユーザー統計
+    match /userStats/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}

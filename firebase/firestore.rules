@@ -83,5 +83,43 @@ service cloud.firestore {
       allow read: if request.auth != null && request.auth.uid == uid;
       allow write: if false; // Only Cloud Functions can write
     }
+
+    // =========================================================================
+    // 段階1: 公式競技運用自動化
+    // =========================================================================
+
+    // banzukeSnapshots: 確定番付スナップショット（公式結果）
+    // - read: 全員（公開情報）
+    // - write: サーバのみ
+    match /banzukeSnapshots/{snapshotId} {
+      allow read: if true;
+      allow write: if false; // Only Cloud Functions can write
+    }
+
+    // dailyReflections: 日次上位3セッション記録
+    // - read: 認証済みユーザーのみ
+    // - write: サーバのみ
+    match /dailyReflections/{reflectionId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Only Cloud Functions can write
+    }
+
+    // titles: 称号履歴
+    // - read: 全員（公開情報）
+    // - write: サーバのみ
+    match /titles/{uid} {
+      allow read: if true;
+      allow write: if false; // Only Cloud Functions can write
+    }
+
+    // auditLogs: 監査ログ
+    // - read: 管理者のみ（将来的にカスタムクレーム実装）
+    // - write: サーバのみ
+    match /auditLogs/{eventId} {
+      // TODO: 管理者カスタムクレーム実装後に変更
+      // allow read: if request.auth != null && request.auth.token.admin == true;
+      allow read: if false; // 現時点では読み取り不可
+      allow write: if false; // Only Cloud Functions can write
+    }
   }
 }

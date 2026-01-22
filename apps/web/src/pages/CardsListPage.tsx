@@ -1,8 +1,16 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllPoemsSync, getPoemCountByKimariji } from '@/services/poems.service';
-import { PoemCard } from '@/components/PoemCard';
+import { getAllPoemsSync } from '@/services/poems.service';
+import { KarutaCard } from '@/components/KarutaCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Heading, Text } from '@/components/ui/Typography';
+import { PoemDetailModal } from '@/components/PoemDetailModal';
+import { Container } from '@/components/ui/Container';
+import { KimarijiSelector } from '@/components/KimarijiSelector';
+import { ControlBar } from '@/components/ControlBar';
+import type { Poem } from '@/types/poem';
 
 export function CardsListPage() {
   const navigate = useNavigate();
@@ -11,10 +19,9 @@ export function CardsListPage() {
   const [displayCount, setDisplayCount] = useState<12 | 100>(12);
   const [selectedKimariji, setSelectedKimariji] = useState<number[]>([]);
   const [searchText, setSearchText] = useState('');
+  const [selectedPoem, setSelectedPoem] = useState<Poem | null>(null);
 
   const allPoems = useMemo(() => getAllPoemsSync(), []);
-  const poemCounts = useMemo(() => getPoemCountByKimariji(), []);
-
   // Filter poems
   const filteredPoems = useMemo(() => {
     let result = allPoems;
@@ -48,35 +55,28 @@ export function CardsListPage() {
     return filteredPoems.slice(0, displayCount);
   }, [filteredPoems, displayCount]);
 
-  const toggleKimariji = (count: number) => {
-    setSelectedKimariji(prev =>
-      prev.includes(count)
-        ? prev.filter(c => c !== count)
-        : [...prev, count].sort()
-    );
-  };
-
   if (!allPoems.length) {
     return <LoadingSpinner fullScreen message="読み込み中..." />;
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <Container size="md" className="space-y-6 py-4">
       {/* Header */}
-      <div className="card">
+      <Card>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-2xl font-bold">百人一首 札一覧</h2>
-            <p className="text-gray-600 text-sm mt-1">
-              タップで上の句⇔下の句を切り替え
-            </p>
+            <Heading as="h2" size="h2" className="mb-1">基本モード</Heading>
+            <Text color="muted" size="sm">
+              百人一首 札一覧 - タップで上の句⇔下の句を切り替え
+            </Text>
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => navigate('/')}
-            className="text-gray-600 hover:text-karuta-red"
           >
             ← 戻る
-          </button>
+          </Button>
         </div>
 
         {/* Filters */}
@@ -88,94 +88,54 @@ export function CardsListPage() {
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               placeholder="歌・作者・決まり字で検索..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-karuta-red"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-karuta-tansei"
             />
           </div>
 
           {/* Kimariji Filter */}
           <div>
-            <p className="text-sm font-medium text-gray-700 mb-2">決まり字で絞り込み</p>
-            <div className="flex flex-wrap gap-2">
-              {[1, 2, 3, 4, 5, 6].map(count => {
-                const isSelected = selectedKimariji.includes(count);
-                const poems = poemCounts[count] || 0;
-                return (
-                  <button
-                    key={count}
-                    onClick={() => toggleKimariji(count)}
-                    className={`px-3 py-1 rounded border text-sm transition-all ${
-                      isSelected
-                        ? 'bg-karuta-red text-white border-karuta-red'
-                        : 'bg-white text-gray-700 border-gray-300 hover:border-karuta-red'
-                    }`}
-                  >
-                    {count}字 ({poems})
-                  </button>
-                );
-              })}
-              {selectedKimariji.length > 0 && (
-                <button
-                  onClick={() => setSelectedKimariji([])}
-                  className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700"
-                >
-                  クリア
-                </button>
-              )}
-            </div>
+            <KimarijiSelector
+              selected={selectedKimariji}
+              onChange={setSelectedKimariji}
+              label="決まり字で絞り込み"
+            />
           </div>
 
           {/* Display Options */}
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-2">
             {/* Display Count */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">表示数:</span>
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-gray-600">表示:</span>
               {([12, 100] as const).map(count => (
-                <button
+                <Button
                   key={count}
+                  variant={displayCount === count ? "primary" : "ghost"}
+                  size="sm"
                   onClick={() => setDisplayCount(count)}
-                  className={`px-3 py-1 rounded text-sm transition-all ${
-                    displayCount === count
-                      ? 'bg-gray-800 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                  className="h-6 px-2 text-xs"
                 >
                   {count === 100 ? '全て' : `${count}枚`}
-                </button>
+                </Button>
               ))}
             </div>
 
-            {/* Toggles */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowKimariji(!showKimariji)}
-                className={`px-3 py-1 border text-sm font-medium transition-all rounded ${
-                  showKimariji
-                    ? 'bg-karuta-gold text-white border-karuta-gold'
-                    : 'bg-white text-gray-700 border-gray-300'
-                }`}
-              >
-                決
-              </button>
-              <button
-                onClick={() => setShowKana(!showKana)}
-                className={`px-3 py-1 border text-sm font-medium transition-all rounded ${
-                  showKana
-                    ? 'bg-karuta-red text-white border-karuta-red'
-                    : 'bg-white text-gray-700 border-gray-300'
-                }`}
-              >
-                {showKana ? 'あ' : '漢'}
-              </button>
-            </div>
+            {/* Control Bar */}
+            <ControlBar
+              showKana={showKana}
+              onToggleKana={() => setShowKana(!showKana)}
+              showKimariji={showKimariji}
+              onToggleKimariji={() => setShowKimariji(!showKimariji)}
+              className="ml-auto"
+            />
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Results Info */}
-      <div className="text-sm text-gray-600">
+      <div className="text-sm text-gray-600 px-1">
         {filteredPoems.length}首中 {displayPoems.length}首を表示
         {selectedKimariji.length > 0 && (
-          <span className="ml-2 text-karuta-red">
+          <span className="ml-2 text-karuta-red font-medium">
             ({selectedKimariji.map(n => `${n}字`).join('・')}決まり)
           </span>
         )}
@@ -185,35 +145,51 @@ export function CardsListPage() {
       {displayPoems.length > 0 ? (
         <div className={
           displayCount === 12
-            ? "grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-4 max-w-4xl mx-auto"
-            : "flex flex-wrap justify-center gap-4"
+            ? "karuta-grid"
+            : "karuta-grid-all"
         }>
           {displayPoems.map(poem => (
-            <PoemCard
-              key={poem.poemId}
-              poem={poem}
-              showKana={showKana}
-              showKimariji={showKimariji}
-            />
+            <div key={poem.poemId} className="flex flex-col gap-2">
+              <KarutaCard
+                poem={poem}
+                mode="flip"
+                showKana={showKana}
+                showKimariji={showKimariji}
+              />
+              <Button
+                variant="secondary"
+                size="sm"
+                fullWidth
+                onClick={() => setSelectedPoem(poem)}
+                className="h-8 text-xs bg-blue-50 border-blue-100 text-karuta-tansei hover:bg-blue-100"
+              >
+                <span className="mr-1 text-sm">✨</span> 解説
+              </Button>
+            </div>
           ))}
         </div>
       ) : (
-        <div className="card text-center py-12">
+        <Card centered className="py-12">
           <p className="text-gray-500">該当する札がありません</p>
-        </div>
+        </Card>
+      )}
+
+      {selectedPoem && (
+        <PoemDetailModal
+          poem={selectedPoem}
+          onClose={() => setSelectedPoem(null)}
+        />
       )}
 
       {/* Show More */}
       {displayCount !== 100 && filteredPoems.length > displayCount && (
-        <div className="text-center">
-          <button
-            onClick={() => setDisplayCount(100)}
-            className="btn-secondary"
-          >
+        <div className="text-center py-4">
+          <Button variant="secondary" onClick={() => setDisplayCount(100)}>
             すべて表示 ({filteredPoems.length}首)
-          </button>
+          </Button>
         </div>
       )}
-    </div>
+    </Container>
   );
 }
+

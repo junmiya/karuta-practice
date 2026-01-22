@@ -3,7 +3,6 @@ import { onAuthStateChanged, type User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/services/firebase';
 import {
   signInWithGoogle,
-  signInAnonymous,
   signUpWithEmail,
   signInWithEmail,
   signOut,
@@ -76,20 +75,6 @@ export function useAuth() {
         ...prev,
         loading: false,
         error: 'Google login failed',
-      }));
-    }
-  }, []);
-
-  const loginAnonymously = useCallback(async () => {
-    setState((prev) => ({ ...prev, loading: true, error: null }));
-    try {
-      await signInAnonymous();
-    } catch (err) {
-      console.error('Anonymous login error:', err);
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        error: '匿名ログインに失敗しました',
       }));
     }
   }, []);
@@ -168,7 +153,6 @@ export function useAuth() {
     isProfileComplete:
       !!state.userProfile?.nickname && state.userProfile?.banzukeConsent,
     loginWithGoogle,
-    loginAnonymously,
     loginWithEmail,
     registerWithEmail,
     logout,

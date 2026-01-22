@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { Header } from './Header';
+import { Container } from './ui/Container';
 
 interface LayoutProps {
   children: ReactNode;
@@ -9,18 +10,22 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl">
+      <main className="flex-1 py-4">
+        {/* Note: Children pages are responsible for their own Container/Layout logic if needed, 
+            but usually we want a default container. The previous implementation had a container here. 
+            We can keep it or let pages define it. 
+            Given the request for unification, let's keep a default Container but check if nested containers cause issues.
+            Actually, the previous code had `container mx-auto px-4 max-w-6xl`. 
+            Our Container default is max-w-7xl, can pass className.
+        */}
         {children}
       </main>
       <footer className="bg-white border-t border-neutral-200 mt-auto">
-        <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <Container className="py-4">
           <div className="text-center text-sm text-neutral-700">
-            <p className="font-medium">百人一首 AI競技カルタ</p>
-            <p className="mt-2 text-xs text-neutral-700">
-              練習モードのみ実装中 | 認証・公式提出・番付機能は開発中
-            </p>
+            <p className="font-medium">百人一首 カルタ番付</p>
           </div>
-        </div>
+        </Container>
       </footer>
     </div>
   );

@@ -11,6 +11,11 @@ interface KarutaGridProps {
   onSelect?: (poem: Poem) => void;
 }
 
+/**
+ * 12枚の取札グリッド
+ * 練習・公式競技で使用
+ * カードサイズはCardSizeProviderがグローバルに管理
+ */
 export function KarutaGrid({
   poems,
   showKana,
@@ -30,6 +35,7 @@ export function KarutaGrid({
         <KarutaCard
           key={poem.poemId}
           poem={poem}
+          mode="tori"
           showKana={showKana}
           isSelected={selectedPoemId === poem.poemId}
           isCorrect={correctPoemId === poem.poemId}

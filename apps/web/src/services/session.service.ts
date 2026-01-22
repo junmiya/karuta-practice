@@ -12,7 +12,7 @@ import {
   // Timestamp,
 } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
-import { db, functions } from './firebase';
+import { db, functions, auth } from './firebase';
 import type { Session, Round, SessionStatus } from '@/types/session';
 
 const SESSIONS_COLLECTION = 'sessions';
@@ -120,17 +120,66 @@ export interface SubmitResponse {
 export async function submitSession(
   sessionId: string
 ): Promise<SubmitResponse> {
+  console.log('[submitSession] Starting submission for session:', sessionId);
+
+  // Verify user is authenticated before calling Cloud Function
+  const currentUser = auth.currentUser;
+  console.log('[submitSession] Current user:', currentUser?.uid || 'null');
+
+  if (!currentUser) {
+    throw new Error('認証が必要です。再ログインしてください。');
+  }
+
+  // Force token refresh to ensure we have a valid token
+  try {
+    const token = await currentUser.getIdToken(true);
+    console.log('[submitSession] Token refreshed, length:', token.length);
+  } catch (tokenError) {
+    console.error('[submitSession] Token refresh failed:', tokenError);
+    throw new Error('認証トークンの更新に失敗しました。再ログインしてください。');
+  }
+
   // First update local status to submitted
+  console.log('[submitSession] Updating session status to submitted');
   await updateSessionStatus(sessionId, 'submitted');
 
   // Call the Cloud Function
+  console.log('[submitSession] Calling Cloud Function...');
   const submitOfficialSession = httpsCallable<
     { sessionId: string },
     SubmitResponse
   >(functions, 'submitOfficialSession');
 
-  const result = await submitOfficialSession({ sessionId });
-  return result.data;
+  try {
+    const result = await submitOfficialSession({ sessionId });
+    console.log('[submitSession] Success:', result.data);
+    return result.data;
+  } catch (error: unknown) {
+    console.error('[submitSession] Cloud Function error:', error);
+    console.error('[submitSession] Error type:', typeof error);
+    console.error('[submitSession] Error keys:', error ? Object.keys(error as object) : 'null');
+
+    // Check for Firebase Functions error
+    const fbError = error as { code?: string; message?: string; details?: unknown };
+    console.error('[submitSession] Error code:', fbError.code);
+    console.error('[submitSession] Error message:', fbError.message);
+    console.error('[submitSession] Error details:', fbError.details);
+
+    if (fbError.code === 'functions/unauthenticated') {
+      throw new Error('認証が必要です。再ログインしてください。');
+    }
+    if (fbError.code === 'functions/permission-denied') {
+      throw new Error('権限がありません。');
+    }
+    if (fbError.code === 'functions/not-found') {
+      throw new Error('セッションが見つかりません。');
+    }
+
+    // Show more detailed error for debugging
+    const errorMsg = fbError.message || '不明なエラー';
+    const errorCode = fbError.code || 'unknown';
+    throw new Error(`提出エラー [${errorCode}]: ${errorMsg}`);
+  }
 }
 
 /**

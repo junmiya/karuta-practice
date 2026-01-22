@@ -2,6 +2,11 @@ import { useEffect, useCallback } from 'react';
 import { KarutaGrid } from '@/components/KarutaGrid';
 import { PracticeControls } from '@/components/PracticeControls';
 import { usePractice } from '@/hooks/usePractice';
+import { Container } from '@/components/ui/Container';
+import { Card } from '@/components/ui/Card';
+import { Heading, Text } from '@/components/ui/Typography';
+import { Badge } from '@/components/ui/Badge';
+import { cn } from '@/lib/utils';
 import type { Poem } from '@/types/poem';
 
 export function Practice12Page() {
@@ -82,24 +87,26 @@ export function Practice12Page() {
     : 0;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
+    <Container className="py-6 space-y-6">
       {/* Header with stats */}
-      <div className="mb-4 flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-800">12枚練習</h1>
-          <p className="text-sm text-gray-500">
+          <Heading as="h1" size="h2">研鑽モード</Heading>
+          <Text color="muted" size="sm">
             {questionCount > 0 && (
               <>正解: {correctCount}/{questionCount} ({accuracy}%)</>
             )}
-          </p>
+          </Text>
         </div>
-        <div className="text-sm text-gray-500">
-          対象: {filteredPoemsCount}首
+        <div className="flex items-center gap-4">
+          <Text size="sm" color="muted">
+            対象: {filteredPoemsCount}首
+          </Text>
         </div>
       </div>
 
       {/* Controls */}
-      <div className="mb-6">
+      <div>
         <PracticeControls
           showKana={showKana}
           showKimariji={showKimariji}
@@ -112,30 +119,32 @@ export function Practice12Page() {
       </div>
 
       {/* Yomi display */}
-      <div className="card bg-white mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm text-gray-500">読札（上の句）</h2>
+      <Card className="text-center">
+        <div className="flex items-center justify-between mb-4">
+          <Text size="sm" color="muted">読札（上の句）</Text>
           {showKimariji && correctPoem && (
-            <span className="text-xs px-2 py-1 bg-karuta-gold text-white rounded">
+            <Badge variant="accent">
               {correctPoem.kimarijiCount}字決まり「{correctPoem.kimariji}」
-            </span>
+            </Badge>
           )}
         </div>
-        {renderYomi()}
 
-        {/* Result feedback */}
-        {isAnswered && (
-          <div className={`mt-4 p-3 rounded text-center font-medium ${
-            isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-          }`}>
-            {isCorrect ? '正解！' : '不正解'}
-          </div>
-        )}
-      </div>
+        <div className="py-4">
+          {renderYomi()}
+        </div>
+
+        {/* Result feedback - 常に高さを確保して表示/非表示を切り替え */}
+        <div className={cn(
+          "mt-4 p-3 rounded text-center font-bold transition-opacity",
+          isAnswered ? "opacity-100" : "opacity-0",
+          isAnswered && (isCorrect ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")
+        )}>
+          {isAnswered ? (isCorrect ? '正解！' : '不正解') : '\u00A0'}
+        </div>
+      </Card>
 
       {/* 12-card grid */}
-      <div className="mb-4">
-        <h3 className="text-sm text-gray-500 mb-2 text-center">取札を選んでください（12枚）</h3>
+      <div>
         <KarutaGrid
           poems={selectedPoems}
           showKana={showKana}
@@ -146,6 +155,6 @@ export function Practice12Page() {
           onSelect={handleSelectPoem}
         />
       </div>
-    </div>
+    </Container>
   );
 }

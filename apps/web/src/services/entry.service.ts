@@ -13,15 +13,15 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import type { Entry, Division, Season } from '@/types/entry';
+import type { Entry, Division, SeasonLegacy } from '@/types/entry';
 
 const ENTRIES_COLLECTION = 'entries';
 const SEASONS_COLLECTION = 'seasons';
 
 /**
- * Get active season
+ * Get active season (legacy - Stage 0)
  */
-export async function getActiveSeason(): Promise<Season | null> {
+export async function getActiveSeason(): Promise<SeasonLegacy | null> {
   const seasonsRef = collection(db, SEASONS_COLLECTION);
   const q = query(seasonsRef, where('status', '==', 'active'));
   const snapshot = await getDocs(q);

@@ -4,9 +4,12 @@
  * Per constitution v7.0.0 and data-model.md
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.RULE_VERSION = void 0;
 exports.validateSession = validateSession;
 exports.calculateCorrectCount = calculateCorrectCount;
 exports.calculateTotalElapsedMs = calculateTotalElapsedMs;
+// Current rule version for audit tracking
+exports.RULE_VERSION = '1.1.0';
 /**
  * Validate a session against 5 anomaly detection rules
  * @param session - Session data
@@ -49,6 +52,8 @@ function validateSession(session, rounds) {
     return {
         isValid: reasons.length === 0,
         reasons,
+        reasonCodes: reasons, // InvalidReason types are already code-like
+        ruleVersion: exports.RULE_VERSION,
     };
 }
 /**

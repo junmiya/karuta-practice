@@ -17,6 +17,16 @@ import {
   Round,
 } from './validators/sessionValidator';
 import { updateRanking, updateUserStats } from './services/rankingUpdater';
+import {
+  logSessionConfirmed,
+  logSessionInvalidated,
+} from './services/auditService';
+import {
+  checkSubmitRateLimit,
+  isUserBlocked,
+  recordSuspiciousAccess,
+  incrementFunctionCount,
+} from './lib/costGuard';
 
 const db = admin.firestore();
 
@@ -53,6 +63,9 @@ function getJstDateKey(): string {
 export const submitOfficialSession = functions
   .region('asia-northeast1')
   .https.onCall(async (data: SubmitRequest, context): Promise<SubmitResponse> => {
+    // Track function invocation
+    incrementFunctionCount();
+
     // 1. Authentication check
     if (!context.auth) {
       throw new HttpsError('unauthenticated', 'ログインが必要です');
@@ -60,6 +73,17 @@ export const submitOfficialSession = functions
 
     const uid = context.auth.uid;
     const { sessionId } = data;
+
+    // 2. Cost guard: Check if user is blocked
+    if (isUserBlocked(uid)) {
+      throw new HttpsError('resource-exhausted', '一時的にアクセスが制限されています');
+    }
+
+    // 3. Cost guard: Rate limiting
+    if (checkSubmitRateLimit(uid)) {
+      recordSuspiciousAccess(uid);
+      throw new HttpsError('resource-exhausted', 'リクエストが多すぎます。しばらく待ってから再試行してください');
+    }
 
     if (!sessionId) {
       throw new HttpsError('invalid-argument', 'sessionIdが必要です');
@@ -143,9 +167,20 @@ export const submitOfficialSession = functions
         await sessionRef.update({
           status: 'invalid',
           invalidReasons: validationResult.reasons,
+          invalidReasonCodes: validationResult.reasonCodes || [],
           correctCount,
           totalElapsedMs,
         });
+
+        // Audit log for invalidation
+        await logSessionInvalidated(
+          sessionId,
+          uid,
+          sessionData.seasonId,
+          validationResult.reasons,
+          validationResult.reasonCodes || [],
+          validationResult.ruleVersion || '1.0.0'
+        ).catch((err) => console.error('Audit log failed:', err));
 
         return {
           status: 'invalid',
@@ -190,6 +225,16 @@ export const submitOfficialSession = functions
 
       // 12. Update user stats
       await updateUserStats(uid, scoreResult.score);
+
+      // 13. Audit log for confirmation
+      await logSessionConfirmed(
+        sessionId,
+        uid,
+        sessionData.seasonId,
+        scoreResult.score,
+        correctCount,
+        '1.1.0' // ruleVersion
+      ).catch((err) => console.error('Audit log failed:', err));
 
       return {
         status: 'confirmed',

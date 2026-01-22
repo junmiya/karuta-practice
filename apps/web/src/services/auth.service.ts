@@ -1,6 +1,5 @@
 import {
   signInWithPopup,
-  signInAnonymously,
   signOut as firebaseSignOut,
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
@@ -16,14 +15,6 @@ const googleProvider = new GoogleAuthProvider();
  */
 export async function signInWithGoogle(): Promise<User> {
   const result = await signInWithPopup(auth, googleProvider);
-  return result.user;
-}
-
-/**
- * Sign in anonymously
- */
-export async function signInAnonymous(): Promise<User> {
-  const result = await signInAnonymously(auth);
   return result.user;
 }
 

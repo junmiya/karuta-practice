@@ -1,47 +1,127 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTodaysBanzuke, getJstDateForDisplay } from '@/services/banzuke.service';
+import { getTodaysBanzuke } from '@/services/banzuke.service';
 import { getActiveSeason } from '@/services/entry.service';
+import {
+  getActiveSeasonStage1,
+  getLatestFinalizedSeason,
+  getRankingCache,
+  getBanzukeAsRanking,
+} from '@/services/stage1.service';
 import { useRanking } from '@/hooks/useRanking';
 import { RankingList } from '@/components/RankingList';
 import { useAuth } from '@/hooks/useAuth';
+import { Container } from '@/components/ui/Container';
+import { Card } from '@/components/ui/Card';
+import { LoadingState, ErrorState } from '@/components/ui/PageStates';
+import { cn } from '@/lib/utils';
 import type { Submission } from '@/types/submission';
-import type { Division, Season } from '@/types/entry';
+import type { Division, Season, SeasonStatus } from '@/types/entry';
+import type { Ranking } from '@/types/ranking';
 
-type ViewMode = 'season' | 'daily';
+type ViewMode = 'provisional' | 'official' | 'daily';
 
 export function BanzukePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [viewMode, setViewMode] = useState<ViewMode>('season');
+  const [viewMode, setViewMode] = useState<ViewMode>('provisional');
   const [division, setDivision] = useState<Division>('kyu');
-  const [season, setSeason] = useState<Season | null>(null);
+  const [activeSeason, setActiveSeason] = useState<Season | null>(null);
+  const [finalizedSeason, setFinalizedSeason] = useState<Season | null>(null);
+  const [provisionalRanking, setProvisionalRanking] = useState<Ranking | null>(null);
+  const [officialRanking, setOfficialRanking] = useState<Ranking | null>(null);
   const [dailyRankings, setDailyRankings] = useState<Submission[]>([]);
-  const [dailyLoading, setDailyLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch active season
+  // Fetch seasons (Stage 1)
   useEffect(() => {
-    async function fetchSeason() {
+    async function fetchSeasons() {
       try {
-        const activeSeason = await getActiveSeason();
-        setSeason(activeSeason);
+        // Try Stage 1 seasons first
+        const [active, finalized] = await Promise.all([
+          getActiveSeasonStage1(),
+          getLatestFinalizedSeason(),
+        ]);
+
+        if (active) {
+          setActiveSeason(active);
+        } else {
+          // Fallback to Stage 0 season
+          const legacySeason = await getActiveSeason();
+          if (legacySeason) {
+            // Convert to Stage 1 format (explicit to avoid status type conflict)
+            setActiveSeason({
+              seasonId: legacySeason.seasonId,
+              name: legacySeason.name,
+              status: 'open' as SeasonStatus,
+              startDate: legacySeason.startDate,
+              createdAt: legacySeason.startDate,
+              updatedAt: legacySeason.startDate,
+            });
+          }
+        }
+
+        if (finalized) {
+          setFinalizedSeason(finalized);
+        }
       } catch (err) {
-        console.error('Failed to fetch season:', err);
+        console.error('Failed to fetch seasons:', err);
       }
     }
-    fetchSeason();
+    fetchSeasons();
   }, []);
 
-  // Season ranking hook
-  const { ranking, loading: seasonLoading } = useRanking({
-    seasonId: season?.seasonId || '',
+  // Fetch provisional ranking (Stage 1)
+  useEffect(() => {
+    async function fetchProvisionalRanking() {
+      if (!activeSeason || viewMode !== 'provisional') return;
+
+      setLoading(true);
+      try {
+        const ranking = await getRankingCache(activeSeason.seasonId, division);
+        setProvisionalRanking(ranking);
+      } catch (err) {
+        console.error('Failed to fetch provisional ranking:', err);
+        setError('暫定ランキングの取得に失敗しました');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProvisionalRanking();
+  }, [activeSeason, division, viewMode]);
+
+  // Fetch official ranking (Stage 1)
+  useEffect(() => {
+    async function fetchOfficialRanking() {
+      if (!finalizedSeason || viewMode !== 'official') return;
+
+      setLoading(true);
+      try {
+        const ranking = await getBanzukeAsRanking(finalizedSeason.seasonId, division);
+        setOfficialRanking(ranking);
+      } catch (err) {
+        console.error('Failed to fetch official ranking:', err);
+        setError('公式番付の取得に失敗しました');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchOfficialRanking();
+  }, [finalizedSeason, division, viewMode]);
+
+  // Fallback: use existing ranking hook for Stage 0 compatibility
+  const { ranking: legacyRanking, loading: legacyLoading } = useRanking({
+    seasonId: activeSeason?.seasonId || '',
     division,
   });
 
   // Fetch daily rankings
   useEffect(() => {
     async function fetchDailyBanzuke() {
+      if (viewMode !== 'daily') return;
+
+      setLoading(true);
       try {
         const data = await getTodaysBanzuke();
         setDailyRankings(data);
@@ -49,15 +129,22 @@ export function BanzukePage() {
         console.error('Failed to fetch daily banzuke:', err);
         setError('番付の取得に失敗しました');
       } finally {
-        setDailyLoading(false);
+        setLoading(false);
       }
     }
-    if (viewMode === 'daily') {
-      fetchDailyBanzuke();
-    }
+    fetchDailyBanzuke();
   }, [viewMode]);
 
-  const today = getJstDateForDisplay();
+  // Determine which ranking to show
+  const currentRanking = viewMode === 'provisional'
+    ? (provisionalRanking || legacyRanking)
+    : viewMode === 'official'
+      ? officialRanking
+      : null;
+
+  const isLoading = viewMode === 'provisional'
+    ? (loading || legacyLoading)
+    : loading;
 
   const formatTime = (date: Date) => {
     const jstTime = new Date(date.getTime() + 9 * 60 * 60 * 1000);
@@ -65,185 +152,168 @@ export function BanzukePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="card">
-        <h2 className="text-3xl font-bold mb-2 text-karuta-gold">
-          {viewMode === 'season' ? (season?.name || '公式番付') : '本日の番付'}
-        </h2>
-        <p className="text-gray-600">
-          {viewMode === 'season' ? 'シーズン累計ランキング' : today}
-        </p>
+    <Container className="space-y-2">
+      {/* Control Panel - 2行 */}
+      <div className="bg-white/90 border border-gray-200 rounded-lg p-2 space-y-2">
+        {/* Line 1: View mode + Division */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex bg-gray-100 rounded p-0.5">
+            {[
+              { id: 'provisional' as const, label: '暫定' },
+              { id: 'official' as const, label: '公式', disabled: !finalizedSeason },
+              { id: 'daily' as const, label: '本日' },
+            ].map((mode) => (
+              <button
+                key={mode.id}
+                onClick={() => !mode.disabled && setViewMode(mode.id)}
+                disabled={mode.disabled}
+                className={cn(
+                  "px-3 py-1 text-xs font-medium rounded transition-colors",
+                  viewMode === mode.id
+                    ? "bg-white text-karuta-tansei shadow-sm"
+                    : "text-gray-600",
+                  mode.disabled && "opacity-40 cursor-not-allowed"
+                )}
+              >
+                {mode.label}
+              </button>
+            ))}
+          </div>
 
-        {/* View mode toggle */}
-        <div className="mt-4 flex gap-2">
-          <button
-            onClick={() => setViewMode('season')}
-            className={`px-4 py-2 rounded text-sm font-medium ${
-              viewMode === 'season'
-                ? 'bg-karuta-gold text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            シーズン番付
-          </button>
-          <button
-            onClick={() => setViewMode('daily')}
-            className={`px-4 py-2 rounded text-sm font-medium ${
-              viewMode === 'daily'
-                ? 'bg-karuta-gold text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-          >
-            本日の番付
-          </button>
+          {(viewMode === 'provisional' || viewMode === 'official') && (
+            <div className="flex bg-gray-100 rounded p-0.5">
+              {[
+                { id: 'kyu' as const, label: '級位' },
+                { id: 'dan' as const, label: '段位' },
+              ].map((div) => (
+                <button
+                  key={div.id}
+                  onClick={() => setDivision(div.id)}
+                  className={cn(
+                    "px-2 py-1 text-xs font-medium rounded transition-colors",
+                    division === div.id
+                      ? "bg-white text-karuta-tansei shadow-sm"
+                      : "text-gray-600"
+                  )}
+                >
+                  {div.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        {viewMode === 'season' && (
-          <div className="mt-4 flex gap-2">
-            <button
-              onClick={() => setDivision('kyu')}
-              className={`px-4 py-2 rounded text-sm font-medium ${
-                division === 'kyu'
-                  ? 'bg-karuta-red text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              級位の部
-            </button>
-            <button
-              onClick={() => setDivision('dan')}
-              className={`px-4 py-2 rounded text-sm font-medium ${
-                division === 'dan'
-                  ? 'bg-karuta-red text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              段位の部
-            </button>
-          </div>
-        )}
-
-        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <h3 className="font-semibold text-blue-900 mb-2">公式番付について</h3>
-          <ul className="text-sm text-blue-800 space-y-1">
-            <li>• 公式提出された記録のみが対象です</li>
-            <li>• 異常値判定により無効となった記録は除外されます</li>
-            <li>• シーズン番付はベストスコアで順位付けされます</li>
-            <li>• 同点の場合は同順位となります</li>
-          </ul>
+        {/* Line 2: Info text */}
+        <div className="text-xs text-gray-500">
+          {viewMode === 'provisional' && '約10分ごと更新・公式提出のみ'}
+          {viewMode === 'official' && '確定済み・変更なし'}
+          {viewMode === 'daily' && `${new Date().toLocaleDateString('ja-JP')}の記録`}
         </div>
       </div>
 
-      {/* Season Ranking */}
-      {viewMode === 'season' && (
-        <div className="card">
+      {/* Provisional / Official Ranking */}
+      {(viewMode === 'provisional' || viewMode === 'official') && (
+        <Card>
           <RankingList
-            ranking={ranking}
+            ranking={currentRanking}
             currentUserId={user?.uid}
-            loading={seasonLoading}
-            emptyMessage="この部門の番付データはまだありません"
+            loading={isLoading}
+            emptyMessage={
+              viewMode === 'provisional'
+                ? 'この部門の暫定ランキングはまだありません'
+                : 'この部門の公式番付はまだありません'
+            }
           />
-        </div>
+          {currentRanking?.totalParticipants && (
+            <div className="mt-2 text-xs text-gray-400 text-right">
+              参加者数: {currentRanking.totalParticipants}名
+            </div>
+          )}
+        </Card>
       )}
 
       {/* Daily Ranking Table */}
       {viewMode === 'daily' && (
-      <div className="card">
-        {dailyLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-karuta-red mx-auto mb-4"></div>
-              <p className="text-gray-600">読み込み中...</p>
-            </div>
-          </div>
-        ) : error ? (
-          <div className="py-8 text-center text-red-600">{error}</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b-2 border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">順位</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">表示名</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">スコア</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">正答数</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">平均時間</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">提出時刻</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dailyRankings.length > 0 ? (
-                  dailyRankings.map((entry, index) => {
-                    const rank = index + 1;
-                    return (
-                      <tr
-                        key={entry.id}
-                        className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                      >
-                        <td className="py-3 px-4">
-                          <span className={`font-bold ${
-                            rank === 1 ? 'text-yellow-600 text-xl' :
-                            rank === 2 ? 'text-gray-400 text-lg' :
-                            rank === 3 ? 'text-orange-600 text-lg' :
-                            'text-gray-600'
-                          }`}>
-                            {rank === 1 ? '1' : rank === 2 ? '2' : rank === 3 ? '3' : rank}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 font-medium">{entry.nickname}</td>
-                        <td className="py-3 px-4 text-right font-bold text-karuta-gold">
-                          {entry.score}
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          {entry.correctCount} / 10
-                        </td>
-                        <td className="py-3 px-4 text-right text-gray-600">
-                          {entry.avgMs}ms
-                        </td>
-                        <td className="py-3 px-4 text-right text-sm text-gray-500">
-                          {formatTime(entry.serverSubmittedAt)}
+        <>
+          {loading ? (
+            <LoadingState message="本日の番付を読み込み中..." />
+          ) : error ? (
+            <ErrorState message={error} onRetry={() => window.location.reload()} />
+          ) : (
+            <Card>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b-2 border-gray-200">
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">順位</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">表示名</th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">スコア</th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">正答数</th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">平均時間</th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">提出時刻</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dailyRankings.length > 0 ? (
+                      dailyRankings.map((entry, index) => {
+                        const rank = index + 1;
+                        return (
+                          <tr
+                            key={entry.id}
+                            className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                          >
+                            <td className="py-3 px-4">
+                              <span className={cn(
+                                "font-bold",
+                                rank === 1 ? "text-yellow-600 text-xl" :
+                                  rank === 2 ? "text-gray-400 text-lg" :
+                                    rank === 3 ? "text-orange-600 text-lg" :
+                                      "text-gray-600"
+                              )}>
+                                {rank === 1 ? '1' : rank === 2 ? '2' : rank === 3 ? '3' : rank}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 font-medium">{entry.nickname}</td>
+                            <td className="py-3 px-4 text-right font-bold text-karuta-gold">
+                              {entry.score}
+                            </td>
+                            <td className="py-3 px-4 text-right">
+                              {entry.correctCount} / 50
+                            </td>
+                            <td className="py-3 px-4 text-right text-gray-600">
+                              {entry.avgMs}ms
+                            </td>
+                            <td className="py-3 px-4 text-right text-sm text-gray-500">
+                              {formatTime(entry.serverSubmittedAt)}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan={6} className="py-8 text-center text-gray-500">
+                          本日の公式記録はまだありません
                         </td>
                       </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-gray-500">
-                      本日の公式記録はまだありません
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
+                    )}
+                  </tbody>
+                </table>
+              </div>
 
-        {!dailyLoading && dailyRankings.length === 0 && (
-          <div className="mt-4 text-center">
-            <p className="text-gray-600 mb-4">
-              あなたも挑戦してみませんか？
-            </p>
-            <button
-              onClick={() => navigate('/practice')}
-              className="btn-primary"
-            >
-              練習開始
-            </button>
-          </div>
-        )}
-      </div>
+              {dailyRankings.length === 0 && (
+                <div className="mt-4 text-center text-sm text-gray-500">
+                  <button
+                    onClick={() => navigate('/entry')}
+                    className="text-karuta-tansei hover:underline"
+                  >
+                    公式競技に挑戦 →
+                  </button>
+                </div>
+              )}
+            </Card>
+          )}
+        </>
       )}
-
-      {/* Back Button */}
-      <div className="text-center">
-        <button
-          onClick={() => navigate('/')}
-          className="btn-secondary"
-        >
-          ホームへ戻る
-        </button>
-      </div>
-    </div>
+    </Container>
   );
 }

@@ -299,17 +299,19 @@
     {
         "poemId": "p010",
         "order": 10,
-        "yomi": "これやこの 行くも帰るも別れては",
+        "yomi": "これやこの 行くも帰るも 別れては",
         "yomiKana": "これやこの ゆくもかえるも わかれては",
         "tori": "知るも知らぬも 逢坂の関",
         "toriKana": "しるもしらぬも おおさかのせき",
         "yomiTokens": [
             "これやこの",
-            "行くも帰るも別れては"
+            "行くも帰るも",
+            "別れては"
         ],
         "yomiKanaTokens": [
             "これやこの",
-            "ゆくもかえるもわかれては"
+            "ゆくもかえるも",
+            "わかれては"
         ],
         "toriTokens": [
             "知るも知らぬも",
@@ -1444,7 +1446,7 @@
         "toriNoSpace": "人をも身をも恨みざらまし",
         "toriKanaNoSpace": "ひとをもみをもうらみざらまし",
         "kimariji": "おおこ",
-        "kimarijiCount": 4,
+        "kimarijiCount": 3,
         "author": "中納言朝忠"
     },
     {
@@ -3125,7 +3127,7 @@
         "toriNoSpace": "わが立つ杣に墨染の袖",
         "toriKanaNoSpace": "わがたつそまにすみぞめのそで",
         "kimariji": "おおけ",
-        "kimarijiCount": 4,
+        "kimarijiCount": 3,
         "author": "前大僧正慈円"
     },
     {

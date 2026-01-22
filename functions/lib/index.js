@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.submitOfficialSession = exports.db = void 0;
+exports.adminUpdateRankings = exports.adminFinalizeSeason = exports.adminFreezeSeason = exports.adminGetSeasons = exports.getPoemExplanation = exports.costGuardCleanup = exports.updateTitles = exports.checkSeasonTransition = exports.updateRankingsCache = exports.generateDailyReflections = exports.expireStaleSession = exports.updateSeasonStatus = exports.dailyRankingSnapshot = exports.submitOfficialRecord = exports.submitOfficialSession = exports.db = void 0;
 const admin = __importStar(require("firebase-admin"));
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -42,4 +42,27 @@ exports.db = admin.firestore();
 // Re-export callable functions
 var submitOfficialSession_1 = require("./submitOfficialSession");
 Object.defineProperty(exports, "submitOfficialSession", { enumerable: true, get: function () { return submitOfficialSession_1.submitOfficialSession; } });
+var submitOfficialRecord_1 = require("./submitOfficialRecord");
+Object.defineProperty(exports, "submitOfficialRecord", { enumerable: true, get: function () { return submitOfficialRecord_1.submitOfficialRecord; } });
+// Re-export scheduled functions (Stage 0)
+var scheduledFunctions_1 = require("./scheduledFunctions");
+Object.defineProperty(exports, "dailyRankingSnapshot", { enumerable: true, get: function () { return scheduledFunctions_1.dailyRankingSnapshot; } });
+Object.defineProperty(exports, "updateSeasonStatus", { enumerable: true, get: function () { return scheduledFunctions_1.updateSeasonStatus; } });
+Object.defineProperty(exports, "expireStaleSession", { enumerable: true, get: function () { return scheduledFunctions_1.expireStaleSession; } });
+// Re-export scheduled functions (Stage 1)
+var scheduledFunctionsStage1_1 = require("./scheduledFunctionsStage1");
+Object.defineProperty(exports, "generateDailyReflections", { enumerable: true, get: function () { return scheduledFunctionsStage1_1.generateDailyReflections; } });
+Object.defineProperty(exports, "updateRankingsCache", { enumerable: true, get: function () { return scheduledFunctionsStage1_1.updateRankingsCache; } });
+Object.defineProperty(exports, "checkSeasonTransition", { enumerable: true, get: function () { return scheduledFunctionsStage1_1.checkSeasonTransition; } });
+Object.defineProperty(exports, "updateTitles", { enumerable: true, get: function () { return scheduledFunctionsStage1_1.updateTitles; } });
+Object.defineProperty(exports, "costGuardCleanup", { enumerable: true, get: function () { return scheduledFunctionsStage1_1.costGuardCleanup; } });
+// Export AI Tutor functions
+var getPoemExplanation_1 = require("./getPoemExplanation");
+Object.defineProperty(exports, "getPoemExplanation", { enumerable: true, get: function () { return getPoemExplanation_1.getPoemExplanation; } });
+// Export admin functions (Stage 1)
+var adminFunctions_1 = require("./adminFunctions");
+Object.defineProperty(exports, "adminGetSeasons", { enumerable: true, get: function () { return adminFunctions_1.adminGetSeasons; } });
+Object.defineProperty(exports, "adminFreezeSeason", { enumerable: true, get: function () { return adminFunctions_1.adminFreezeSeason; } });
+Object.defineProperty(exports, "adminFinalizeSeason", { enumerable: true, get: function () { return adminFunctions_1.adminFinalizeSeason; } });
+Object.defineProperty(exports, "adminUpdateRankings", { enumerable: true, get: function () { return adminFunctions_1.adminUpdateRankings; } });
 //# sourceMappingURL=index.js.map
