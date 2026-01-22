@@ -31,12 +31,19 @@ export function getPoemById(poemId: string): Poem | undefined {
 /**
  * Get a random selection of N poems with optional filter
  */
-export function getRandomPoems(count: number, filter?: { kimarijiCounts?: number[] }): Poem[] {
+export function getRandomPoems(count: number, filter?: { kimarijiCounts?: number[]; poemRanges?: { start: number; end: number }[] }): Poem[] {
   let filtered = poems;
 
   // Filter by kimarijiCount if specified
   if (filter?.kimarijiCounts && filter.kimarijiCounts.length > 0) {
-    filtered = poems.filter(p => filter.kimarijiCounts!.includes(p.kimarijiCount));
+    filtered = filtered.filter(p => filter.kimarijiCounts!.includes(p.kimarijiCount));
+  }
+
+  // Filter by poem range (order) if specified
+  if (filter?.poemRanges && filter.poemRanges.length > 0) {
+    filtered = filtered.filter(p =>
+      filter.poemRanges!.some(range => p.order >= range.start && p.order <= range.end)
+    );
   }
 
   const shuffled = [...filtered].sort(() => Math.random() - 0.5);

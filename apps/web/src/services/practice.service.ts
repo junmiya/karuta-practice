@@ -4,6 +4,7 @@ import { getRandomPoems, getAllPoemsSync } from './poems.service';
 
 export interface PracticeFilter {
   kimarijiCounts?: number[]; // e.g., [1, 2] for 1字決まり and 2字決まり
+  poemRanges?: { start: number; end: number }[]; // e.g., [{ start: 1, end: 20 }]
 }
 
 /**
