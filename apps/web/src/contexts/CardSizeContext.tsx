@@ -26,9 +26,9 @@ interface CardSizeContextValue {
 }
 
 const CARD_ASPECT_RATIO = 73 / 52; // 縦:横 = 73:52
-const DEFAULT_HEADER_HEIGHT = 40;
+const DEFAULT_HEADER_HEIGHT = 44;
 const DEFAULT_CONTROL_PANEL_HEIGHT = 100;
-const BOTTOM_MARGIN = 16;
+const BOTTOM_MARGIN = 100; // footer + main padding + container padding
 const GRID_GAP = 4;
 const GRID_PADDING = 4;
 const MIN_CARD_WIDTH = 60;

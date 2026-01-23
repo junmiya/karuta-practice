@@ -25,9 +25,10 @@ export function OfficialPage() {
   const [seasonStatus, setSeasonStatus] = useState<SeasonStatus | null>(null);
   const [entryId, setEntryId] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
-  const [showKana, setShowKana] = useState(false);
+  const [showYomiKana, setShowYomiKana] = useState(false);
+  const [showToriKana, setShowToriKana] = useState(false);
   const [questionStartTime, setQuestionStartTime] = useState<number>(0);
-  const [showKanaConfirm, setShowKanaConfirm] = useState(false);
+  const [pendingToggle, setPendingToggle] = useState<'yomi' | 'tori' | null>(null);
 
   // Initialize session data
   useEffect(() => {
@@ -270,8 +271,10 @@ export function OfficialPage() {
           </Text>
         </div>
         <ControlBar
-          showKana={showKana}
-          onToggleKana={() => setShowKanaConfirm(true)}
+          showYomiKana={showYomiKana}
+          onToggleYomiKana={() => setPendingToggle('yomi')}
+          showToriKana={showToriKana}
+          onToggleToriKana={() => setPendingToggle('tori')}
         />
       </div>
 
@@ -287,7 +290,7 @@ export function OfficialPage() {
       <Card className="text-center">
         <Text size="sm" color="muted" className="mb-2">読札（上の句）</Text>
         <div className="text-2xl md:text-3xl font-bold text-gray-900 leading-relaxed">
-          {showKana
+          {showYomiKana
             ? currentQuestion.poem.yomiKana
             : currentQuestion.poem.yomi}
         </div>
@@ -297,32 +300,40 @@ export function OfficialPage() {
       <div>
         <KarutaGrid
           poems={currentQuestion.choicePoems}
-          showKana={showKana}
+          showKana={showToriKana}
           onSelect={handleSelectPoem}
         />
       </div>
 
       {/* Kana Toggle Confirmation Dialog */}
-      {showKanaConfirm && (
+      {pendingToggle && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <Card className="max-w-sm mx-4">
             <Heading as="h3" size="h3" className="mb-4">表示切替の確認</Heading>
             <Text color="muted" className="mb-6">
               公式競技中の表示変更は記録の公平性に影響する可能性があります。
-              {showKana ? '漢字表示' : 'ひらがな表示'}に切り替えますか？
+              {pendingToggle === 'yomi' ? '読札' : '取札'}を
+              {pendingToggle === 'yomi'
+                ? (showYomiKana ? '漢字表示' : 'ひらがな表示')
+                : (showToriKana ? '漢字表示' : 'ひらがな表示')}
+              に切り替えますか？
             </Text>
             <div className="flex gap-3">
               <Button
                 onClick={() => {
-                  setShowKana(!showKana);
-                  setShowKanaConfirm(false);
+                  if (pendingToggle === 'yomi') {
+                    setShowYomiKana(!showYomiKana);
+                  } else {
+                    setShowToriKana(!showToriKana);
+                  }
+                  setPendingToggle(null);
                 }}
                 className="flex-1"
               >
                 切り替える
               </Button>
               <Button
-                onClick={() => setShowKanaConfirm(false)}
+                onClick={() => setPendingToggle(null)}
                 variant="secondary"
                 className="flex-1"
               >

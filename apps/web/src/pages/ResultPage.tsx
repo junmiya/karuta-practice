@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -7,6 +7,7 @@ import { Container } from '@/components/ui/Container';
 import { Badge } from '@/components/ui/Badge';
 import { calculateResults } from '@/services/practice.service';
 import { submitOfficialRecord } from '@/services/submission.service';
+import { savePracticeResult } from '@/services/practiceStats.service';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import type { PracticeSession } from '@/types/practice';
@@ -16,11 +17,81 @@ export function ResultPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const session = location.state?.session as PracticeSession | undefined;
-  const { isAuthenticated, isProfileComplete } = useAuthContext();
+  const filter = location.state?.filter as { kimarijiCounts?: number[] } | undefined;
+  const { user, isAuthenticated, isProfileComplete, loading: authLoading } = useAuthContext();
 
   const [submitting, setSubmitting] = useState(false);
   const [submitResult, setSubmitResult] = useState<SubmitResponse | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [practiceSaved, setPracticeSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const saveAttempted = useRef(false);
+
+  // Save practice result for authenticated users
+  useEffect(() => {
+    console.log('[ResultPage] Save effect triggered', {
+      hasSession: !!session,
+      hasUser: !!user,
+      userId: user?.uid,
+      authLoading,
+      saveAttempted: saveAttempted.current
+    });
+
+    // Wait for auth to finish loading
+    if (authLoading) {
+      console.log('[ResultPage] Auth still loading, waiting...');
+      return;
+    }
+
+    if (!session) {
+      console.log('[ResultPage] No session, skipping save');
+      return;
+    }
+
+    if (!user) {
+      console.log('[ResultPage] No user, skipping save');
+      return;
+    }
+
+    if (saveAttempted.current) {
+      console.log('[ResultPage] Already attempted save, skipping');
+      return;
+    }
+
+    saveAttempted.current = true;
+    console.log('[ResultPage] Starting save...', {
+      questionsCount: session.questions.length,
+      answeredCount: session.questions.filter(q => q.answered).length
+    });
+
+    const saveResult = async () => {
+      try {
+        // Only pass filter if it has valid kimarijiCounts array
+        const validFilter = filter?.kimarijiCounts?.length
+          ? { kimarijiCounts: filter.kimarijiCounts }
+          : undefined;
+
+        console.log('[ResultPage] Saving with filter:', validFilter);
+
+        const resultId = await savePracticeResult(
+          user.uid,
+          'practice',
+          session.questions,
+          validFilter
+        );
+        console.log('[ResultPage] Save successful, id:', resultId);
+        setPracticeSaved(true);
+      } catch (err: unknown) {
+        console.error('[ResultPage] Failed to save practice result:', err);
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        setSaveError(errorMessage);
+        // Reset so user can retry
+        saveAttempted.current = false;
+      }
+    };
+
+    saveResult();
+  }, [session, user, filter, authLoading]);
 
   if (!session) {
     return (
@@ -65,6 +136,31 @@ export function ResultPage() {
     <Container size="sm" className="py-6">
       <Card>
         <Heading as="h2" size="h1" className="mb-6 text-center">練習結果</Heading>
+
+        {/* Practice saved indicator */}
+        {practiceSaved && (
+          <div className="mb-4 text-center">
+            <Badge variant="success" className="text-xs">
+              成績に記録しました
+            </Badge>
+          </div>
+        )}
+
+        {/* Save error indicator */}
+        {saveError && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-center">
+            <Text size="sm" className="text-red-600">
+              記録の保存に失敗しました: {saveError}
+            </Text>
+          </div>
+        )}
+
+        {/* Auth loading indicator */}
+        {authLoading && (
+          <div className="mb-4 text-center">
+            <Text size="sm" color="muted">認証確認中...</Text>
+          </div>
+        )}
 
         {/* Summary Stats */}
         <div className="grid grid-cols-2 gap-4 mb-8">

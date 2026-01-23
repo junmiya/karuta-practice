@@ -16,8 +16,12 @@ export interface KarutaCardProps {
   poem: Poem;
   /** 表示モード: tori=取札のみ, yomi=読札のみ, flip=フリップ可能 */
   mode?: CardMode;
-  /** ひらがな表示 */
+  /** ひらがな表示（後方互換性用、両方に適用） */
   showKana?: boolean;
+  /** 読札のひらがな表示 */
+  showYomiKana?: boolean;
+  /** 取札のひらがな表示 */
+  showToriKana?: boolean;
   /** 決まり字ハイライト表示（yomi/flipのみ有効） */
   showKimariji?: boolean;
   /** 選択状態（練習モード用） */
@@ -239,6 +243,8 @@ export function KarutaCard({
   poem,
   mode = 'tori',
   showKana = false,
+  showYomiKana,
+  showToriKana,
   showKimariji = false,
   isSelected = false,
   isCorrect = false,
@@ -249,10 +255,14 @@ export function KarutaCard({
 }: KarutaCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
 
-  // テキストとトークンを取得（showKanaに従う）
-  const yomiText = showKana ? poem.yomiKana : poem.yomi;
-  const yomiTokens = showKana ? poem.yomiKanaTokens : undefined;
-  const toriText = showKana ? poem.toriKana : poem.tori;
+  // 読札・取札で別々のひらがな設定（指定がなければshowKanaを使用）
+  const isYomiKana = showYomiKana ?? showKana;
+  const isToriKana = showToriKana ?? showKana;
+
+  // テキストとトークンを取得
+  const yomiText = isYomiKana ? poem.yomiKana : poem.yomi;
+  const yomiTokens = isYomiKana ? poem.yomiKanaTokens : undefined;
+  const toriText = isToriKana ? poem.toriKana : poem.tori;
 
   // 状態からvariantを決定
   const getVariant = (): CardVariant => {
@@ -289,7 +299,7 @@ export function KarutaCard({
         tokens={yomiTokens}
         kimarijiCount={poem.kimarijiCount}
         showKimariji={showKimariji}
-        isKana={showKana}
+        isKana={isYomiKana}
         variant={getVariant()}
         clickable={!disabled && !!onClick}
         onClick={onClick}
@@ -324,7 +334,7 @@ export function KarutaCard({
             tokens={yomiTokens}
             kimarijiCount={poem.kimarijiCount}
             showKimariji={showKimariji}
-            isKana={showKana}
+            isKana={isYomiKana}
             variant="default"
             clickable={false}
             className="w-full h-full"

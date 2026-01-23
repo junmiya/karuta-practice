@@ -3,10 +3,18 @@ import { cn } from '@/lib/utils';
 export type LearnedFilterMode = 'normal' | 'exclude' | 'prioritize';
 
 export interface ControlBarProps {
-  /** ひらがな表示状態 */
-  showKana: boolean;
-  /** ひらがな切替 */
-  onToggleKana: () => void;
+  /** ひらがな表示状態 (後方互換性用、読札用) */
+  showKana?: boolean;
+  /** ひらがな切替 (後方互換性用) */
+  onToggleKana?: () => void;
+  /** 読札のひらがな表示状態 */
+  showYomiKana?: boolean;
+  /** 読札のひらがな切替 */
+  onToggleYomiKana?: () => void;
+  /** 取札のひらがな表示状態 */
+  showToriKana?: boolean;
+  /** 取札のひらがな切替 */
+  onToggleToriKana?: () => void;
   /** 決まり字表示状態 */
   showKimariji?: boolean;
   /** 決まり字切替 */
@@ -34,6 +42,10 @@ export interface ControlBarProps {
 export function ControlBar({
   showKana,
   onToggleKana,
+  showYomiKana,
+  onToggleYomiKana,
+  showToriKana,
+  onToggleToriKana,
   showKimariji,
   onToggleKimariji,
   learnedFilterMode = 'normal',
@@ -43,6 +55,10 @@ export function ControlBar({
   onShuffle,
   className,
 }: ControlBarProps) {
+  // Use separate yomi/tori states if provided, otherwise fall back to shared showKana
+  const yomiKanaActive = showYomiKana ?? showKana ?? false;
+  const toriKanaActive = showToriKana ?? showKana ?? false;
+  const hasSeparateToggles = onToggleYomiKana !== undefined && onToggleToriKana !== undefined;
   // 覚えたフィルターのラベル
   const getLearnedLabel = () => {
     switch (learnedFilterMode) {
@@ -61,18 +77,50 @@ export function ControlBar({
 
   return (
     <div className={cn('flex items-center gap-1 bg-gray-100 p-1 rounded-full', className)}>
-      {/* 1. 漢字/かな */}
-      <button
-        onClick={onToggleKana}
-        className={cn(
-          baseBtn,
-          showKana
-            ? `${activeBtn} text-karuta-tansei border-karuta-tansei/30`
-            : inactiveBtn
-        )}
-      >
-        {showKana ? 'かな' : '漢字'}
-      </button>
+      {/* 1. 漢字/かな - separate or unified */}
+      {hasSeparateToggles ? (
+        <>
+          {/* 読札: 漢字/かな */}
+          <span className="text-[10px] text-gray-400 pl-1">読</span>
+          <button
+            onClick={onToggleYomiKana}
+            className={cn(
+              baseBtn,
+              yomiKanaActive
+                ? `${activeBtn} text-karuta-tansei border-karuta-tansei/30`
+                : inactiveBtn
+            )}
+          >
+            {yomiKanaActive ? 'かな' : '漢字'}
+          </button>
+
+          {/* 取札: 漢字/かな */}
+          <span className="text-[10px] text-gray-400 pl-0.5">取</span>
+          <button
+            onClick={onToggleToriKana}
+            className={cn(
+              baseBtn,
+              toriKanaActive
+                ? `${activeBtn} text-green-600 border-green-300`
+                : inactiveBtn
+            )}
+          >
+            {toriKanaActive ? 'かな' : '漢字'}
+          </button>
+        </>
+      ) : onToggleKana ? (
+        <button
+          onClick={onToggleKana}
+          className={cn(
+            baseBtn,
+            yomiKanaActive
+              ? `${activeBtn} text-karuta-tansei border-karuta-tansei/30`
+              : inactiveBtn
+          )}
+        >
+          {yomiKanaActive ? 'かな' : '漢字'}
+        </button>
+      ) : null}
 
       {/* 2. 決まり字 */}
       {onToggleKimariji && (
