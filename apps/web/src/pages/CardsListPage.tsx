@@ -1,20 +1,16 @@
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { getAllPoemsSync } from '@/services/poems.service';
 import { KarutaCard } from '@/components/KarutaCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Heading, Text } from '@/components/ui/Typography';
 import { PoemDetailModal } from '@/components/PoemDetailModal';
-import { Container } from '@/components/ui/Container';
 import { KimarijiSelector } from '@/components/KimarijiSelector';
 import { PoemRangeSelector, type PoemRange } from '@/components/PoemRangeSelector';
 import { ControlBar } from '@/components/ControlBar';
 import type { Poem } from '@/types/poem';
 
 export function CardsListPage() {
-  const navigate = useNavigate();
   const [showYomiKana, setShowYomiKana] = useState(false);
   const [showToriKana, setShowToriKana] = useState(false);
   const [showKimariji, setShowKimariji] = useState(true);
@@ -70,96 +66,61 @@ export function CardsListPage() {
   }
 
   return (
-    <Container size="md" className="space-y-6 py-4">
-      {/* Header */}
-      <Card>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <Heading as="h2" size="h2" className="mb-1">基本モード</Heading>
-            <Text color="muted" size="sm">
-              百人一首 札一覧 - タップで上の句⇔下の句を切り替え
-            </Text>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/')}
-          >
-            ← 戻る
-          </Button>
-        </div>
-
-        {/* Filters */}
-        <div className="space-y-4">
-          {/* Search */}
-          <div>
-            <input
-              type="text"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              placeholder="歌・作者・決まり字で検索..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-karuta-tansei"
-            />
-          </div>
-
-          {/* Kimariji Filter */}
-          <div>
-            <KimarijiSelector
-              selected={selectedKimariji}
-              onChange={setSelectedKimariji}
-              label="決まり字で絞り込み"
-            />
-          </div>
-
-          {/* Poem Range Filter */}
-          <div>
-            <PoemRangeSelector
-              selected={selectedPoemRange}
-              onChange={setSelectedPoemRange}
-              label="札番号で絞り込み"
-            />
-          </div>
-
-          {/* Display Options */}
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Display Count */}
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-gray-600">表示:</span>
-              {([12, 100] as const).map(count => (
-                <Button
-                  key={count}
-                  variant={displayCount === count ? "primary" : "ghost"}
-                  size="sm"
-                  onClick={() => setDisplayCount(count)}
-                  className="h-6 px-2 text-xs"
-                >
-                  {count === 100 ? '全て' : `${count}枚`}
-                </Button>
-              ))}
-            </div>
-
-            {/* Control Bar */}
-            <ControlBar
-              showYomiKana={showYomiKana}
-              onToggleYomiKana={() => setShowYomiKana(!showYomiKana)}
-              showToriKana={showToriKana}
-              onToggleToriKana={() => setShowToriKana(!showToriKana)}
-              showKimariji={showKimariji}
-              onToggleKimariji={() => setShowKimariji(!showKimariji)}
-              className="ml-auto"
-            />
+    <div className="karuta-container space-y-2 py-2">
+      {/* Control Panel */}
+      <div className="bg-white/90 border border-gray-200 rounded-lg p-2 space-y-2">
+        {/* Row 1: Search + Display Count */}
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            placeholder="歌・作者・決まり字で検索..."
+            className="flex-1 h-8 px-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-karuta-tansei"
+          />
+          <div className="flex items-center gap-1">
+            {([12, 100] as const).map(count => (
+              <Button
+                key={count}
+                variant={displayCount === count ? "primary" : "ghost"}
+                size="sm"
+                onClick={() => setDisplayCount(count)}
+                className="h-7 px-2 text-xs"
+              >
+                {count === 100 ? '全' : `${count}`}
+              </Button>
+            ))}
           </div>
         </div>
-      </Card>
 
-      {/* Results Info */}
-      <div className="text-sm text-gray-600 px-1">
-        {filteredPoems.length}首中 {displayPoems.length}首を表示
-        {selectedKimariji.length > 0 && (
-          <span className="ml-2 text-karuta-red font-medium">
-            ({selectedKimariji.map(n => `${n}字`).join('・')}決まり)
+        {/* Row 2: Kimariji Filter */}
+        <KimarijiSelector
+          selected={selectedKimariji}
+          onChange={setSelectedKimariji}
+          compact
+        />
+
+        {/* Row 3: Poem Range Filter */}
+        <PoemRangeSelector
+          selected={selectedPoemRange}
+          onChange={setSelectedPoemRange}
+          label="札番号"
+        />
+
+        {/* Row 4: Control Bar + Count */}
+        <div className="flex items-center justify-between">
+          <ControlBar
+            showYomiKana={showYomiKana}
+            onToggleYomiKana={() => setShowYomiKana(!showYomiKana)}
+            showToriKana={showToriKana}
+            onToggleToriKana={() => setShowToriKana(!showToriKana)}
+            showKimariji={showKimariji}
+            onToggleKimariji={() => setShowKimariji(!showKimariji)}
+          />
+          <span className="text-xs text-gray-500">
+            {filteredPoems.length}/{allPoems.length}首
           </span>
-        )}
+        </div>
       </div>
 
       {/* Cards Grid */}
@@ -205,13 +166,13 @@ export function CardsListPage() {
 
       {/* Show More */}
       {displayCount !== 100 && filteredPoems.length > displayCount && (
-        <div className="text-center py-4">
-          <Button variant="secondary" onClick={() => setDisplayCount(100)}>
+        <div className="text-center py-2">
+          <Button variant="secondary" size="sm" onClick={() => setDisplayCount(100)}>
             すべて表示 ({filteredPoems.length}首)
           </Button>
         </div>
       )}
-    </Container>
+    </div>
   );
 }
 
