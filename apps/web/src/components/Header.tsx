@@ -61,7 +61,7 @@ export function Header() {
         <div className="flex items-center justify-between h-10">
           {/* Title */}
           <button onClick={() => navigate('/')} className="hover:opacity-80 transition-opacity">
-            <span className="text-sm font-bold text-karuta-tansei">百人一首 番付</span>
+            <span className="text-sm font-bold text-karuta-tansei">百人一首 カルタ番付</span>
           </button>
 
           {/* Tabs - Center */}
