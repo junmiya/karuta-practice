@@ -45,5 +45,11 @@ service cloud.firestore {
     match /userStats/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
     }
+
+    // 練習結果
+    match /practiceResults/{resultId} {
+      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+    }
   }
 }

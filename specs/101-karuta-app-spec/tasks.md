@@ -9,12 +9,12 @@
 
 ---
 
-## 進捗サマリー (2026-01-22 更新)
+## 進捗サマリー (2026-01-24 更新)
 
 | 段階 | 説明 | 完了率 | 状態 |
 |------|------|--------|------|
-| **段階0** | 基本機能・公式競技・番付 | **90%** | ほぼ完了 |
-| **段階1** | 自動運用・称号・高度機能 | **50%** | 進行中 |
+| **段階0** | 基本機能・公式競技・番付 | **95%** | ほぼ完了 |
+| **段階1** | 自動運用・称号・高度機能 | **75%** | 進行中 |
 
 ### 本番環境
 
@@ -26,22 +26,18 @@
 
 ---
 
-## 最近の完了項目 (2026-01-22)
+## 最近の完了項目 (2026-01-24)
 
 | コミット | 項目 | ファイル |
 |----------|------|----------|
-| 387bd6a | AdminPageをkaruta-containerに統一 | AdminPage.tsx |
-| 387bd6a | PracticePageのContainer未定義エラー修正 | PracticePage.tsx |
-| 387bd6a | 未使用コード削除（lint修正） | KimarijiSelector.tsx, KeikoPage.tsx |
-| 387bd6a | ロック絵文字をカスタムアイコンに変更 | Header.tsx, JapaneseLock.tsx |
-| c07c922 | ビューポートベース札サイズとページレイアウト統一 | CardSizeProvider, index.css |
-| c07c922 | 札サイズ縮小（max-width: 600px/800px） | index.css |
-| c07c922 | 取札5文字改行・3行表示統一 | ToriText.tsx |
-| c07c922 | 決まり字ハイライト修正（ひらがな時のみ） | PoemCard.tsx |
-| c07c922 | KensanPage → KeikoPage リネーム | KeikoPage.tsx |
-| c07c922 | KimarijiSelector 1行コンパクトモード | KimarijiSelector.tsx |
-| (latest) | レスポンシブ最適化（フォントサイズ・グリッド） | index.css, CardSizeProvider |
-| (latest) | 鍵アイコンの和錠化（SVG） | Header.tsx, JapaneseLock.tsx |
+| 5ea9c30 | 読札/取札の言語切り替え分離 | PracticeControls.tsx, HomePage.tsx |
+| 5ea9c30 | PoemRangeSelectorコンポーネント作成 | PoemRangeSelector.tsx |
+| 13739c9 | 札番号フィルター統合 | PracticePage.tsx, HomePage.tsx |
+| 44ba642 | PracticeControlsに札範囲追加 | PracticeControls.tsx |
+| 0e47c12 | 練習フック・サービスに札範囲対応 | usePracticeSession.ts, practice.service.ts |
+| 1a9238c | PoemRangeSelectorコンポーネント | PoemRangeSelector.tsx |
+| (new) | 練習結果保存サービス追加 | practiceStats.service.ts |
+| (new) | Firestore indexes/rules更新 | firestore.indexes.json, firestore.rules |
 
 ---
 
@@ -200,7 +196,7 @@
 
 ---
 
-## Phase 7: User Story 4 - 成績・番付タブで個人成績と番付を閲覧する (Priority: P4) 🔄 85%
+## Phase 7: User Story 4 - 成績・番付タブで個人成績と番付を閲覧する (Priority: P4) ✅ 完了
 
 **Goal**: ログインユーザーが個人成績と公式番付を閲覧できる
 
@@ -213,13 +209,13 @@
 - [x] T059 [US4] Implement BanzukePage (番付タブ) in `apps/web/src/pages/BanzukePage.tsx`
 - [x] T060 [US4] Implement 暫定/公式/本日の番付表示
 - [x] T061 [US4] Create rankings service in `apps/web/src/services/ranking.service.ts`
-- [ ] T061a [US4] 成績ページのグラフ追加（日別推移のビジュアル化）
+- [x] T061a [US4] 成績ページのグラフ追加（日別推移のビジュアル化）Recharts使用
 
-**Checkpoint**: 🔄 User Story 4 mostly complete - 番付表示完了、グラフ追加待ち
+**Checkpoint**: ✅ User Story 4 complete - 番付表示完了、グラフ追加完了
 
 ---
 
-## Phase 8: Scheduled Functions & Security 🔄 70%
+## Phase 8: Scheduled Functions & Security ✅ 完了
 
 **Purpose**: 番付キャッシュ更新、Security Rules、コストガード
 
@@ -228,8 +224,8 @@
 - [x] T062 Implement updateRankingsCache Scheduled Function in `functions/src/scheduled/`
 - [x] T063 Implement generateDailyReflections (日次集計) in `functions/src/scheduled/`
 - [x] T064 Register scheduled functions in `functions/src/index.ts`
-- [ ] T064a ⚠️ Scheduled Functions本番デプロイ（要テスト）
-- [ ] T064b ⚠️ シーズン自動遷移テスト（open→frozen→finalized）
+- [x] T064a Scheduled Functions本番デプロイ完了
+- [x] T064b シーズン自動遷移テスト完了（open→frozen→finalized）
 
 ### Security Rules
 
@@ -241,7 +237,7 @@
 - [x] T067 Implement costGuard in `functions/src/services/costGuard.ts`
 - [x] T068 Ensure cache-first strategy throughout the application
 
-**Checkpoint**: 🔄 Backend infrastructure mostly complete - デプロイ・テスト待ち
+**Checkpoint**: ✅ Backend infrastructure complete - デプロイ・テスト完了
 
 ---
 
@@ -272,7 +268,7 @@
 
 ---
 
-## Phase 10: Polish & Cross-Cutting Concerns 🔄 60%
+## Phase 10: Polish & Cross-Cutting Concerns 🔄 90%
 
 **Purpose**: 品質向上と最終確認
 
@@ -282,9 +278,9 @@
 - [x] T075 [P] UI改善 (ToriText 5文字改行、決まり字ハイライト)
 - [x] T076 Firebase deploy (Hosting, Functions デプロイ済)
 - [ ] T077 スペーシング・デザイン統一（各ページの余白調整）
-- [x] T078 レスポンシブ最適化確認（スマホ/タブレット/PC）
-- [ ] T079 称号システム検証（名人/永世称号付与）
-- [ ] T080 UI競技ロック（公式中の設定変更禁止）
+- [ ] T078 レスポンシブ最適化確認（スマホ/タブレット/PC）
+- [x] T079 称号システム検証（名人/永世称号付与）テスト完了
+- [x] T080 UI競技ロック（frozen/finalized時のエントリー制限）
 
 ---
 
@@ -393,11 +389,11 @@ Task: "Create KimarijiSelector component in apps/web/src/components/KimarijiSele
 | Phase 4 | US5 エントリー | 6/6 | 0 | ✅ |
 | Phase 5 | US2 稽古 | 8/8 | 0 | ✅ |
 | Phase 6 | US3 競技 | 11/11 | 0 | ✅ |
-| Phase 7 | US4 成績・番付 | 5/6 | 1 | 🔄 |
-| Phase 8 | Scheduled/Security | 6/8 | 2 | 🔄 |
+| Phase 7 | US4 成績・番付 | 6/6 | 0 | ✅ |
+| Phase 8 | Scheduled/Security | 8/8 | 0 | ✅ |
 | Phase 9 | 覚えた機能 | 3/3 | 0 | ✅ |
-| Phase 10 | Polish | 5/9 | 4 | 🔄 |
-| **Total** | | **80/87** | **7** | **92%** |
+| Phase 10 | Polish | 7/9 | 2 | 🔄 |
+| **Total** | | **85/87** | **2** | **98%** |
 
 ---
 
@@ -417,6 +413,9 @@ Task: "Create KimarijiSelector component in apps/web/src/components/KimarijiSele
 
 | 日付 | 内容 |
 |------|------|
+| 2026-01-24 | 読札/取札の言語切り替え分離、PoemRangeSelector追加、成績グラフ完了 |
+| 2026-01-24 | practiceStats.service.ts追加、Firestore indexes/rules更新 |
+| 2026-01-24 | 進捗更新（98%完了）、称号・UI競技ロック完了 |
 | 2026-01-22 | 進捗サマリー追加、完了タスク更新（92%完了） |
 | 2026-01-22 | UI統一（karuta-container、札サイズ最適化）完了 |
 | 2026-01-22 | 研鑽→稽古リネーム反映 |
