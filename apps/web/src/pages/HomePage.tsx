@@ -4,6 +4,7 @@ import { KarutaCard } from '@/components/KarutaCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { PoemDetailModal } from '@/components/PoemDetailModal';
 import { KimarijiSelector } from '@/components/KimarijiSelector';
+import { PoemRangeSelector, type PoemRange } from '@/components/PoemRangeSelector';
 import { ControlBar } from '@/components/ControlBar';
 import { useAuth } from '@/hooks/useAuth';
 import { useLearned } from '@/hooks/useLearned';
@@ -11,10 +12,12 @@ import { cn } from '@/lib/utils';
 import type { Poem } from '@/types/poem';
 
 export function HomePage() {
-  const [showKana, setShowKana] = useState(false);
+  const [showYomiKana, setShowYomiKana] = useState(false);
+  const [showToriKana, setShowToriKana] = useState(false);
   const [showKimariji, setShowKimariji] = useState(true);
   const [displayCount, setDisplayCount] = useState<12 | 100>(12);
   const [selectedKimariji, setSelectedKimariji] = useState<number[]>([]);
+  const [selectedPoemRange, setSelectedPoemRange] = useState<PoemRange[]>([]);
   const [searchText, setSearchText] = useState('');
   const [selectedPoem, setSelectedPoem] = useState<Poem | null>(null);
   const [shuffleSeed, setShuffleSeed] = useState(0);
@@ -39,6 +42,13 @@ export function HomePage() {
     // Filter by kimariji count
     if (selectedKimariji.length > 0) {
       result = result.filter(p => selectedKimariji.includes(p.kimarijiCount));
+    }
+
+    // Filter by poem range (order)
+    if (selectedPoemRange.length > 0) {
+      result = result.filter(p =>
+        selectedPoemRange.some(range => p.order >= range.start && p.order <= range.end)
+      );
     }
 
     // Filter by search text
@@ -67,7 +77,7 @@ export function HomePage() {
     }
 
     return result;
-  }, [allPoems, selectedKimariji, searchText, filterMode, learnedPoemIds]);
+  }, [allPoems, selectedKimariji, selectedPoemRange, searchText, filterMode, learnedPoemIds]);
 
   // Display poems (limited by displayCount, shuffled if needed)
   const displayPoems = useMemo(() => {
@@ -138,11 +148,20 @@ export function HomePage() {
           compact
         />
 
-        {/* Line 3: Options + Info */}
+        {/* Line 3: Poem Range */}
+        <PoemRangeSelector
+          selected={selectedPoemRange}
+          onChange={setSelectedPoemRange}
+          compact
+        />
+
+        {/* Line 4: Options + Info */}
         <div className="flex items-center justify-between text-xs">
           <ControlBar
-            showKana={showKana}
-            onToggleKana={() => setShowKana(!showKana)}
+            showYomiKana={showYomiKana}
+            onToggleYomiKana={() => setShowYomiKana(!showYomiKana)}
+            showToriKana={showToriKana}
+            onToggleToriKana={() => setShowToriKana(!showToriKana)}
             showKimariji={showKimariji}
             onToggleKimariji={() => setShowKimariji(!showKimariji)}
             learnedFilterMode={filterMode}
@@ -165,7 +184,8 @@ export function HomePage() {
               <KarutaCard
                 poem={poem}
                 mode="flip"
-                showKana={showKana}
+                showYomiKana={showYomiKana}
+                showToriKana={showToriKana}
                 showKimariji={showKimariji}
               />
               <div className="flex gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">

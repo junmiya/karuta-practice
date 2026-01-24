@@ -104,7 +104,7 @@ export function CardsListPage() {
         <PoemRangeSelector
           selected={selectedPoemRange}
           onChange={setSelectedPoemRange}
-          label="札番号"
+          compact
         />
 
         {/* Row 4: Control Bar + Count */}

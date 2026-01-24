@@ -24,6 +24,7 @@ import { Heading, Text } from '@/components/ui/Typography';
 import { Badge } from '@/components/ui/Badge';
 import { LoadingState, ErrorState, InfoBox } from '@/components/ui/PageStates';
 import { KimarijiSelector } from '@/components/KimarijiSelector';
+import { PoemRangeSelector, type PoemRange } from '@/components/PoemRangeSelector';
 import { cn } from '@/lib/utils';
 import { getAccuracyColor, getAccuracyTextColor } from '@/utils/karuta';
 import type { Season } from '@/types/entry';
@@ -42,20 +43,39 @@ export function KeikoPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedPoem, setSelectedPoem] = useState<Poem | null>(null);
 
-  // 決まり字選択（練習モード用）
+  // 決まり字・札範囲選択（練習モード用）
   const [selectedKimariji, setSelectedKimariji] = useState<number[]>([]);
+  const [selectedPoemRange, setSelectedPoemRange] = useState<PoemRange[]>([]);
   const poemCounts = useMemo(() => getPoemCountByKimariji(), []);
 
-  const selectedPoemCount = selectedKimariji.length > 0
-    ? selectedKimariji.reduce((sum, k) => sum + (poemCounts[k] || 0), 0)
-    : 100;
+  // 選択中の首数を計算（両フィルタの交差を考慮した概算）
+  const selectedPoemCount = useMemo(() => {
+    let count = 100;
+    if (selectedKimariji.length > 0) {
+      count = selectedKimariji.reduce((sum, k) => sum + (poemCounts[k] || 0), 0);
+    }
+    if (selectedPoemRange.length > 0) {
+      const rangeCount = selectedPoemRange.reduce((sum, r) => sum + (r.end - r.start + 1), 0);
+      // 両方選択時は小さい方を表示（実際のフィルタ結果は異なる場合あり）
+      if (selectedKimariji.length > 0) {
+        count = Math.min(count, rangeCount);
+      } else {
+        count = rangeCount;
+      }
+    }
+    return count;
+  }, [selectedKimariji, selectedPoemRange, poemCounts]);
 
   const startPractice = () => {
+    const params = new URLSearchParams();
     if (selectedKimariji.length > 0) {
-      navigate(`/practice?kimariji=${selectedKimariji.join(',')}`);
-    } else {
-      navigate('/practice');
+      params.set('kimariji', selectedKimariji.join(','));
     }
+    if (selectedPoemRange.length > 0) {
+      params.set('range', selectedPoemRange.map(r => `${r.start}-${r.end}`).join(','));
+    }
+    const query = params.toString();
+    navigate(query ? `/practice?${query}` : '/practice');
   };
 
   // 歌データをMapに変換（決まり字数取得用）- 統計計算で使用
@@ -141,6 +161,13 @@ export function KeikoPage() {
       <KimarijiSelector
         selected={selectedKimariji}
         onChange={setSelectedKimariji}
+        compact
+      />
+
+      {/* Line 3: Poem Range */}
+      <PoemRangeSelector
+        selected={selectedPoemRange}
+        onChange={setSelectedPoemRange}
         compact
       />
     </div>

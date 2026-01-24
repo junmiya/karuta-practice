@@ -1,3 +1,5 @@
+import { SelectButton } from '@/components/ui/SelectButton';
+
 export interface PoemRange {
   start: number;
   end: number;
@@ -26,6 +28,7 @@ interface PoemRangeSelectorProps {
 export function PoemRangeSelector({
   selected,
   onChange,
+  compact = false,
   label = '札番号',
 }: PoemRangeSelectorProps) {
   const toggleRange = (range: PoemRange) => {
@@ -41,25 +44,68 @@ export function PoemRangeSelector({
     onChange([]);
   };
 
+  // 選択中の首数を計算
+  const selectedPoemCount = selected.length > 0
+    ? selected.reduce((sum, r) => sum + (r.end - r.start + 1), 0)
+    : 100;
+
+  if (compact) {
+    // 1行コンパクト版（左寄せ）
+    return (
+      <div className="flex items-center gap-2 py-1">
+        <span className="text-xs text-gray-500 whitespace-nowrap">{label}</span>
+        <div className="flex gap-1 flex-1">
+          {POEM_RANGES.map(range => {
+            const isSelected = selected.some(r => r.start === range.start);
+            return (
+              <SelectButton
+                key={range.start}
+                isSelected={isSelected}
+                onVariant="onAccent"
+                size="sm"
+                shape="pill"
+                onClick={() => toggleRange(range)}
+                className="min-w-0 px-2 py-0.5 text-xs"
+              >
+                {range.label}
+              </SelectButton>
+            );
+          })}
+        </div>
+        <span className="text-xs text-gray-400 whitespace-nowrap">
+          {selected.length > 0 ? `${selectedPoemCount}首` : '全100首'}
+        </span>
+        {selected.length > 0 && (
+          <button
+            onClick={clearAll}
+            className="text-xs text-gray-400 hover:text-gray-600"
+          >
+            ✕
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  // Standard version（左寄せ）
   return (
-    <div className="flex items-center gap-2 flex-wrap justify-center">
+    <div className="flex items-center gap-2 flex-wrap">
       <span className="text-xs font-medium text-gray-600">{label}</span>
       <div className="flex gap-1">
         {POEM_RANGES.map(range => {
           const isSelected = selected.some(r => r.start === range.start);
           return (
-            <button
+            <SelectButton
               key={range.start}
+              isSelected={isSelected}
+              onVariant="onAccent"
+              size="sm"
+              shape="pill"
               onClick={() => toggleRange(range)}
-              className="h-7 px-2 text-xs font-semibold rounded-full border transition-colors"
-              style={
-                isSelected
-                  ? { backgroundColor: '#D97706', color: '#ffffff', borderColor: '#D97706' }
-                  : { backgroundColor: '#f3f4f6', color: '#4b5563', borderColor: '#d1d5db' }
-              }
+              className="min-w-0 px-2"
             >
               {range.label}
-            </button>
+            </SelectButton>
           );
         })}
       </div>

@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { SelectButton } from '@/components/ui/SelectButton';
 
 export type LearnedFilterMode = 'normal' | 'exclude' | 'prioritize';
 
@@ -70,103 +71,93 @@ export function ControlBar({
 
   const isLearnedActive = learnedFilterMode !== 'normal';
 
-  // 共通ボタンスタイル
-  const baseBtn = "h-7 px-2.5 text-xs font-bold rounded-full transition-all border";
-  const activeBtn = "bg-white shadow-sm";
-  const inactiveBtn = "text-gray-500 hover:text-gray-700 border-transparent";
-
   return (
-    <div className={cn('flex items-center gap-1 bg-gray-100 p-1 rounded-full', className)}>
+    <div className={cn('flex items-center gap-1', className)}>
       {/* 1. 漢字/かな - separate or unified */}
       {hasSeparateToggles ? (
         <>
           {/* 読札: 漢字/かな */}
-          <span className="text-[10px] text-gray-400 pl-1">読</span>
-          <button
+          <span className="text-[10px] text-gray-400">読</span>
+          <SelectButton
+            isSelected={yomiKanaActive}
+            onVariant="onPrimary"
+            size="sm"
+            shape="pill"
             onClick={onToggleYomiKana}
-            className={cn(
-              baseBtn,
-              yomiKanaActive
-                ? `${activeBtn} text-karuta-tansei border-karuta-tansei/30`
-                : inactiveBtn
-            )}
+            className="min-w-0 px-2 text-xs"
           >
             {yomiKanaActive ? 'かな' : '漢字'}
-          </button>
+          </SelectButton>
 
           {/* 取札: 漢字/かな */}
-          <span className="text-[10px] text-gray-400 pl-0.5">取</span>
-          <button
+          <span className="text-[10px] text-gray-400">取</span>
+          <SelectButton
+            isSelected={toriKanaActive}
+            onVariant="onPrimary"
+            size="sm"
+            shape="pill"
             onClick={onToggleToriKana}
-            className={cn(
-              baseBtn,
-              toriKanaActive
-                ? `${activeBtn} text-green-600 border-green-300`
-                : inactiveBtn
-            )}
+            className="min-w-0 px-2 text-xs"
           >
             {toriKanaActive ? 'かな' : '漢字'}
-          </button>
+          </SelectButton>
         </>
       ) : onToggleKana ? (
-        <button
+        <SelectButton
+          isSelected={yomiKanaActive}
+          onVariant="onPrimary"
+          size="sm"
+          shape="pill"
           onClick={onToggleKana}
-          className={cn(
-            baseBtn,
-            yomiKanaActive
-              ? `${activeBtn} text-karuta-tansei border-karuta-tansei/30`
-              : inactiveBtn
-          )}
+          className="min-w-0 px-2 text-xs"
         >
           {yomiKanaActive ? 'かな' : '漢字'}
-        </button>
+        </SelectButton>
       ) : null}
 
       {/* 2. 決まり字 */}
       {onToggleKimariji && (
-        <button
+        <SelectButton
+          isSelected={showKimariji}
+          onVariant="onAccent"
+          size="sm"
+          shape="pill"
           onClick={onToggleKimariji}
-          className={cn(
-            baseBtn,
-            showKimariji
-              ? `${activeBtn} text-karuta-accent border-karuta-accent/30`
-              : inactiveBtn
-          )}
+          className="min-w-0 px-2 text-xs"
         >
           決まり字
-        </button>
+        </SelectButton>
       )}
 
       {/* 3. 覚えた */}
       {onCycleLearnedFilter && (
-        <button
+        <SelectButton
+          isSelected={isLearnedActive}
+          onVariant={learnedFilterMode === 'exclude' ? 'onRed' : 'onPrimary'}
+          size="sm"
+          shape="pill"
           onClick={onCycleLearnedFilter}
           disabled={!isLearnedEnabled}
           title={!isLearnedEnabled ? 'ログイン必須' : '通常→除外→優先'}
-          className={cn(
-            baseBtn,
-            !isLearnedEnabled && 'opacity-40 cursor-not-allowed',
-            isLearnedActive
-              ? learnedFilterMode === 'exclude'
-                ? `${activeBtn} text-red-600 border-red-200`
-                : `${activeBtn} text-green-600 border-green-200`
-              : inactiveBtn
-          )}
+          className="min-w-0 px-2 text-xs"
         >
           覚{learnedCount > 0 && <span className="ml-0.5">{learnedCount}</span>}
           {isLearnedActive && <span className="ml-0.5">{getLearnedLabel()}</span>}
-        </button>
+        </SelectButton>
       )}
 
       {/* 4. シャッフル */}
       {onShuffle && (
-        <button
+        <SelectButton
+          isSelected={false}
+          size="sm"
+          shape="pill"
           onClick={onShuffle}
-          className={cn(baseBtn, inactiveBtn)}
           title="シャッフル"
+          className="min-w-0 px-2 text-xs"
         >
           🔀
-        </button>
+        </SelectButton>
       )}
     </div>
   );
