@@ -14,36 +14,36 @@ export function PoemDetailModal({ poem, onClose }: PoemDetailModalProps) {
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+            className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
             onClick={onClose}
         >
             <div
-                className="relative max-w-2xl w-full animate-in zoom-in-95 duration-200"
+                className="relative w-full max-w-4xl max-h-[95vh] flex flex-col animate-in zoom-in-95 duration-200"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Close button */}
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onClose}
-                    className="absolute -top-12 right-0 rounded-full p-2 h-auto bg-white/20 hover:bg-white/40 text-white"
-                >
-                    <X size={24} />
-                </Button>
-
                 {/* Header */}
-                <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="info" className="font-bold bg-white/90">
-                        {poem.order}番
-                    </Badge>
-                    <Text className="text-white font-medium">{poem.author}</Text>
+                <div className="flex items-center justify-between mb-1 px-1">
+                    <div className="flex items-center gap-2">
+                        <Badge variant="info" className="font-bold bg-white/90 text-xs">
+                            {poem.order}番
+                        </Badge>
+                        <Text className="text-white font-medium text-sm">{poem.author}</Text>
+                    </div>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={onClose}
+                        className="rounded-full p-1.5 h-auto bg-white/20 hover:bg-white/40 text-white"
+                    >
+                        <X size={20} />
+                    </Button>
                 </div>
 
                 {/* Manga Image */}
                 <img
                     src={mangaPath}
                     alt={`${poem.order}番 ${poem.yomi} - マンガ解説`}
-                    className="w-full rounded-lg shadow-2xl"
+                    className="w-full h-auto max-h-[calc(95vh-3rem)] object-contain rounded-lg shadow-2xl"
                     onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.style.display = 'none';
