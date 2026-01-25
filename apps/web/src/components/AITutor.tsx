@@ -54,7 +54,7 @@ export function AITutor({ poemId, className = '' }: AITutorProps) {
                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-karuta-tansei to-blue-400 text-white rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5"
             >
                 <Sparkles size={18} />
-                <span className="font-bold">AI解説を聞く</span>
+                <span className="font-bold">マンガ解説</span>
             </button>
 
             {/* Modal */}

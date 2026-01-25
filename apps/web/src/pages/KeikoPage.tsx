@@ -584,7 +584,7 @@ function WeakPoemsTab({
                 onClick={() => onSelectPoem(poem)}
                 className="gap-2"
               >
-                <span>✨</span> AI解説で対策
+                <span>📖</span> マンガ解説
               </Button>
             </div>
           );
