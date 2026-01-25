@@ -23,7 +23,7 @@ export function KimarijiSelector({
   selected,
   onChange,
   compact = false,
-  label = '出題範囲の設定',
+  label = '決まり字数',
 }: KimarijiSelectorProps) {
   const poemCounts = useMemo(() => getPoemCountByKimariji(), []);
 
