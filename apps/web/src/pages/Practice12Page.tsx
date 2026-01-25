@@ -90,7 +90,7 @@ export function Practice12Page() {
   return (
     <div className="karuta-container space-y-2 py-2">
       {/* Header - コンパクト1行 */}
-      <div className="flex items-center justify-between bg-white/90 border border-gray-200 rounded-lg px-3 py-1.5">
+      <div className="flex items-center justify-between bg-white/90 border border-gray-200 rounded-lg px-3 py-1">
         <div className="flex items-center gap-2">
           <span className="text-sm font-bold text-gray-700">研鑽</span>
           {questionCount > 0 && (

@@ -238,7 +238,7 @@ export function KeikoPage() {
       {/* 成績分析 */}
       <div className="bg-white/90 border border-gray-200 rounded-lg p-2">
         {/* タブ - 1行 */}
-        <div className="flex items-center gap-1 mb-2 pb-2 border-b border-gray-100">
+        <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-100">
           <div className="flex bg-gray-100 rounded p-0.5">
             {[
               { id: 'overview', label: '概要' },
@@ -312,7 +312,7 @@ function OverviewTab({ stats }: { stats: UserStatsAnalysis }) {
   return (
     <div className="space-y-6">
       {/* 統計サマリー */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <StatCard
           label="ベストスコア"
           value={overall.bestScore.toLocaleString()}
@@ -333,7 +333,7 @@ function OverviewTab({ stats }: { stats: UserStatsAnalysis }) {
       </div>
 
       {/* 追加統計 */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
         <StatCard
           label="平均解答時間"
           value={`${overall.avgResponseMs}ms`}
@@ -485,7 +485,7 @@ function DailyTab({ stats }: { stats: UserStatsAnalysis }) {
       {/* 簡易グラフ（ベストスコア推移） */}
       <div className="bg-gray-50 p-4 rounded-lg">
         <Heading as="h4" size="h4" className="text-base mb-4">ベストスコア推移</Heading>
-        <div className="flex items-end gap-1 h-32 overflow-x-auto pb-2">
+        <div className="flex items-end gap-2 h-32 overflow-x-auto pb-2">
           {[...byDay].reverse().map((day) => {
             const maxScore = Math.max(...byDay.map((d) => d.bestScore));
             const height = maxScore > 0 ? (day.bestScore / maxScore) * 100 : 0;
@@ -538,7 +538,7 @@ function WeakPoemsTab({
         </Text>
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-2">
         {weakPoems.map((poemStat, index) => {
           const poem = getPoemInfo(poemStat.poemId);
           if (!poem) return null;

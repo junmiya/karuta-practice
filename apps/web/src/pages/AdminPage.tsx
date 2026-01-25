@@ -237,7 +237,7 @@ export function AdminPage() {
   }
 
   return (
-    <div className="karuta-container space-y-4 py-2">
+    <div className="karuta-container space-y-2 py-2">
       {/* Header */}
       <PageHeader title="管理者ダッシュボード" subtitle="シーズン管理・統計・手動運用" />
 

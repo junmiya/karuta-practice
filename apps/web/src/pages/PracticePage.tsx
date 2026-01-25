@@ -159,7 +159,7 @@ export function PracticePage() {
   const filterLabel = filterLabels.length > 0 ? filterLabels.join(' / ') : '全て';
 
   return (
-    <div className="karuta-container space-y-1 py-2 text-foreground">
+    <div className="karuta-container space-y-2 py-2 text-foreground">
       {/* Progress & Controls */}
       <Card className="mb-1 p-1 bg-white">
         <div className="flex items-center justify-between mb-1">

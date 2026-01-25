@@ -200,7 +200,7 @@ export function OfficialPage() {
             </>
           )}
 
-          <div className="flex gap-4 justify-center mt-6">
+          <div className="flex gap-2 justify-center mt-6">
             <Button onClick={() => navigate('/banzuke')}>
               番付を見る
             </Button>
@@ -318,7 +318,7 @@ export function OfficialPage() {
                 : (showToriKana ? '漢字表示' : 'ひらがな表示')}
               に切り替えますか？
             </Text>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <Button
                 onClick={() => {
                   if (pendingToggle === 'yomi') {
