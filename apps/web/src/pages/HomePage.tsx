@@ -29,9 +29,18 @@ export function HomePage() {
     filterMode,
     cycleFilterMode,
     toggleLearned,
+    clearAll,
     isLearned,
     isAuthenticated,
   } = useLearned(user?.uid ?? null);
+
+  // 一括クリア確認
+  const handleClearAll = useCallback(() => {
+    if (learnedCount === 0) return;
+    if (confirm(`覚えた札 ${learnedCount}首 をすべてクリアしますか？`)) {
+      clearAll();
+    }
+  }, [clearAll, learnedCount]);
 
   const allPoems = useMemo(() => getAllPoemsSync(), []);
 
@@ -170,9 +179,20 @@ export function HomePage() {
             isLearnedEnabled={isAuthenticated}
             onShuffle={handleShuffle}
           />
-          <span className="text-gray-400">
-            {displayPoems.length}/{filteredPoems.length}首
-          </span>
+          <div className="flex items-center gap-2">
+            {isAuthenticated && learnedCount > 0 && (
+              <button
+                onClick={handleClearAll}
+                className="text-red-400 hover:text-red-600 transition-colors"
+                title="覚えた札をすべてクリア"
+              >
+                クリア
+              </button>
+            )}
+            <span className="text-gray-400">
+              {displayPoems.length}/{filteredPoems.length}首
+            </span>
+          </div>
         </div>
       </div>
 
