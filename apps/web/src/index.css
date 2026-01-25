@@ -164,12 +164,19 @@ body {
   --karuta-content-width: 600px;
 }
 
-/* 札グリッドと同じ幅のコンテナ */
+/* 札グリッドと同じ幅のコンテナ（スマホでは横幅いっぱい） */
 .karuta-container {
   width: 100%;
   max-width: var(--karuta-content-width);
   margin: 0 auto;
-  padding: 0 0.25rem;
+  padding: 0 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .karuta-container {
+    max-width: 100%;
+    padding: 0 0.25rem;
+  }
 }
 
 /* 12-card practice grid - ビューポートベースの動的サイズ
@@ -200,11 +207,13 @@ body {
 @media (max-width: 640px) {
 
   .karuta-container {
+    max-width: 100%;
     padding: 0 0.125rem;
   }
 
   .karuta-grid,
   .karuta-grid-all {
+    max-width: 100%;
     gap: 0.125rem;
     padding: 0.125rem;
   }
