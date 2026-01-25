@@ -57,31 +57,21 @@ export function Header() {
   return (
     <header className="bg-white border-b border-neutral-200">
       <Container className="py-0" size="full">
-        {/* Single Row: Title + Tabs + User */}
-        <div className="flex items-center justify-between h-10 gap-1">
-          {/* Title - 短縮版をスマホで表示 */}
-          <button onClick={() => navigate('/')} className="hover:opacity-80 transition-opacity shrink-0">
-            <span className="text-sm font-bold text-karuta-tansei hidden sm:inline">百人一首 カルタ番付</span>
-            <span className="text-sm font-bold text-karuta-tansei sm:hidden">番付</span>
+        {/* Row 1: Title + User */}
+        <div className="flex items-center justify-between h-8">
+          {/* Title */}
+          <button onClick={() => navigate('/')} className="hover:opacity-80 transition-opacity">
+            <span className="text-sm font-bold text-karuta-tansei">百人一首 カルタ番付</span>
           </button>
 
-          {/* Tabs - Center */}
-          <nav className="flex items-center gap-0 sm:gap-0.5 overflow-x-auto no-scrollbar">
-            <TabButton path="/basic" label="学習" />
-            <TabButton path="/keiko" label="稽古" required />
-            <TabButton path="/kyogi" label="競技" required />
-            <TabButton path="/seiseki" label="成績" required />
-            <TabButton path="/banzuke" label="番付" required />
-          </nav>
-
           {/* Profile / Login */}
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="flex items-center gap-1">
             {isAuthenticated ? (
               <>
                 <button
                   onClick={() => navigate('/profile')}
                   className={cn(
-                    "text-xs px-1.5 sm:px-2 py-0.5 rounded transition-colors truncate max-w-[60px] sm:max-w-none",
+                    "text-xs px-2 py-0.5 rounded transition-colors",
                     location.pathname === '/profile'
                       ? "bg-karuta-tansei/10 text-karuta-tansei"
                       : "text-neutral-600 hover:text-karuta-tansei"
@@ -93,19 +83,28 @@ export function Header() {
                   onClick={handleLogout}
                   className="text-xs text-neutral-400 hover:text-red-500 px-1"
                 >
-                  出
+                  出門
                 </button>
               </>
             ) : (
               <button
                 onClick={() => navigate('/profile')}
-                className="text-xs text-karuta-tansei font-medium px-1.5 sm:px-2 py-0.5 bg-karuta-tansei/10 rounded hover:bg-karuta-tansei/20"
+                className="text-xs text-karuta-tansei font-medium px-2 py-0.5 bg-karuta-tansei/10 rounded hover:bg-karuta-tansei/20"
               >
-                入
+                入門
               </button>
             )}
           </div>
         </div>
+
+        {/* Row 2: Navigation Tabs */}
+        <nav className="flex items-center justify-center gap-1 h-8 border-t border-neutral-100">
+          <TabButton path="/basic" label="学習" />
+          <TabButton path="/keiko" label="稽古" required />
+          <TabButton path="/kyogi" label="競技" required />
+          <TabButton path="/seiseki" label="成績" required />
+          <TabButton path="/banzuke" label="番付" required />
+        </nav>
       </Container>
     </header>
   );

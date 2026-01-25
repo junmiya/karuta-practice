@@ -30,7 +30,24 @@ export function useAuth() {
 
   // Listen to auth state changes
   useEffect(() => {
+    let isSubscribed = true;
+
+    // タイムアウト: 5秒経っても認証状態が確定しない場合はloading: falseに
+    const timeout = setTimeout(() => {
+      if (isSubscribed) {
+        setState((prev) => {
+          if (prev.loading) {
+            console.warn('Auth state timeout - setting loading to false');
+            return { ...prev, loading: false };
+          }
+          return prev;
+        });
+      }
+    }, 5000);
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!isSubscribed) return;
+
       if (firebaseUser) {
         try {
           // Get or create user profile
@@ -39,31 +56,42 @@ export function useAuth() {
             await createUserProfile(firebaseUser.uid);
             profile = await getUserProfile(firebaseUser.uid);
           }
+          if (isSubscribed) {
+            setState({
+              firebaseUser,
+              userProfile: profile,
+              loading: false,
+              error: null,
+            });
+          }
+        } catch (err) {
+          console.error('Failed to load user profile:', err);
+          if (isSubscribed) {
+            setState({
+              firebaseUser,
+              userProfile: null,
+              loading: false,
+              error: 'Failed to load user profile',
+            });
+          }
+        }
+      } else {
+        if (isSubscribed) {
           setState({
-            firebaseUser,
-            userProfile: profile,
+            firebaseUser: null,
+            userProfile: null,
             loading: false,
             error: null,
           });
-        } catch (err) {
-          setState({
-            firebaseUser,
-            userProfile: null,
-            loading: false,
-            error: 'Failed to load user profile',
-          });
         }
-      } else {
-        setState({
-          firebaseUser: null,
-          userProfile: null,
-          loading: false,
-          error: null,
-        });
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      isSubscribed = false;
+      clearTimeout(timeout);
+      unsubscribe();
+    };
   }, []);
 
   const loginWithGoogle = useCallback(async () => {
