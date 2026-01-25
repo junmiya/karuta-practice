@@ -177,22 +177,12 @@ export function HomePage() {
             onCycleLearnedFilter={cycleFilterMode}
             learnedCount={learnedCount}
             isLearnedEnabled={isAuthenticated}
+            onClearLearned={isAuthenticated ? handleClearAll : undefined}
             onShuffle={handleShuffle}
           />
-          <div className="flex items-center gap-2">
-            {isAuthenticated && learnedCount > 0 && (
-              <button
-                onClick={handleClearAll}
-                className="text-red-400 hover:text-red-600 transition-colors"
-                title="覚えた札をすべてクリア"
-              >
-                クリア
-              </button>
-            )}
-            <span className="text-gray-400">
-              {displayPoems.length}/{filteredPoems.length}首
-            </span>
-          </div>
+          <span className="text-gray-400">
+            {displayPoems.length}/{filteredPoems.length}首
+          </span>
         </div>
       </div>
 

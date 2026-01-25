@@ -28,6 +28,8 @@ export interface ControlBarProps {
   learnedCount?: number;
   /** 覚えた機能が有効か（ログイン必須） */
   isLearnedEnabled?: boolean;
+  /** 覚えた一括クリア */
+  onClearLearned?: () => void;
   /** シャッフル */
   onShuffle?: () => void;
   /** 追加のクラス名 */
@@ -53,6 +55,7 @@ export function ControlBar({
   onCycleLearnedFilter,
   learnedCount = 0,
   isLearnedEnabled = false,
+  onClearLearned,
   onShuffle,
   className,
 }: ControlBarProps) {
@@ -144,6 +147,17 @@ export function ControlBar({
           覚{learnedCount > 0 && <span className="ml-0.5">{learnedCount}</span>}
           {isLearnedActive && <span className="ml-0.5">{getLearnedLabel()}</span>}
         </SelectButton>
+      )}
+
+      {/* 3.5. 覚えたクリア */}
+      {onClearLearned && learnedCount > 0 && (
+        <button
+          onClick={onClearLearned}
+          className="text-xs text-gray-400 hover:text-red-500 transition-colors px-1"
+          title="覚えた札をすべてクリア"
+        >
+          ×
+        </button>
       )}
 
       {/* 4. シャッフル */}
