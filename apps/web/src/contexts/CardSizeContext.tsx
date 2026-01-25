@@ -85,15 +85,19 @@ export function CardSizeProvider({ children }: CardSizeProviderProps) {
     const availableHeight = viewportHeight - headerHeight - controlPanelHeight - BOTTOM_MARGIN;
 
     // 利用可能な幅を計算（パディングを考慮）
-    const maxAvailableWidth = Math.min(viewportWidth - 16, 800); // 左右8pxマージン、最大800px
+    // スマホでは横幅をほぼフルに使用（左右2pxマージン、ギャップも縮小）
+    const horizontalMargin = isSmartphone ? 4 : 16;
+    const gridGap = isSmartphone ? 2 : GRID_GAP;
+    const gridPadding = isSmartphone ? 2 : GRID_PADDING;
+    const maxAvailableWidth = Math.min(viewportWidth - horizontalMargin, 800);
 
     // 高さベースでカードサイズを計算
-    const totalVerticalGap = GRID_GAP * (rows - 1) + GRID_PADDING * 2;
+    const totalVerticalGap = gridGap * (rows - 1) + gridPadding * 2;
     const maxCardHeightFromHeight = (availableHeight - totalVerticalGap) / rows;
     const cardWidthFromHeight = maxCardHeightFromHeight / CARD_ASPECT_RATIO;
 
     // 幅ベースでカードサイズを計算
-    const totalHorizontalGap = GRID_GAP * (columns - 1) + GRID_PADDING * 2;
+    const totalHorizontalGap = gridGap * (columns - 1) + gridPadding * 2;
     const maxCardWidthFromWidth = (maxAvailableWidth - totalHorizontalGap) / columns;
 
     // 高さと幅の制約のうち、小さい方を採用
@@ -105,7 +109,7 @@ export function CardSizeProvider({ children }: CardSizeProviderProps) {
     const cardHeight = cardWidth * CARD_ASPECT_RATIO;
 
     // グリッド幅を計算
-    const gridMaxWidth = cardWidth * columns + GRID_GAP * (columns - 1) + GRID_PADDING * 2;
+    const gridMaxWidth = cardWidth * columns + gridGap * (columns - 1) + gridPadding * 2;
 
     return {
       gridMaxWidth,

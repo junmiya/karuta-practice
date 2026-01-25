@@ -196,18 +196,22 @@ body {
   grid-template-columns: repeat(var(--karuta-columns), 1fr);
 }
 
-/* Smaller gap for narrow screens */
+/* Smaller gap for narrow screens - 横幅いっぱいに表示 */
 @media (max-width: 640px) {
+
+  .karuta-container {
+    padding: 0 0.125rem;
+  }
 
   .karuta-grid,
   .karuta-grid-all {
-    gap: 0.25rem;
-    padding: 0.25rem;
+    gap: 0.125rem;
+    padding: 0.125rem;
   }
 
   .karuta-card-container-grid,
   .karuta-card-container {
     gap: 0.125rem;
-    padding: 0.25rem;
+    padding: 0.125rem;
   }
 }
