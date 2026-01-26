@@ -98,11 +98,26 @@ export function useAuth() {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
       await signInWithGoogle();
-    } catch (err) {
+    } catch (err: unknown) {
+      console.error('Google login error:', err);
+      const errorCode = (err as { code?: string })?.code;
+      const errorMessage = (err as { message?: string })?.message;
+      let displayError = 'Googleログインに失敗しました';
+      if (errorCode === 'auth/popup-closed-by-user') {
+        displayError = 'ログインがキャンセルされました';
+      } else if (errorCode === 'auth/popup-blocked') {
+        displayError = 'ポップアップがブロックされました。ポップアップを許可してください';
+      } else if (errorCode === 'auth/cancelled-popup-request') {
+        displayError = 'ログインがキャンセルされました';
+      } else if (errorCode === 'auth/network-request-failed') {
+        displayError = 'ネットワークエラーです。接続を確認してください';
+      } else if (errorMessage) {
+        displayError = `Googleログインエラー: ${errorMessage}`;
+      }
       setState((prev) => ({
         ...prev,
         loading: false,
-        error: 'Google login failed',
+        error: displayError,
       }));
     }
   }, []);
