@@ -1,5 +1,4 @@
 import {
-  signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   signOut as firebaseSignOut,
@@ -41,18 +40,9 @@ export async function signInWithGoogle(): Promise<User | null> {
   isSigningIn = true;
 
   try {
-    // Check if mobile device
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-    if (isMobile) {
-      // Use redirect for mobile (more reliable)
-      await signInWithRedirect(auth, googleProvider);
-      return null; // Will be handled by checkRedirectResult
-    } else {
-      // Use popup for desktop
-      const result = await signInWithPopup(auth, googleProvider);
-      return result.user;
-    }
+    // Always use redirect (more reliable than popup)
+    await signInWithRedirect(auth, googleProvider);
+    return null; // Will be handled by checkRedirectResult on page reload
   } finally {
     // Reset after a short delay to prevent rapid re-clicks
     setTimeout(() => {
