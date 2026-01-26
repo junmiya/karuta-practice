@@ -6,6 +6,7 @@ import {
   signUpWithEmail,
   signInWithEmail,
   signOut,
+  checkRedirectResult,
 } from '@/services/auth.service';
 import {
   getUserProfile,
@@ -27,6 +28,11 @@ export function useAuth() {
     loading: true,
     error: null,
   });
+
+  // Check for redirect result on mount (for mobile login)
+  useEffect(() => {
+    checkRedirectResult().catch(console.error);
+  }, []);
 
   // Listen to auth state changes
   useEffect(() => {
@@ -103,7 +109,9 @@ export function useAuth() {
       const errorCode = (err as { code?: string })?.code;
       const errorMessage = (err as { message?: string })?.message;
       let displayError = 'Googleログインに失敗しました';
-      if (errorCode === 'auth/popup-closed-by-user') {
+      if (errorMessage === 'Sign-in already in progress') {
+        displayError = 'ログイン処理中です。しばらくお待ちください';
+      } else if (errorCode === 'auth/popup-closed-by-user') {
         displayError = 'ログインがキャンセルされました';
       } else if (errorCode === 'auth/popup-blocked') {
         displayError = 'ポップアップがブロックされました。ポップアップを許可してください';
