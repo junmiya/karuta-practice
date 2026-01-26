@@ -1,6 +1,5 @@
 import {
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
   signOut as firebaseSignOut,
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
@@ -15,36 +14,19 @@ const googleProvider = new GoogleAuthProvider();
 let isSigningIn = false;
 
 /**
- * Check for redirect result on page load
+ * Sign in with Google account using popup
  */
-export async function checkRedirectResult(): Promise<User | null> {
-  try {
-    const result = await getRedirectResult(auth);
-    return result?.user || null;
-  } catch (err) {
-    console.error('Redirect result error:', err);
-    return null;
-  }
-}
-
-/**
- * Sign in with Google account
- * Uses redirect on mobile, popup on desktop
- */
-export async function signInWithGoogle(): Promise<User | null> {
+export async function signInWithGoogle(): Promise<User> {
   if (isSigningIn) {
-    console.warn('Sign-in already in progress');
     throw new Error('Sign-in already in progress');
   }
 
   isSigningIn = true;
 
   try {
-    // Always use redirect (more reliable than popup)
-    await signInWithRedirect(auth, googleProvider);
-    return null; // Will be handled by checkRedirectResult on page reload
+    const result = await signInWithPopup(auth, googleProvider);
+    return result.user;
   } finally {
-    // Reset after a short delay to prevent rapid re-clicks
     setTimeout(() => {
       isSigningIn = false;
     }, 1000);

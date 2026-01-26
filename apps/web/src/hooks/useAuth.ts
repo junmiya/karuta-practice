@@ -6,7 +6,6 @@ import {
   signUpWithEmail,
   signInWithEmail,
   signOut,
-  checkRedirectResult,
 } from '@/services/auth.service';
 import {
   getUserProfile,
@@ -28,21 +27,6 @@ export function useAuth() {
     loading: true,
     error: null,
   });
-
-  // Check for redirect result on mount (for redirect login)
-  useEffect(() => {
-    checkRedirectResult()
-      .then((user) => {
-        if (user) {
-          console.log('Redirect login successful:', user.email);
-        }
-      })
-      .catch((err) => {
-        console.error('Redirect result error:', err);
-        // Reset loading state on error
-        setState(prev => ({ ...prev, loading: false }));
-      });
-  }, []);
 
   // Listen to auth state changes
   useEffect(() => {
