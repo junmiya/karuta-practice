@@ -29,16 +29,26 @@ export function useAuth() {
     error: null,
   });
 
-  // Check for redirect result on mount (for mobile login)
+  // Check for redirect result on mount (for redirect login)
   useEffect(() => {
-    checkRedirectResult().catch(console.error);
+    checkRedirectResult()
+      .then((user) => {
+        if (user) {
+          console.log('Redirect login successful:', user.email);
+        }
+      })
+      .catch((err) => {
+        console.error('Redirect result error:', err);
+        // Reset loading state on error
+        setState(prev => ({ ...prev, loading: false }));
+      });
   }, []);
 
   // Listen to auth state changes
   useEffect(() => {
     let isSubscribed = true;
 
-    // タイムアウト: 5秒経っても認証状態が確定しない場合はloading: falseに
+    // タイムアウト: 3秒経っても認証状態が確定しない場合はloading: falseに
     const timeout = setTimeout(() => {
       if (isSubscribed) {
         setState((prev) => {
@@ -49,7 +59,7 @@ export function useAuth() {
           return prev;
         });
       }
-    }, 5000);
+    }, 3000);
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (!isSubscribed) return;
