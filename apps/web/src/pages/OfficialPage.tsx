@@ -201,7 +201,7 @@ export function OfficialPage() {
           )}
 
           <div className="flex gap-2 justify-center mt-6">
-            <Button onClick={() => navigate('/banzuke')}>
+            <Button onClick={() => navigate('/utakurai')}>
               番付を見る
             </Button>
             <Button onClick={() => navigate('/')} variant="secondary">

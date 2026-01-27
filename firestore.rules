@@ -14,7 +14,8 @@ service cloud.firestore {
 
     // エントリー
     match /entries/{entryId} {
-      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
+      // 認証済みユーザーは自分のエントリーIDパターン（uid_seasonId）で読み取り可能
+      allow read: if request.auth != null && entryId.matches(request.auth.uid + '_.*');
       allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
     }
 

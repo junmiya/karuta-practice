@@ -113,8 +113,6 @@ export function useAuth() {
         displayError = 'ログインがキャンセルされました';
       } else if (errorCode === 'auth/network-request-failed') {
         displayError = 'ネットワークエラーです。接続を確認してください';
-      } else if (errorMessage) {
-        displayError = `Googleログインエラー: ${errorMessage}`;
       }
       setState((prev) => ({
         ...prev,

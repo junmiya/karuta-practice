@@ -10,14 +10,14 @@ export function Header() {
   const { isAuthenticated, isProfileComplete, profile, logout } = useAuthContext();
 
   const isActive = (path: string) => {
-    if (path === '/basic') {
+    if (path === '/tenarai') {
       return location.pathname === '/' || location.pathname === '/cards';
     }
     if (path === '/keiko') {
       return location.pathname === '/keiko' || location.pathname === '/practice' || location.pathname === '/practice12' || location.pathname === '/result';
     }
-    if (path === '/banzuke') {
-      return location.pathname === '/banzuke';
+    if (path === '/utakurai') {
+      return location.pathname === '/utakurai';
     }
     return location.pathname.startsWith(path);
   };
@@ -41,7 +41,7 @@ export function Header() {
 
   const TabButton = ({ path, label, required }: { path: string, label: string, required?: boolean }) => (
     <button
-      onClick={() => path === '/basic' ? navigate('/') : handleTabClick(path, !!required, !!required)}
+      onClick={() => path === '/tenarai' ? navigate('/') : handleTabClick(path, !!required, !!required)}
       className={cn(
         "px-3 py-1 text-sm font-medium transition-all whitespace-nowrap border-b-2",
         isActive(path)
@@ -99,11 +99,11 @@ export function Header() {
 
         {/* Row 2: Navigation Tabs */}
         <nav className="flex items-center justify-center gap-1 h-8 border-t border-neutral-100">
-          <TabButton path="/basic" label="学習" />
+          <TabButton path="/tenarai" label="手習" />
           <TabButton path="/keiko" label="稽古" required />
-          <TabButton path="/kyogi" label="競技" required />
-          <TabButton path="/seiseki" label="成績" required />
-          <TabButton path="/banzuke" label="番付" required />
+          <TabButton path="/keikoroku" label="稽古録" required />
+          <TabButton path="/utaawase" label="歌合" required />
+          <TabButton path="/utakurai" label="歌位" required />
         </nav>
       </Container>
     </header>

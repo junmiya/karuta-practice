@@ -12,6 +12,7 @@ import {
   type AllPracticeStats,
   type PoemStatsData,
 } from '@/services/practiceStats.service';
+import { analyzeStats, type StatsDataForAnalysis } from '@/services/ai.service';
 import { getAllPoems } from '@/services/poems.service';
 import {
   ResponsiveContainer,
@@ -41,6 +42,13 @@ export function SeisekiPage() {
   const [selectedPoemForAI, setSelectedPoemForAI] = useState<PoemStatsData | null>(null);
   const [aiPrompt, setAiPrompt] = useState<string | null>(null);
   const [kimarijiFilter, setKimarijiFilter] = useState<number | null>(null);
+
+  // AI Stats Analysis state
+  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
+  const [aiAnalysisSource, setAiAnalysisSource] = useState<string | null>(null);
+  const [aiAnalysisLoading, setAiAnalysisLoading] = useState(false);
+  const [aiAnalysisError, setAiAnalysisError] = useState<string | null>(null);
+  const [showAiAnalysisModal, setShowAiAnalysisModal] = useState(false);
 
   // Fetch poems and practice stats
   useEffect(() => {
@@ -126,6 +134,47 @@ export function SeisekiPage() {
     setAiPrompt(generateWeakPoemAnalysisPrompt(poem));
   };
 
+  // Handle overall AI stats analysis
+  const handleAiStatsAnalysis = async () => {
+    if (!stats) return;
+
+    setAiAnalysisLoading(true);
+    setAiAnalysisError(null);
+    setShowAiAnalysisModal(true);
+
+    try {
+      const statsData: StatsDataForAnalysis = {
+        overall: {
+          totalSessions: stats.overall.totalSessions,
+          totalQuestions: stats.overall.totalQuestions,
+          accuracy: stats.overall.accuracy,
+          avgResponseMs: stats.overall.avgResponseMs,
+        },
+        byKimariji: stats.byKimariji.map(k => ({
+          kimarijiCount: k.kimarijiCount,
+          accuracy: k.accuracy,
+          totalAttempts: k.totalAttempts,
+        })),
+        weakPoems: stats.weakPoems.slice(0, 10).map(p => ({
+          poemNumber: p.poemNumber,
+          kimariji: p.kimariji,
+          kimarijiCount: p.kimarijiCount,
+          accuracy: p.accuracy,
+          totalAttempts: p.totalAttempts,
+        })),
+      };
+
+      const result = await analyzeStats(statsData);
+      setAiAnalysis(result.analysis);
+      setAiAnalysisSource(result.source || null);
+    } catch (err) {
+      console.error('AI Stats Analysis Error:', err);
+      setAiAnalysisError('分析の取得に失敗しました。');
+    } finally {
+      setAiAnalysisLoading(false);
+    }
+  };
+
   const tabs: { key: TabType; label: string }[] = [
     { key: 'overview', label: '概要' },
     { key: 'kimariji', label: '決まり字' },
@@ -198,6 +247,23 @@ export function SeisekiPage() {
           {/* Overview Tab */}
           {activeTab === 'overview' && (
             <div className="space-y-2">
+              {/* AI Analysis Button */}
+              <Card padding="sm" className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-5 h-5 text-karuta-tansei" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                    <Text size="sm" className="font-medium text-gray-700">
+                      AIがあなたの成績を分析します
+                    </Text>
+                  </div>
+                  <Button onClick={handleAiStatsAnalysis} size="sm" disabled={aiAnalysisLoading}>
+                    {aiAnalysisLoading ? '分析中...' : 'AI分析'}
+                  </Button>
+                </div>
+              </Card>
+
               {/* Summary Stats */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-white/90 border border-gray-200 rounded-lg p-2 sm:p-3">
                 <div className="flex items-baseline gap-1 justify-center sm:justify-start">
@@ -638,6 +704,73 @@ export function SeisekiPage() {
               </Button>
             </div>
           </Card>
+
+          {/* AI Stats Analysis Modal */}
+          {showAiAnalysisModal && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <Card className="max-w-lg w-full max-h-[80vh] overflow-auto">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-5 h-5 text-karuta-tansei" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                    <Heading as="h3" size="h3">AI分析結果</Heading>
+                  </div>
+                  <button
+                    onClick={() => { setShowAiAnalysisModal(false); setAiAnalysis(null); setAiAnalysisError(null); }}
+                    className="p-1 hover:bg-gray-100 rounded"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                {aiAnalysisLoading && (
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-karuta-tansei mb-3"></div>
+                    <Text size="sm" color="muted">AIが分析中です...</Text>
+                  </div>
+                )}
+
+                {aiAnalysisError && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <Text className="text-red-600">{aiAnalysisError}</Text>
+                  </div>
+                )}
+
+                {aiAnalysis && !aiAnalysisLoading && (
+                  <div>
+                    <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg mb-4">
+                      <div className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
+                        {aiAnalysis}
+                      </div>
+                    </div>
+                    {aiAnalysisSource && (
+                      <Text size="sm" color="muted" className="text-right">
+                        分析元: {aiAnalysisSource}
+                      </Text>
+                    )}
+                    <div className="mt-4 flex gap-2">
+                      <Button
+                        onClick={() => navigate('/practice')}
+                        className="flex-1"
+                      >
+                        練習する
+                      </Button>
+                      <Button
+                        onClick={() => { setShowAiAnalysisModal(false); setAiAnalysis(null); }}
+                        variant="secondary"
+                        className="flex-1"
+                      >
+                        閉じる
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </Card>
+            </div>
+          )}
         </>
       )}
     </div>

@@ -23,24 +23,26 @@ export function App() {
         <BrowserRouter>
           <Layout>
           <Routes>
-            {/* 基本タブ（無料） */}
+            {/* 手習タブ（無料） */}
             <Route path="/" element={<HomePage />} />
             <Route path="/cards" element={<CardsListPage />} />
 
-            {/* 研鑽タブ */}
+            {/* 稽古タブ */}
             <Route path="/keiko" element={<KeikoPage />} />
             <Route path="/practice" element={<PracticePage />} />
             <Route path="/practice12" element={<Practice12Page />} />
             <Route path="/result" element={<ResultPage />} />
 
-            {/* 競技タブ（要ログイン） */}
-            <Route path="/kyogi" element={<KyogiPage />} />
+            {/* 稽古録タブ（要ログイン） */}
+            <Route path="/keikoroku" element={<SeisekiPage />} />
+
+            {/* 歌合タブ（要ログイン） */}
+            <Route path="/utaawase" element={<KyogiPage />} />
             <Route path="/entry" element={<EntryPage />} />
             <Route path="/official" element={<OfficialPage />} />
-            <Route path="/banzuke" element={<BanzukePage />} />
 
-            {/* 成績タブ（要ログイン/課金） */}
-            <Route path="/seiseki" element={<SeisekiPage />} />
+            {/* 歌位タブ（要ログイン） */}
+            <Route path="/utakurai" element={<BanzukePage />} />
 
             {/* プロフィール */}
             <Route path="/profile" element={<ProfilePage />} />

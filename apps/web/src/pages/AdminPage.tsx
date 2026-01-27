@@ -220,7 +220,7 @@ export function AdminPage() {
   // Auth check
   if (authLoading) {
     return (
-      <div className="karuta-container space-y-6 py-2">
+      <div className="karuta-container space-y-2 py-2">
         <PageHeader title="管理者ダッシュボード" subtitle="シーズン管理・統計・手動運用" />
         <LoadingState />
       </div>
@@ -229,7 +229,7 @@ export function AdminPage() {
 
   if (!user) {
     return (
-      <div className="karuta-container space-y-6 py-2">
+      <div className="karuta-container space-y-2 py-2">
         <PageHeader title="管理者ダッシュボード" subtitle="シーズン管理・統計・手動運用" />
         <AuthRequiredState message="管理者ページにアクセスするにはログインが必要です" />
       </div>
@@ -295,7 +295,7 @@ export function AdminPage() {
               シーズンがありません
             </Text>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-2">
               {seasons.map((season) => {
                 const statusInfo = statusLabels[season.status] || { label: season.status, variant: 'secondary' as const };
                 const isActionLoading = actionLoading === season.seasonId;
@@ -432,7 +432,7 @@ export function AdminPage() {
         <Card>
           <Heading as="h3" size="h3" className="mb-4">新規シーズン作成</Heading>
 
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">年</label>
               <input

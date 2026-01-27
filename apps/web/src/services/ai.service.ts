@@ -22,6 +22,37 @@ interface ExplanationResponse {
     source?: string;
 }
 
+// Stats Analysis types
+export interface StatsDataForAnalysis {
+    overall: {
+        totalSessions: number;
+        totalQuestions: number;
+        accuracy: number;
+        avgResponseMs: number;
+    };
+    byKimariji: Array<{
+        kimarijiCount: number;
+        accuracy: number;
+        totalAttempts: number;
+    }>;
+    weakPoems: Array<{
+        poemNumber: number;
+        kimariji: string;
+        kimarijiCount: number;
+        accuracy: number;
+        totalAttempts: number;
+    }>;
+}
+
+interface AnalyzeStatsRequest {
+    stats: StatsDataForAnalysis;
+}
+
+interface AnalyzeStatsResponse {
+    analysis: string;
+    source?: string;
+}
+
 /**
  * Get AI explanation for a poem
  */
@@ -51,5 +82,23 @@ export async function getPoemExplanation(
     } catch (error) {
         console.error('AI Service Error:', error);
         throw new Error('AI解説の取得に失敗しました。');
+    }
+}
+
+/**
+ * Get AI analysis for practice stats
+ */
+export async function analyzeStats(stats: StatsDataForAnalysis): Promise<AnalyzeStatsResponse> {
+    const analyze = httpsCallable<AnalyzeStatsRequest, AnalyzeStatsResponse>(
+        functions,
+        'analyzeStats'
+    );
+
+    try {
+        const result = await analyze({ stats });
+        return result.data;
+    } catch (error) {
+        console.error('AI Stats Analysis Error:', error);
+        throw new Error('AI分析の取得に失敗しました。');
     }
 }

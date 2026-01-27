@@ -161,7 +161,7 @@ export function PracticePage() {
   return (
     <div className="karuta-container space-y-2 py-2 text-foreground">
       {/* Progress & Controls */}
-      <Card className="mb-1 p-1 bg-white">
+      <Card className="p-2 bg-white">
         <div className="flex items-center justify-between mb-1">
           <div>
             <div className="flex items-baseline gap-2">
@@ -196,7 +196,7 @@ export function PracticePage() {
       </Card>
 
       {/* Yomi (上の句) - Compact */}
-      <Card className="mb-1 p-0 relative overflow-hidden text-center border-0 shadow-lg">
+      <Card className="p-0 relative overflow-hidden text-center border-0 shadow-lg">
         <div className="absolute top-0 left-0 w-full h-1 bg-karuta-tansei"></div>
 
         <div className="px-2 py-2">

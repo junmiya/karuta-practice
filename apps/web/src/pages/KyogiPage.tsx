@@ -1,14 +1,48 @@
+/**
+ * 競技ページ（公式競技エントリー）
+ */
+
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { getCurrentSeason } from '@/services/stage1.service';
+import type { Season } from '@/types/entry';
 
 export function KyogiPage() {
   const navigate = useNavigate();
   const { isAuthenticated, isProfileComplete } = useAuthContext();
+  const [season, setSeason] = useState<Season | null>(null);
+
+  useEffect(() => {
+    getCurrentSeason().then(setSeason).catch(console.error);
+  }, []);
 
   return (
     <div className="karuta-container space-y-2 py-2">
+      {/* Season Info */}
+      {season && (
+        <Card padding="sm" className="bg-karuta-tansei/5 border-karuta-tansei/20">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-karuta-tansei">{season.name}</h2>
+              <p className="text-xs text-gray-500">
+                {season.status === 'open' && '開催中'}
+                {season.status === 'frozen' && '集計中'}
+                {season.status === 'finalized' && '確定済'}
+              </p>
+            </div>
+            <Badge
+              variant={season.status === 'open' ? 'success' : season.status === 'frozen' ? 'warning' : 'info'}
+            >
+              {season.status === 'open' ? '受付中' : season.status === 'frozen' ? '集計中' : '確定'}
+            </Badge>
+          </div>
+        </Card>
+      )}
+
       {/* Entry Card */}
       <Card padding="sm" className="bg-white/80">
         {isAuthenticated && isProfileComplete ? (

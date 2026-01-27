@@ -144,32 +144,35 @@ export async function getLatestFinalizedSeason(): Promise<Season | null> {
 /**
  * 現在のシーズンを取得（archived以外の最新シーズン）
  * エントリーページで状態に応じたUI表示に使用
+ * 優先順位: open > frozen > finalized
  */
 export async function getCurrentSeason(): Promise<Season | null> {
-  const q = query(
-    collection(db, COLLECTIONS.SEASONS),
-    where('status', 'in', ['open', 'frozen', 'finalized']),
-    orderBy('startDate', 'desc'),
-    limit(1)
-  );
+  // Try each status in priority order to avoid composite index requirement
+  for (const status of ['open', 'frozen', 'finalized'] as const) {
+    const q = query(
+      collection(db, COLLECTIONS.SEASONS),
+      where('status', '==', status),
+      limit(1)
+    );
 
-  const snapshot = await getDocs(q);
-  if (snapshot.empty) {
-    return null;
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      const data = snapshot.docs[0].data();
+      return {
+        seasonId: data.seasonId,
+        name: data.name,
+        status: data.status as SeasonStatus,
+        startDate: data.startDate?.toDate() || new Date(),
+        freezeDate: data.freezeDate?.toDate(),
+        finalizeDate: data.finalizeDate?.toDate(),
+        archiveDate: data.archiveDate?.toDate(),
+        createdAt: data.createdAt?.toDate() || new Date(),
+        updatedAt: data.updatedAt?.toDate() || new Date(),
+      };
+    }
   }
 
-  const data = snapshot.docs[0].data();
-  return {
-    seasonId: data.seasonId,
-    name: data.name,
-    status: data.status as SeasonStatus,
-    startDate: data.startDate?.toDate() || new Date(),
-    freezeDate: data.freezeDate?.toDate(),
-    finalizeDate: data.finalizeDate?.toDate(),
-    archiveDate: data.archiveDate?.toDate(),
-    createdAt: data.createdAt?.toDate() || new Date(),
-    updatedAt: data.updatedAt?.toDate() || new Date(),
-  };
+  return null;
 }
 
 /**

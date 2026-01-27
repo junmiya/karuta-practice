@@ -29,6 +29,9 @@ export {
 // Export AI Tutor functions
 export { getPoemExplanation } from './getPoemExplanation';
 
+// Export AI Stats Analysis
+export { analyzeStats } from './analyzeStats';
+
 // Export admin functions (Stage 1)
 export {
   adminGetSeasons,

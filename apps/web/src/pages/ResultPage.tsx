@@ -309,7 +309,7 @@ export function ResultPage() {
             </Button>
             {submitResult && (
               <Button
-                onClick={() => navigate('/banzuke')}
+                onClick={() => navigate('/utakurai')}
                 variant="secondary"
                 className="flex-1"
               >

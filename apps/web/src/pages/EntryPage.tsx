@@ -94,7 +94,7 @@ export function EntryPage() {
   // Auth check
   if (authLoading || loading) {
     return (
-      <div className="karuta-container py-2 text-center">
+      <div className="karuta-container space-y-2 py-2 text-center">
         <Text>読み込み中...</Text>
       </div>
     );
@@ -102,7 +102,7 @@ export function EntryPage() {
 
   if (!user) {
     return (
-      <div className="karuta-container py-2">
+      <div className="karuta-container space-y-2 py-2">
         <Card centered>
           <Heading as="h1" className="mb-4">ログインが必要です</Heading>
           <Text color="muted" className="mb-6">
@@ -133,7 +133,7 @@ export function EntryPage() {
 
   if (!season) {
     return (
-      <div className="karuta-container py-2">
+      <div className="karuta-container space-y-2 py-2">
         <Card centered>
           <Heading as="h1" className="mb-4">シーズン情報なし</Heading>
           <Text color="muted" className="mb-6">
@@ -158,7 +158,7 @@ export function EntryPage() {
 
   if (existingEntry) {
     return (
-      <div className="karuta-container py-2">
+      <div className="karuta-container space-y-2 py-2">
         <Card centered>
           <Heading as="h1" className="mb-4">エントリー済み</Heading>
           <Text color="muted" className="mb-4">
@@ -178,7 +178,7 @@ export function EntryPage() {
               <Text size="sm" color="muted">{statusInfo.description}</Text>
               <Button
                 variant="secondary"
-                onClick={() => navigate('/banzuke')}
+                onClick={() => navigate('/utakurai')}
               >
                 番付を確認する
               </Button>
@@ -192,7 +192,7 @@ export function EntryPage() {
   // シーズンが受付中でない場合はエントリー不可
   if (!isSeasonOpen) {
     return (
-      <div className="karuta-container py-2">
+      <div className="karuta-container space-y-2 py-2">
         <Card centered>
           <Badge variant={statusInfo.variant} className="text-sm px-3 py-1 mb-4">
             {statusInfo.label}
@@ -203,7 +203,7 @@ export function EntryPage() {
           </Text>
           <Button
             variant="secondary"
-            onClick={() => navigate('/banzuke')}
+            onClick={() => navigate('/utakurai')}
           >
             番付を確認する
           </Button>
@@ -213,7 +213,7 @@ export function EntryPage() {
   }
 
   return (
-    <div className="karuta-container py-2">
+    <div className="karuta-container space-y-2 py-2">
       <Card>
         <Heading as="h1" className="mb-6 text-center">{season.name} エントリー</Heading>
 
@@ -226,7 +226,7 @@ export function EntryPage() {
         {/* Division selection */}
         <div className="mb-6">
           <Heading as="h2" size="h4" className="mb-3">部門を選択</Heading>
-          <div className="flex gap-4">
+          <div className="flex gap-2">
             <button
               onClick={() => setSelectedDivision('kyu')}
               className={cn(
