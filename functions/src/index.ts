@@ -39,3 +39,22 @@ export {
   adminFinalizeSeason,
   adminUpdateRankings,
 } from './adminFunctions';
+
+// Export kyui exam function (102)
+export { submitKyuiExam } from './kyuiExamFunction';
+
+// Export admin functions (102: 歌合・節気別歌位確定)
+export {
+  adminGetRuleset,
+  adminSaveRuleset,
+  adminGetSeasonCalendar,
+  adminSaveSeasonCalendar,
+  adminSeedDefaultCalendar,
+  adminFreezeSeasonV2,
+  adminFinalizeSeasonV2,
+  adminPublishSeasonV2,
+  adminGetJobRuns,
+} from './adminFunctionsV2';
+
+// Export scheduled functions (102)
+export { checkSeasonBoundary } from './scheduledFunctionsV2';

@@ -8,17 +8,21 @@ import {
   getRankingCache,
   getBanzukeAsRanking,
 } from '@/services/stage1.service';
+import { getLatestPublishedSnapshot } from '@/services/utaawase.service';
 import { useRanking } from '@/hooks/useRanking';
 import { RankingList } from '@/components/RankingList';
 import { useAuth } from '@/hooks/useAuth';
 import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Text } from '@/components/ui/Typography';
 import { LoadingState, ErrorState } from '@/components/ui/PageStates';
 import { cn } from '@/lib/utils';
 import type { Submission } from '@/types/submission';
 import type { Division, Season, SeasonStatus } from '@/types/entry';
 import type { Ranking } from '@/types/ranking';
+import type { SeasonSnapshot } from '@/types/utaawase';
 
-type ViewMode = 'provisional' | 'official' | 'daily';
+type ViewMode = 'provisional' | 'official' | 'daily' | 'v2published';
 
 export function BanzukePage() {
   const navigate = useNavigate();
@@ -32,6 +36,7 @@ export function BanzukePage() {
   const [dailyRankings, setDailyRankings] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [v2Snapshot, setV2Snapshot] = useState<SeasonSnapshot | null>(null);
 
   // Fetch seasons (Stage 1)
   useEffect(() => {
@@ -115,6 +120,23 @@ export function BanzukePage() {
     division,
   });
 
+  // Fetch V2 published snapshot
+  useEffect(() => {
+    async function fetchV2Snapshot() {
+      if (viewMode !== 'v2published') return;
+      setLoading(true);
+      try {
+        const snapshot = await getLatestPublishedSnapshot();
+        setV2Snapshot(snapshot);
+      } catch (err) {
+        console.error('Failed to fetch V2 snapshot:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchV2Snapshot();
+  }, [viewMode]);
+
   // Fetch daily rankings
   useEffect(() => {
     async function fetchDailyBanzuke() {
@@ -161,6 +183,7 @@ export function BanzukePage() {
               { id: 'provisional' as const, label: '暫定' },
               { id: 'official' as const, label: '公式', disabled: !finalizedSeason },
               { id: 'daily' as const, label: '本日' },
+              { id: 'v2published' as const, label: '歌位' },
             ].map((mode) => (
               <button
                 key={mode.id}
@@ -207,6 +230,7 @@ export function BanzukePage() {
           {viewMode === 'provisional' && '約10分ごと更新・公式提出のみ'}
           {viewMode === 'official' && '確定済み・変更なし'}
           {viewMode === 'daily' && `${new Date().toLocaleDateString('ja-JP')}の記録`}
+          {viewMode === 'v2published' && '節気別歌位確定結果（publish済み）'}
         </div>
       </div>
 
@@ -229,6 +253,82 @@ export function BanzukePage() {
             </div>
           )}
         </Card>
+      )}
+
+      {/* V2 Published Snapshot */}
+      {viewMode === 'v2published' && (
+        <>
+          {loading ? (
+            <LoadingState message="歌位データを読み込み中..." />
+          ) : v2Snapshot ? (
+            <Card>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Text className="font-bold">{v2Snapshot.seasonKey}</Text>
+                  <Badge variant="success">publish済み</Badge>
+                </div>
+                <Text size="sm" color="muted">
+                  参加者: {v2Snapshot.totalParticipants}名 / イベント: {v2Snapshot.totalEvents}件
+                </Text>
+
+                {/* Promotions */}
+                {v2Snapshot.promotions.length > 0 && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                    <Text size="sm" className="font-bold mb-2">昇格結果</Text>
+                    {v2Snapshot.promotions.map((p, i) => (
+                      <div key={i} className="text-sm">
+                        {p.nickname}: {p.fromLevel} → {p.toLevel} ({p.promotionType})
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Rankings */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b-2 border-gray-200">
+                        <th className="text-left py-2 px-2">順位</th>
+                        <th className="text-left py-2 px-2">表示名</th>
+                        <th className="text-right py-2 px-2">累積スコア</th>
+                        <th className="text-right py-2 px-2">試合数</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {v2Snapshot.rankings.map((entry) => (
+                        <tr
+                          key={entry.uid}
+                          className={cn(
+                            "border-b border-gray-100",
+                            entry.uid === user?.uid && "bg-karuta-red/5"
+                          )}
+                        >
+                          <td className="py-2 px-2 font-bold">{entry.rank}</td>
+                          <td className="py-2 px-2">{entry.nickname}</td>
+                          <td className="py-2 px-2 text-right font-bold text-karuta-gold">{entry.bestThreeTotal}</td>
+                          <td className="py-2 px-2 text-right">{entry.matchCount}</td>
+                        </tr>
+                      ))}
+                      {v2Snapshot.rankings.length === 0 && (
+                        <tr>
+                          <td colSpan={4} className="py-8 text-center text-gray-500">
+                            ランキングデータがありません
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </Card>
+          ) : (
+            <Card>
+              <Text className="text-center py-8 text-gray-500">
+                publish済みの歌位データがありません
+              </Text>
+            </Card>
+          )}
+        </>
       )}
 
       {/* Daily Ranking Table */}

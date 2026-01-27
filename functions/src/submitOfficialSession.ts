@@ -21,6 +21,8 @@ import {
   logSessionConfirmed,
   logSessionInvalidated,
 } from './services/auditService';
+import { createMatchEvent } from './services/eventService';
+import { updateCumulativeScore } from './services/userProgressService';
 import {
   checkSubmitRateLimit,
   isUserBlocked,
@@ -225,6 +227,35 @@ export const submitOfficialSession = functions
 
       // 12. Update user stats
       await updateUserStats(uid, scoreResult.score);
+
+      // 12b. V2 dual-write: Create match event + update cumulative score
+      try {
+        // Get participant count from entries for this season
+        const entriesSnapshot = await db.collection('entries')
+          .where('seasonId', '==', sessionData.seasonId)
+          .get();
+        const participantCount = entriesSnapshot.size;
+
+        const startedAt = sessionData.startedAt?.toDate() || new Date();
+        const matchEvent = await createMatchEvent({
+          uid,
+          sessionId,
+          score: scoreResult.score,
+          correctCount,
+          totalElapsedMs,
+          allCards: sessionData.questionCount === 100,
+          participantCount,
+          startedAt,
+        });
+
+        if (matchEvent) {
+          const isOfficial = matchEvent.tier === 'official';
+          await updateCumulativeScore(uid, matchEvent.seasonKey, scoreResult.score, isOfficial);
+        }
+      } catch (v2Error) {
+        // V2 dual-write is non-blocking; log error but don't fail the submission
+        console.error('V2 dual-write error (non-blocking):', v2Error);
+      }
 
       // 13. Audit log for confirmation
       await logSessionConfirmed(

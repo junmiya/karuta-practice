@@ -47,6 +47,8 @@ const scoreCalculator_1 = require("./services/scoreCalculator");
 const sessionValidator_1 = require("./validators/sessionValidator");
 const rankingUpdater_1 = require("./services/rankingUpdater");
 const auditService_1 = require("./services/auditService");
+const eventService_1 = require("./services/eventService");
+const userProgressService_1 = require("./services/userProgressService");
 const costGuard_1 = require("./lib/costGuard");
 const db = admin.firestore();
 // Helper to get JST date key
@@ -188,6 +190,33 @@ exports.submitOfficialSession = functions
         });
         // 12. Update user stats
         await (0, rankingUpdater_1.updateUserStats)(uid, scoreResult.score);
+        // 12b. V2 dual-write: Create match event + update cumulative score
+        try {
+            // Get participant count from entries for this season
+            const entriesSnapshot = await db.collection('entries')
+                .where('seasonId', '==', sessionData.seasonId)
+                .get();
+            const participantCount = entriesSnapshot.size;
+            const startedAt = sessionData.startedAt?.toDate() || new Date();
+            const matchEvent = await (0, eventService_1.createMatchEvent)({
+                uid,
+                sessionId,
+                score: scoreResult.score,
+                correctCount,
+                totalElapsedMs,
+                allCards: sessionData.questionCount === 100,
+                participantCount,
+                startedAt,
+            });
+            if (matchEvent) {
+                const isOfficial = matchEvent.tier === 'official';
+                await (0, userProgressService_1.updateCumulativeScore)(uid, matchEvent.seasonKey, scoreResult.score, isOfficial);
+            }
+        }
+        catch (v2Error) {
+            // V2 dual-write is non-blocking; log error but don't fail the submission
+            console.error('V2 dual-write error (non-blocking):', v2Error);
+        }
         // 13. Audit log for confirmation
         await (0, auditService_1.logSessionConfirmed)(sessionId, uid, sessionData.seasonId, scoreResult.score, correctCount, '1.1.0' // ruleVersion
         ).catch((err) => console.error('Audit log failed:', err));

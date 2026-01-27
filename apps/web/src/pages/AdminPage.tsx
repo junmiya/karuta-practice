@@ -12,6 +12,15 @@ import { Badge } from '@/components/ui/Badge';
 import { Heading, Text } from '@/components/ui/Typography';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { LoadingState, AuthRequiredState, InfoBox } from '@/components/ui/PageStates';
+import {
+  adminGetRuleset,
+  adminGetSeasonCalendar,
+  adminSeedDefaultCalendar,
+  adminFreezeSeason2,
+  adminFinalizeSeason2,
+  adminPublishSeason,
+  adminGetJobRuns,
+} from '@/services/admin-v2.service';
 
 interface Season {
   seasonId: string;
@@ -45,7 +54,7 @@ const statusLabels: Record<string, { label: string; variant: 'info' | 'warning' 
   archived: { label: 'アーカイブ', variant: 'secondary' },
 };
 
-type TabType = 'seasons' | 'create';
+type TabType = 'seasons' | 'create' | 'calendar' | 'ruleset' | 'pipeline';
 
 export function AdminPage() {
   const { user, loading: authLoading } = useAuth();
@@ -62,6 +71,21 @@ export function AdminPage() {
   const [newYear, setNewYear] = useState(new Date().getFullYear());
   const [newTerm, setNewTerm] = useState<'spring' | 'summer' | 'autumn' | 'winter'>('spring');
   const [creating, setCreating] = useState(false);
+
+  // Calendar tab state
+  const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
+  const [calendarData, setCalendarData] = useState<any>(null);
+  const [calendarLoading, setCalendarLoading] = useState(false);
+
+  // Ruleset tab state
+  const [rulesetData, setRulesetData] = useState<any>(null);
+  const [rulesetYaml, setRulesetYaml] = useState('');
+  const [rulesetLoading, setRulesetLoading] = useState(false);
+
+  // Pipeline tab state
+  const [pipelineSeasonKey, setPipelineSeasonKey] = useState('');
+  const [pipelineLoading, setPipelineLoading] = useState(false);
+  const [jobRuns, setJobRuns] = useState<any[]>([]);
 
   // Fetch seasons
   const fetchSeasons = useCallback(async () => {
@@ -262,6 +286,36 @@ export function AdminPage() {
           }`}
         >
           新規シーズン
+        </button>
+        <button
+          onClick={() => setActiveTab('calendar')}
+          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+            activeTab === 'calendar'
+              ? 'bg-karuta-red text-white'
+              : 'text-gray-600 hover:bg-gray-100'
+          }`}
+        >
+          節気カレンダー
+        </button>
+        <button
+          onClick={() => setActiveTab('ruleset')}
+          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+            activeTab === 'ruleset'
+              ? 'bg-karuta-red text-white'
+              : 'text-gray-600 hover:bg-gray-100'
+          }`}
+        >
+          ルールセット
+        </button>
+        <button
+          onClick={() => setActiveTab('pipeline')}
+          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+            activeTab === 'pipeline'
+              ? 'bg-karuta-red text-white'
+              : 'text-gray-600 hover:bg-gray-100'
+          }`}
+        >
+          確定パイプライン
         </button>
       </div>
 
@@ -473,6 +527,266 @@ export function AdminPage() {
             >
               {creating ? '作成中...' : 'シーズンを作成'}
             </Button>
+          </div>
+        </Card>
+      )}
+
+      {/* Calendar Tab */}
+      {activeTab === 'calendar' && (
+        <Card>
+          <Heading as="h3" size="h3" className="mb-4">節気カレンダー管理</Heading>
+          <div className="space-y-3">
+            <div className="flex gap-2 items-end">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">年</label>
+                <input
+                  type="number"
+                  value={calendarYear}
+                  onChange={(e) => setCalendarYear(parseInt(e.target.value, 10))}
+                  min={2024}
+                  max={2030}
+                  className="w-24 px-3 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+              <Button
+                onClick={async () => {
+                  setCalendarLoading(true);
+                  setMessage(null);
+                  try {
+                    const res = await adminGetSeasonCalendar(calendarYear);
+                    setCalendarData(res.calendar);
+                    if (!res.calendar) setMessage('カレンダーが未登録です');
+                  } catch (err: any) {
+                    setError(err.message || '取得に失敗しました');
+                  } finally {
+                    setCalendarLoading(false);
+                  }
+                }}
+                disabled={calendarLoading}
+                size="sm"
+              >
+                {calendarLoading ? '読込中...' : '読み込み'}
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!confirm('2026年のデフォルト節気カレンダーを投入しますか？')) return;
+                  setCalendarLoading(true);
+                  try {
+                    const res = await adminSeedDefaultCalendar();
+                    setCalendarData(res.calendar);
+                    setMessage('2026年デフォルトカレンダーを投入しました');
+                  } catch (err: any) {
+                    setError(err.message || '投入に失敗しました');
+                  } finally {
+                    setCalendarLoading(false);
+                  }
+                }}
+                disabled={calendarLoading}
+                variant="secondary"
+                size="sm"
+              >
+                2026年デフォルト投入
+              </Button>
+            </div>
+
+            {calendarData && (
+              <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                <Text className="font-bold">{calendarData.year}年 節気カレンダー</Text>
+                {calendarData.periods?.map((p: any) => (
+                  <div key={p.seasonId} className="flex justify-between text-sm border-b border-gray-200 pb-1">
+                    <span className="font-medium">{p.label} ({p.seasonId})</span>
+                    <span className="text-gray-600">
+                      {p.start_at?._seconds ? new Date(p.start_at._seconds * 1000).toLocaleDateString('ja-JP') : '?'}
+                      {' 〜 '}
+                      {p.end_at?._seconds ? new Date(p.end_at._seconds * 1000).toLocaleDateString('ja-JP') : '?'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
+
+      {/* Ruleset Tab */}
+      {activeTab === 'ruleset' && (
+        <Card>
+          <Heading as="h3" size="h3" className="mb-4">ルールセット管理</Heading>
+          <div className="space-y-3">
+            <Button
+              onClick={async () => {
+                setRulesetLoading(true);
+                try {
+                  const res = await adminGetRuleset();
+                  setRulesetData(res.ruleset);
+                  if (res.ruleset?.yamlContent) {
+                    setRulesetYaml(res.ruleset.yamlContent);
+                  }
+                  if (!res.ruleset) setMessage('ルールセットが未登録です');
+                } catch (err: any) {
+                  setError(err.message || '取得に失敗しました');
+                } finally {
+                  setRulesetLoading(false);
+                }
+              }}
+              disabled={rulesetLoading}
+              size="sm"
+            >
+              {rulesetLoading ? '読込中...' : '現在のルールセットを読み込み'}
+            </Button>
+
+            {rulesetData && (
+              <div className="bg-gray-50 rounded-lg p-3">
+                <Text size="sm" className="font-bold">バージョン: {rulesetData.version}</Text>
+                <Text size="sm" color="muted">
+                  公式最低参加者数: {rulesetData.officialMinParticipants}名
+                </Text>
+                <Text size="sm" color="muted">
+                  級位条件数: {rulesetData.kyuiRequirements?.length || 0} /
+                  段位条件数: {rulesetData.danRequirements?.length || 0} /
+                  伝位条件数: {rulesetData.denRequirements?.length || 0}
+                </Text>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                ルールセットYAML
+              </label>
+              <textarea
+                value={rulesetYaml}
+                onChange={(e) => setRulesetYaml(e.target.value)}
+                rows={12}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-xs"
+                placeholder="YAML形式でルールセットを入力..."
+              />
+            </div>
+
+            <Text size="xs" color="muted">
+              注意: YAML内容はそのまま保存されます。パース済みルールは別途サーバ側で処理されます。
+            </Text>
+          </div>
+        </Card>
+      )}
+
+      {/* Pipeline Tab */}
+      {activeTab === 'pipeline' && (
+        <Card>
+          <Heading as="h3" size="h3" className="mb-4">確定パイプライン</Heading>
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                シーズンキー (例: 2026_spring)
+              </label>
+              <input
+                type="text"
+                value={pipelineSeasonKey}
+                onChange={(e) => setPipelineSeasonKey(e.target.value)}
+                placeholder="2026_spring"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button
+                onClick={async () => {
+                  if (!pipelineSeasonKey) return;
+                  if (!confirm(`${pipelineSeasonKey} を凍結しますか？`)) return;
+                  setPipelineLoading(true);
+                  try {
+                    await adminFreezeSeason2(pipelineSeasonKey);
+                    setMessage(`${pipelineSeasonKey} を凍結しました`);
+                  } catch (err: any) {
+                    setError(err.message || '凍結に失敗しました');
+                  } finally {
+                    setPipelineLoading(false);
+                  }
+                }}
+                disabled={pipelineLoading || !pipelineSeasonKey}
+                variant="secondary"
+                size="sm"
+                className="bg-yellow-100 hover:bg-yellow-200 border-yellow-300"
+              >
+                Freeze
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!pipelineSeasonKey) return;
+                  if (!confirm(`${pipelineSeasonKey} を確定しますか？`)) return;
+                  setPipelineLoading(true);
+                  try {
+                    await adminFinalizeSeason2(pipelineSeasonKey);
+                    setMessage(`${pipelineSeasonKey} を確定しました`);
+                  } catch (err: any) {
+                    setError(err.message || '確定に失敗しました');
+                  } finally {
+                    setPipelineLoading(false);
+                  }
+                }}
+                disabled={pipelineLoading || !pipelineSeasonKey}
+                variant="secondary"
+                size="sm"
+                className="bg-blue-100 hover:bg-blue-200 border-blue-300"
+              >
+                Finalize
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!pipelineSeasonKey) return;
+                  if (!confirm(`${pipelineSeasonKey} を公開しますか？`)) return;
+                  setPipelineLoading(true);
+                  try {
+                    await adminPublishSeason(pipelineSeasonKey);
+                    setMessage(`${pipelineSeasonKey} を公開しました`);
+                  } catch (err: any) {
+                    setError(err.message || '公開に失敗しました');
+                  } finally {
+                    setPipelineLoading(false);
+                  }
+                }}
+                disabled={pipelineLoading || !pipelineSeasonKey}
+                variant="secondary"
+                size="sm"
+                className="bg-green-100 hover:bg-green-200 border-green-300"
+              >
+                Publish
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!pipelineSeasonKey) return;
+                  setPipelineLoading(true);
+                  try {
+                    const res = await adminGetJobRuns(pipelineSeasonKey);
+                    setJobRuns(res.jobRuns || []);
+                  } catch (err: any) {
+                    setError(err.message || 'ジョブログ取得に失敗しました');
+                  } finally {
+                    setPipelineLoading(false);
+                  }
+                }}
+                disabled={pipelineLoading || !pipelineSeasonKey}
+                variant="ghost"
+                size="sm"
+              >
+                ジョブログ取得
+              </Button>
+            </div>
+
+            {jobRuns.length > 0 && (
+              <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                <Text className="font-bold">ジョブ実行ログ</Text>
+                {jobRuns.map((run: any, i: number) => (
+                  <div key={i} className="text-sm border-b border-gray-200 pb-1">
+                    <span className="font-mono">{run.jobName}</span>
+                    {' '}
+                    <Badge variant={run.status === 'success' ? 'success' : run.status === 'failed' ? 'warning' : 'info'}>
+                      {run.status}
+                    </Badge>
+                    {run.error && <Text size="xs" className="text-red-600">{run.error}</Text>}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </Card>
       )}

@@ -52,5 +52,37 @@ service cloud.firestore {
       allow read: if request.auth != null && resource.data.uid == request.auth.uid;
       allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
     }
+
+    // === 102: 歌合・節気別歌位確定 新コレクション ===
+
+    // ルールセット（公開読み取り、サーバのみ書込）
+    match /rulesets/{docId} {
+      allow read: if true;
+    }
+
+    // 節気カレンダー（公開読み取り、サーバのみ書込）
+    match /season_calendars/{year} {
+      allow read: if true;
+    }
+
+    // 歌合イベント（本人のみ読み取り、サーバのみ書込）
+    match /events/{eventId} {
+      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+
+    // ユーザー進捗（本人のみ読み取り、サーバのみ書込）
+    match /user_progress/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // 季末スナップショット（公開読み取り、サーバのみ書込）
+    match /season_snapshots/{id} {
+      allow read: if true;
+    }
+
+    // ジョブ実行ログ（サーバのみ読み書き — クライアントアクセス不可）
+    match /job_runs/{runId} {
+      allow read, write: if false;
+    }
   }
 }

@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.adminUpdateRankings = exports.adminFinalizeSeason = exports.adminFreezeSeason = exports.adminGetSeasons = exports.getPoemExplanation = exports.costGuardCleanup = exports.updateTitles = exports.checkSeasonTransition = exports.updateRankingsCache = exports.generateDailyReflections = exports.expireStaleSession = exports.updateSeasonStatus = exports.dailyRankingSnapshot = exports.submitOfficialRecord = exports.submitOfficialSession = exports.db = void 0;
+exports.checkSeasonBoundary = exports.adminGetJobRuns = exports.adminPublishSeasonV2 = exports.adminFinalizeSeasonV2 = exports.adminFreezeSeasonV2 = exports.adminSeedDefaultCalendar = exports.adminSaveSeasonCalendar = exports.adminGetSeasonCalendar = exports.adminSaveRuleset = exports.adminGetRuleset = exports.submitKyuiExam = exports.adminUpdateRankings = exports.adminFinalizeSeason = exports.adminFreezeSeason = exports.adminGetSeasons = exports.analyzeStats = exports.getPoemExplanation = exports.costGuardCleanup = exports.updateTitles = exports.checkSeasonTransition = exports.updateRankingsCache = exports.generateDailyReflections = exports.expireStaleSession = exports.updateSeasonStatus = exports.dailyRankingSnapshot = exports.submitOfficialRecord = exports.submitOfficialSession = exports.db = void 0;
 const admin = __importStar(require("firebase-admin"));
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -59,10 +59,30 @@ Object.defineProperty(exports, "costGuardCleanup", { enumerable: true, get: func
 // Export AI Tutor functions
 var getPoemExplanation_1 = require("./getPoemExplanation");
 Object.defineProperty(exports, "getPoemExplanation", { enumerable: true, get: function () { return getPoemExplanation_1.getPoemExplanation; } });
+// Export AI Stats Analysis
+var analyzeStats_1 = require("./analyzeStats");
+Object.defineProperty(exports, "analyzeStats", { enumerable: true, get: function () { return analyzeStats_1.analyzeStats; } });
 // Export admin functions (Stage 1)
 var adminFunctions_1 = require("./adminFunctions");
 Object.defineProperty(exports, "adminGetSeasons", { enumerable: true, get: function () { return adminFunctions_1.adminGetSeasons; } });
 Object.defineProperty(exports, "adminFreezeSeason", { enumerable: true, get: function () { return adminFunctions_1.adminFreezeSeason; } });
 Object.defineProperty(exports, "adminFinalizeSeason", { enumerable: true, get: function () { return adminFunctions_1.adminFinalizeSeason; } });
 Object.defineProperty(exports, "adminUpdateRankings", { enumerable: true, get: function () { return adminFunctions_1.adminUpdateRankings; } });
+// Export kyui exam function (102)
+var kyuiExamFunction_1 = require("./kyuiExamFunction");
+Object.defineProperty(exports, "submitKyuiExam", { enumerable: true, get: function () { return kyuiExamFunction_1.submitKyuiExam; } });
+// Export admin functions (102: 歌合・節気別歌位確定)
+var adminFunctionsV2_1 = require("./adminFunctionsV2");
+Object.defineProperty(exports, "adminGetRuleset", { enumerable: true, get: function () { return adminFunctionsV2_1.adminGetRuleset; } });
+Object.defineProperty(exports, "adminSaveRuleset", { enumerable: true, get: function () { return adminFunctionsV2_1.adminSaveRuleset; } });
+Object.defineProperty(exports, "adminGetSeasonCalendar", { enumerable: true, get: function () { return adminFunctionsV2_1.adminGetSeasonCalendar; } });
+Object.defineProperty(exports, "adminSaveSeasonCalendar", { enumerable: true, get: function () { return adminFunctionsV2_1.adminSaveSeasonCalendar; } });
+Object.defineProperty(exports, "adminSeedDefaultCalendar", { enumerable: true, get: function () { return adminFunctionsV2_1.adminSeedDefaultCalendar; } });
+Object.defineProperty(exports, "adminFreezeSeasonV2", { enumerable: true, get: function () { return adminFunctionsV2_1.adminFreezeSeasonV2; } });
+Object.defineProperty(exports, "adminFinalizeSeasonV2", { enumerable: true, get: function () { return adminFunctionsV2_1.adminFinalizeSeasonV2; } });
+Object.defineProperty(exports, "adminPublishSeasonV2", { enumerable: true, get: function () { return adminFunctionsV2_1.adminPublishSeasonV2; } });
+Object.defineProperty(exports, "adminGetJobRuns", { enumerable: true, get: function () { return adminFunctionsV2_1.adminGetJobRuns; } });
+// Export scheduled functions (102)
+var scheduledFunctionsV2_1 = require("./scheduledFunctionsV2");
+Object.defineProperty(exports, "checkSeasonBoundary", { enumerable: true, get: function () { return scheduledFunctionsV2_1.checkSeasonBoundary; } });
 //# sourceMappingURL=index.js.map

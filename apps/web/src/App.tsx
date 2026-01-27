@@ -15,6 +15,7 @@ import { SeisekiPage } from './pages/SeisekiPage';
 import { EntryPage } from './pages/EntryPage';
 import { OfficialPage } from './pages/OfficialPage';
 import { AdminPage } from './pages/AdminPage';
+import { KyuiExamPage } from './pages/KyuiExamPage';
 
 export function App() {
   return (
@@ -40,6 +41,7 @@ export function App() {
             <Route path="/utaawase" element={<KyogiPage />} />
             <Route path="/entry" element={<EntryPage />} />
             <Route path="/official" element={<OfficialPage />} />
+            <Route path="/kyui-exam" element={<KyuiExamPage />} />
 
             {/* 歌位タブ（要ログイン） */}
             <Route path="/utakurai" element={<BanzukePage />} />
