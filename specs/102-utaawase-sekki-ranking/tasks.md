@@ -17,9 +17,9 @@
 
 **Purpose**: Type definitions, shared utilities, and project scaffolding
 
-- [ ] T001 Create backend type definitions (Ruleset, SeasonCalendar, Event, UserProgress, SeasonSnapshot, JobRun, all level types and ordered arrays) in `functions/src/types/utaawase.ts`
-- [ ] T002 [P] Create frontend type mirror (without firebase-admin dependency, with display label maps) in `apps/web/src/types/utaawase.ts`
-- [ ] T003 [P] Create pure-function rule engine (determineSeason, determineTier, validateSeasonCalendar, validateRuleset, isSeasonFrozen) in `functions/src/lib/ruleEngine.ts`
+- [x] T001 Create backend type definitions (Ruleset, SeasonCalendar, Event, UserProgress, SeasonSnapshot, JobRun, all level types and ordered arrays) in `functions/src/types/utaawase.ts`
+- [x] T002 [P] Create frontend type mirror (without firebase-admin dependency, with display label maps) in `apps/web/src/types/utaawase.ts`
+- [x] T003 [P] Create pure-function rule engine (determineSeason, determineTier, validateSeasonCalendar, validateRuleset, isSeasonFrozen) in `functions/src/lib/ruleEngine.ts`
 
 **Note**: 級位は6段階 (beginner→十級→九級→八級→七級→六級)。五級(gokkyu)は存在しない。
 
@@ -31,11 +31,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement rulesetService (getRuleset, saveRuleset with validation) in `functions/src/services/rulesetService.ts`
-- [ ] T005 [P] Implement seasonCalendarService (getSeasonCalendar, saveSeasonCalendar, getCurrentSeasonInfo, generate2026DefaultCalendar) in `functions/src/services/seasonCalendarService.ts`
-- [ ] T006 [P] Implement userProgressService (getUserProgress with auto-create, updateKyuiLevel, updateCumulativeScore with best-3 tracking, updateDanLevel, updateDenLevel, updateUtakuraiLevel, incrementOfficialWinCount, incrementChampionCount) in `functions/src/services/userProgressService.ts`
-- [ ] T007 Add Firestore security rules for new collections (rulesets, season_calendars, events, user_progress, season_snapshots, job_runs) — client write禁止 in `firestore.rules`
-- [ ] T008 [P] Add composite indexes (events by uid+seasonKey, events by seasonKey+eventType, season_snapshots by status+publishedAt, job_runs by seasonKey+startedAt) in `firestore.indexes.json`
+- [x] T004 Implement rulesetService (getRuleset, saveRuleset with validation) in `functions/src/services/rulesetService.ts`
+- [x] T005 [P] Implement seasonCalendarService (getSeasonCalendar, saveSeasonCalendar, getCurrentSeasonInfo, generate2026DefaultCalendar) in `functions/src/services/seasonCalendarService.ts`
+- [x] T006 [P] Implement userProgressService (getUserProgress with auto-create, updateKyuiLevel, updateCumulativeScore with best-3 tracking, updateDanLevel, updateDenLevel, updateUtakuraiLevel, incrementOfficialWinCount, incrementChampionCount) in `functions/src/services/userProgressService.ts`
+- [x] T007 Add Firestore security rules for new collections (rulesets, season_calendars, events, user_progress, season_snapshots, job_runs) — client write禁止 in `firestore.rules`
+- [x] T008 [P] Add composite indexes (events by uid+seasonKey, events by seasonKey+eventType, season_snapshots by status+publishedAt, job_runs by seasonKey+startedAt) in `firestore.indexes.json`
 
 **Checkpoint**: Foundation ready — user story implementation can now begin
 
@@ -49,10 +49,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T009 [P] [US3] Implement admin callable functions (adminGetRuleset, adminSaveRuleset, adminGetSeasonCalendar, adminSaveSeasonCalendar, adminSeedDefaultCalendar) in `functions/src/adminFunctionsV2.ts`
-- [ ] T010 [P] [US3] Create frontend admin V2 service (callable wrappers for all admin functions) in `apps/web/src/services/admin-v2.service.ts`
-- [ ] T011 [US3] Add 節気カレンダー管理タブ and ルールセット管理タブ to `apps/web/src/pages/AdminPage.tsx`
-- [ ] T012 [US3] Export new admin functions from `functions/src/index.ts`
+- [x] T009 [P] [US3] Implement admin callable functions (adminGetRuleset, adminSaveRuleset, adminGetSeasonCalendar, adminSaveSeasonCalendar, adminSeedDefaultCalendar) in `functions/src/adminFunctionsV2.ts`
+- [x] T010 [P] [US3] Create frontend admin V2 service (callable wrappers for all admin functions) in `apps/web/src/services/admin-v2.service.ts`
+- [x] T011 [US3] Add 節気カレンダー管理タブ and ルールセット管理タブ to `apps/web/src/pages/AdminPage.tsx`
+- [x] T012 [US3] Export new admin functions from `functions/src/index.ts`
 
 **Checkpoint**: AdminPageからカレンダー・ルールセットの投入・閲覧が可能
 
@@ -66,9 +66,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T013 [P] [US2] Implement eventService (createMatchEvent with season/tier auto-assignment, createKyuiExamEvent, getSeasonEvents, getUserSeasonEvents) in `functions/src/services/eventService.ts`
-- [ ] T014 [US2] Add V2 dual-write to submitOfficialSession: session確定後にmatchイベント自動生成 + user_progressベスト3累積スコア更新 in `functions/src/submitOfficialSession.ts`
-- [ ] T015 [US2] Export eventService functions from `functions/src/index.ts`
+- [x] T013 [P] [US2] Implement eventService (createMatchEvent with season/tier auto-assignment, createKyuiExamEvent, getSeasonEvents, getUserSeasonEvents) in `functions/src/services/eventService.ts`
+- [x] T014 [US2] Add V2 dual-write to submitOfficialSession: session確定後にmatchイベント自動生成 + user_progressベスト3累積スコア更新 in `functions/src/submitOfficialSession.ts`
+- [x] T015 [US2] Export eventService functions from `functions/src/index.ts`
 
 **Checkpoint**: 公式競技セッション確定→matchイベント自動生成→ベスト3スコア集計が動作
 
@@ -82,13 +82,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T016 [P] [US1] Add evaluateKyuiPromotion (飛び級禁止、1段階のみ昇級、六級でdanEligible) to `functions/src/lib/ruleEngine.ts`
-- [ ] T017 [US1] Implement submitKyuiExam callable (検定結果受信→昇級判定→user_progress更新→イベント記録) in `functions/src/kyuiExamFunction.ts`
-- [ ] T018 [P] [US1] Create kyuiExam frontend service (submitKyuiExam callable wrapper) in `apps/web/src/services/kyuiExam.service.ts`
-- [ ] T019 [P] [US1] Create useKyuiExam hook (exam session phases: setup→inProgress→submitting→result) in `apps/web/src/hooks/useKyuiExam.ts`
-- [ ] T020 [US1] Create KyuiExamPage (setup: card filter selection, in-progress: quiz UI, result: pass/fail with promotion info) in `apps/web/src/pages/KyuiExamPage.tsx`
-- [ ] T021 [US1] Add `/kyui-exam` route in `apps/web/src/App.tsx`
-- [ ] T022 [US1] Export submitKyuiExam from `functions/src/index.ts`
+- [x] T016 [P] [US1] Add evaluateKyuiPromotion (飛び級禁止、1段階のみ昇級、六級でdanEligible) to `functions/src/lib/ruleEngine.ts`
+- [x] T017 [US1] Implement submitKyuiExam callable (検定結果受信→昇級判定→user_progress更新→イベント記録) in `functions/src/kyuiExamFunction.ts`
+- [x] T018 [P] [US1] Create kyuiExam frontend service (submitKyuiExam callable wrapper) in `apps/web/src/services/kyuiExam.service.ts`
+- [x] T019 [P] [US1] Create useKyuiExam hook (exam session phases: setup→inProgress→submitting→result) in `apps/web/src/hooks/useKyuiExam.ts`
+- [x] T020 [US1] Create KyuiExamPage (setup: card filter selection, in-progress: quiz UI, result: pass/fail with promotion info) in `apps/web/src/pages/KyuiExamPage.tsx`
+- [x] T021 [US1] Add `/kyui-exam` route in `apps/web/src/App.tsx`
+- [x] T022 [US1] Export submitKyuiExam from `functions/src/index.ts`
 
 **Checkpoint**: 検定ページから受験→即時昇級→結果表示が動作
 
@@ -102,11 +102,11 @@
 
 ### Implementation for User Story 4
 
-- [ ] T023 [P] [US4] Implement pipelineService (freezeSeason, finalizeSeason, publishSeason — 状態機械ベースの冪等パイプライン with JobRun logging, ベスト3ランキング生成) in `functions/src/services/pipelineService.ts`
-- [ ] T024 [P] [US4] Implement scheduledFunctionsV2 (checkSeasonBoundary: 毎日00:01 JST、節気境界チェック→自動freeze) in `functions/src/scheduledFunctionsV2.ts`
-- [ ] T025 [US4] Add admin pipeline callable functions (adminFreezeSeason, adminFinalizeSeason, adminPublishSeason, adminGetJobRuns) to `functions/src/adminFunctionsV2.ts`
-- [ ] T026 [US4] Add 確定パイプラインタブ to AdminPage (seasonKey input, freeze/finalize/publish buttons, job logs) in `apps/web/src/pages/AdminPage.tsx`
-- [ ] T027 [US4] Export pipeline functions and scheduled function from `functions/src/index.ts`
+- [x] T023 [P] [US4] Implement pipelineService (freezeSeason, finalizeSeason, publishSeason — 状態機械ベースの冪等パイプライン with JobRun logging, ベスト3ランキング生成) in `functions/src/services/pipelineService.ts`
+- [x] T024 [P] [US4] Implement scheduledFunctionsV2 (checkSeasonBoundary: 毎日00:01 JST、節気境界チェック→自動freeze) in `functions/src/scheduledFunctionsV2.ts`
+- [x] T025 [US4] Add admin pipeline callable functions (adminFreezeSeason, adminFinalizeSeason, adminPublishSeason, adminGetJobRuns) to `functions/src/adminFunctionsV2.ts`
+- [x] T026 [US4] Add 確定パイプラインタブ to AdminPage (seasonKey input, freeze/finalize/publish buttons, job logs) in `apps/web/src/pages/AdminPage.tsx`
+- [x] T027 [US4] Export pipeline functions and scheduled function from `functions/src/index.ts`
 
 **Checkpoint**: パイプライン各段階が管理画面から実行可能、スナップショット生成確認
 
@@ -120,9 +120,9 @@
 
 ### Implementation for User Story 5
 
-- [ ] T028 [P] [US5] Add evaluateDanPromotion, evaluateDenPromotion, evaluateUtakuraiPromotion to `functions/src/lib/ruleEngine.ts`
-- [ ] T029 [US5] Implement promotionService (runPromotions: dan/den/utakurai判定, 上位1/3=公式勝利, rank 1=champion) in `functions/src/services/promotionService.ts`
-- [ ] T030 [US5] Integrate promotionService into pipelineService.finalizeSeason (finalize時にrunPromotions呼び出し) in `functions/src/services/pipelineService.ts`
+- [x] T028 [P] [US5] Add evaluateDanPromotion, evaluateDenPromotion, evaluateUtakuraiPromotion to `functions/src/lib/ruleEngine.ts`
+- [x] T029 [US5] Implement promotionService (runPromotions: dan/den/utakurai判定, 上位1/3=公式勝利, rank 1=champion) in `functions/src/services/promotionService.ts`
+- [x] T030 [US5] Integrate promotionService into pipelineService.finalizeSeason (finalize時にrunPromotions呼び出し) in `functions/src/services/pipelineService.ts`
 
 **Checkpoint**: finalize実行→段位/伝位/歌位の昇格判定が正しく動作
 
@@ -136,8 +136,8 @@
 
 ### Implementation for User Story 6
 
-- [ ] T031 [P] [US6] Create utaawase frontend service (getPublishedSnapshot, getLatestPublishedSnapshot, getUserProgress, getCurrentSeasonSnapshot) in `apps/web/src/services/utaawase.service.ts`
-- [ ] T032 [US6] Add 歌位(V2)ビューモード to BanzukePage (season_snapshots参照、ランキング・昇格結果表示) in `apps/web/src/pages/BanzukePage.tsx`
+- [x] T031 [P] [US6] Create utaawase frontend service (getPublishedSnapshot, getLatestPublishedSnapshot, getUserProgress, getCurrentSeasonSnapshot) in `apps/web/src/services/utaawase.service.ts`
+- [x] T032 [US6] Add 歌位(V2)ビューモード to BanzukePage (season_snapshots参照、ランキング・昇格結果表示) in `apps/web/src/pages/BanzukePage.tsx`
 
 **Checkpoint**: publish済みスナップショットの閲覧が可能
 
@@ -151,8 +151,8 @@
 
 ### Implementation for User Story 7
 
-- [ ] T033 [US7] Add adminGetJobRuns callable and retry functionality to `functions/src/adminFunctionsV2.ts`
-- [ ] T034 [US7] Add ジョブログ表示 and 再実行ボタン to AdminPage パイプラインタブ in `apps/web/src/pages/AdminPage.tsx`
+- [x] T033 [US7] Add adminGetJobRuns callable and retry functionality to `functions/src/adminFunctionsV2.ts`
+- [x] T034 [US7] Add ジョブログ表示 and 再実行ボタン to AdminPage パイプラインタブ in `apps/web/src/pages/AdminPage.tsx`
 
 **Checkpoint**: ジョブログの確認・再実行が管理画面から可能
 
@@ -162,12 +162,12 @@
 
 **Purpose**: コード品質・ビルド確認・セキュリティ最終確認
 
-- [ ] T035 Remove gokkyu (五級) from backend types KYUI_LEVELS_ORDERED in `functions/src/types/utaawase.ts` and frontend mirror in `apps/web/src/types/utaawase.ts`
-- [ ] T036 [P] Verify best-3 score logic in userProgressService.updateCumulativeScore stores individual scores array and computes bestThreeTotal in `functions/src/services/userProgressService.ts`
-- [ ] T037 [P] Verify pipelineService.freezeSeason builds rankings from bestThreeTotal (not cumulative sum) in `functions/src/services/pipelineService.ts`
-- [ ] T038 Run `cd functions && npx tsc --noEmit` to confirm backend builds clean
-- [ ] T039 Run `cd apps/web && npx tsc --noEmit` to confirm frontend builds clean
-- [ ] T040 Run quickstart.md validation (seed 2026 calendar, submit exam, run pipeline)
+- [x] T035 Remove gokkyu (五級) from backend types KYUI_LEVELS_ORDERED in `functions/src/types/utaawase.ts` and frontend mirror in `apps/web/src/types/utaawase.ts`
+- [x] T036 [P] Verify best-3 score logic in userProgressService.updateCumulativeScore stores individual scores array and computes bestThreeTotal in `functions/src/services/userProgressService.ts`
+- [x] T037 [P] Verify pipelineService.freezeSeason builds rankings from bestThreeTotal (not cumulative sum) in `functions/src/services/pipelineService.ts`
+- [x] T038 Run `cd functions && npx tsc --noEmit` to confirm backend builds clean
+- [x] T039 Run `cd apps/web && npx tsc --noEmit` to confirm frontend builds clean
+- [x] T040 Run quickstart.md validation (seed 2026 calendar, submit exam, run pipeline)
 
 ---
 
