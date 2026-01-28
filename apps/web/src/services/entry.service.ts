@@ -23,7 +23,7 @@ const SEASONS_COLLECTION = 'seasons';
  */
 export async function getActiveSeason(): Promise<SeasonLegacy | null> {
   const seasonsRef = collection(db, SEASONS_COLLECTION);
-  const q = query(seasonsRef, where('status', '==', 'active'));
+  const q = query(seasonsRef, where('status', '==', 'open'));
   const snapshot = await getDocs(q);
 
   if (snapshot.empty) {

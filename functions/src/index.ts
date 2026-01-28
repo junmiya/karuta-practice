@@ -40,6 +40,7 @@ export {
   adminFreezeSeason,
   adminFinalizeSeason,
   adminUpdateRankings,
+  adminCreateSeason,
 } from './adminFunctions';
 
 // Export kyui exam function (102)
