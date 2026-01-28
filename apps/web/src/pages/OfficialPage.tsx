@@ -27,8 +27,9 @@ export function OfficialPage() {
   const [initialized, setInitialized] = useState(false);
   const [showYomiKana, setShowYomiKana] = useState(false);
   const [showToriKana, setShowToriKana] = useState(false);
-  const [questionStartTime, setQuestionStartTime] = useState<number>(0);
   const [pendingToggle, setPendingToggle] = useState<'yomi' | 'tori' | null>(null);
+  const [phase, setPhase] = useState<'waiting' | 'countdown' | 'playing'>('waiting');
+  const [countdown, setCountdown] = useState(0);
 
   // Initialize session data
   useEffect(() => {
@@ -85,27 +86,38 @@ export function OfficialPage() {
     submitForConfirmation,
   } = session;
 
-  // Start session when initialized
+  // Create session when initialized (but don't start playing yet)
   useEffect(() => {
     if (initialized && !session.sessionId && !isLoading) {
       startSession();
     }
   }, [initialized, session.sessionId, isLoading, startSession]);
 
-  // Start timer when new question appears
+  // Handle start button press
+  const handleStart = useCallback(() => {
+    setPhase('countdown');
+    setCountdown(3);
+  }, []);
+
+  // Countdown timer
   useEffect(() => {
-    if (currentQuestion) {
-      setQuestionStartTime(performance.now());
-    }
-  }, [currentQuestion?.roundIndex]);
+    if (phase !== 'countdown' || countdown <= 0) return;
+    const timer = setTimeout(() => {
+      const next = countdown - 1;
+      setCountdown(next);
+      if (next <= 0) {
+        setPhase('playing');
+      }
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [phase, countdown]);
 
   // Handle card selection
   const handleSelectPoem = useCallback(
     (poem: Poem) => {
-      const elapsedMs = Math.round(performance.now() - questionStartTime);
-      answerQuestion(poem.poemId, elapsedMs);
+      answerQuestion(poem.poemId);
     },
-    [questionStartTime, answerQuestion]
+    [answerQuestion]
   );
 
   // Handle session submission
@@ -168,8 +180,7 @@ export function OfficialPage() {
           {result.status === 'confirmed' ? (
             <>
               <Heading as="h1" size="h1" className="mb-4 text-green-600">確定</Heading>
-              <div className="text-6xl font-bold mb-4 text-karuta-tansei">{result.score}</div>
-              <Text color="muted" className="mb-2">点</Text>
+              <div className="text-6xl font-bold mb-4 text-karuta-tansei">{result.score}<span className="text-2xl font-normal text-gray-500 ml-1">点</span></div>
               <div className="text-lg mb-6">
                 正答: {stats.correctCount}/50 ({stats.accuracy}%)
               </div>
@@ -252,13 +263,73 @@ export function OfficialPage() {
 
   const progress = ((currentRoundIndex + 1) / 50) * 100;
 
+  // Waiting phase: show start button, settings, and grid preview
+  if (phase === 'waiting') {
+    return (
+      <div className="karuta-container space-y-2 py-2">
+        <div className="text-center">
+          <Heading as="h1" size="h2" className="mb-2">公式歌合</Heading>
+          <Text size="sm" color="muted" className="mb-4">50問 ・ 取札を確認して準備ができたら開始</Text>
+        </div>
+
+        {/* Display settings + Start button */}
+        <Card className="p-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <Text size="sm" color="muted" className="mb-1">表示設定</Text>
+              <ControlBar
+                showYomiKana={showYomiKana}
+                onToggleYomiKana={() => setShowYomiKana(!showYomiKana)}
+                showToriKana={showToriKana}
+                onToggleToriKana={() => setShowToriKana(!showToriKana)}
+              />
+            </div>
+            <Button onClick={handleStart} size="lg" className="px-8 py-3 text-lg">
+              開始
+            </Button>
+          </div>
+        </Card>
+
+        {/* Grid preview */}
+        <KarutaGrid
+          poems={currentQuestion.choicePoems}
+          showKana={showToriKana}
+          disabled
+          onSelect={() => {}}
+        />
+      </div>
+    );
+  }
+
+  // Countdown phase: show countdown number over the grid
+  if (phase === 'countdown') {
+    return (
+      <div className="karuta-container space-y-2 py-2">
+        <div className="text-center py-8">
+          <Text size="sm" color="muted" className="mb-2">公式歌合</Text>
+          <div className="text-8xl font-bold text-karuta-red animate-pulse">
+            {countdown}
+          </div>
+        </div>
+
+        {/* Grid visible but disabled during countdown */}
+        <KarutaGrid
+          poems={currentQuestion.choicePoems}
+          showKana={showToriKana}
+          disabled
+          onSelect={() => {}}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="karuta-container space-y-2 py-2">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <Heading as="h1" size="h2">公式競技</Heading>
+            <Heading as="h1" size="h2">公式歌合</Heading>
             {seasonStatus === 'frozen' && (
               <Badge variant="warning" className="text-xs">集計中</Badge>
             )}
@@ -311,7 +382,7 @@ export function OfficialPage() {
           <Card className="max-w-sm mx-4">
             <Heading as="h3" size="h3" className="mb-4">表示切替の確認</Heading>
             <Text color="muted" className="mb-6">
-              公式競技中の表示変更は記録の公平性に影響する可能性があります。
+              公式歌合中の表示変更は記録の公平性に影響する可能性があります。
               {pendingToggle === 'yomi' ? '読札' : '取札'}を
               {pendingToggle === 'yomi'
                 ? (showYomiKana ? '漢字表示' : 'ひらがな表示')

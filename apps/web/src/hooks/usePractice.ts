@@ -3,9 +3,14 @@ import type { Poem } from '@/types/poem';
 import { getAllPoemsSync } from '@/services/poems.service';
 import type { PoemRange } from '@/components/PoemRangeSelector';
 
+const MAX_QUESTIONS = 50;
+
 interface UsePracticeOptions {
   initialKimarijiFilter?: number[];
   initialPoemRangeFilter?: PoemRange[];
+  initialShowYomiKana?: boolean;
+  initialShowToriKana?: boolean;
+  initialShowKimariji?: boolean;
 }
 
 interface PracticeState {
@@ -22,6 +27,7 @@ interface PracticeState {
   correctCount: number;
   isAnswered: boolean;
   isCorrect: boolean | null;
+  isCompleted: boolean;  // 50問終了フラグ
 }
 
 export function usePractice(options: UsePracticeOptions = {}) {
@@ -29,26 +35,33 @@ export function usePractice(options: UsePracticeOptions = {}) {
 
   const initialKimarijiFilter = options.initialKimarijiFilter || [1, 2, 3, 4, 5, 6];
   const initialPoemRangeFilter = options.initialPoemRangeFilter || [];
+  const initialShowYomiKana = options.initialShowYomiKana || false;
+  const initialShowToriKana = options.initialShowToriKana || false;
+  const initialShowKimariji = options.initialShowKimariji || false;
 
   const [state, setState] = useState<PracticeState>(() => {
     const filtered = filterPoems(allPoems, initialKimarijiFilter, initialPoemRangeFilter);
-    const selected = selectRandomPoems(filtered, 12);
-    const correct = selected[Math.floor(Math.random() * selected.length)];
+    // Use filtered count (can be fewer than 12)
+    const selected = selectRandomPoems(filtered, Math.min(12, filtered.length));
+    const correct = selected.length > 0
+      ? selected[Math.floor(Math.random() * selected.length)]
+      : null;
 
     return {
       poems: allPoems,
       selectedPoems: selected,
-      correctPoemId: correct.poemId,
+      correctPoemId: correct?.poemId || null,
       selectedPoemId: null,
-      showYomiKana: false,
-      showToriKana: false,
-      showKimariji: false,
+      showYomiKana: initialShowYomiKana,
+      showToriKana: initialShowToriKana,
+      showKimariji: initialShowKimariji,
       kimarijiFilter: initialKimarijiFilter,
       poemRangeFilter: initialPoemRangeFilter,
       questionCount: 0,
       correctCount: 0,
       isAnswered: false,
       isCorrect: null,
+      isCompleted: false,
     };
   });
 
@@ -90,9 +103,9 @@ export function usePractice(options: UsePracticeOptions = {}) {
   const setKimarijiFilter = useCallback((counts: number[]) => {
     setState(prev => {
       const newFiltered = filterPoems(prev.poems, counts, prev.poemRangeFilter);
-      // Only reshuffle if we have enough poems
-      if (newFiltered.length >= 12) {
-        const selected = selectRandomPoems(newFiltered, 12);
+      // Reshuffle with available poems (can be fewer than 12)
+      if (newFiltered.length > 0) {
+        const selected = selectRandomPoems(newFiltered, Math.min(12, newFiltered.length));
         const correct = selected[Math.floor(Math.random() * selected.length)];
         return {
           ...prev,
@@ -104,7 +117,7 @@ export function usePractice(options: UsePracticeOptions = {}) {
           isCorrect: null,
         };
       }
-      return { ...prev, kimarijiFilter: counts };
+      return { ...prev, kimarijiFilter: counts, selectedPoems: [], correctPoemId: null };
     });
   }, []);
 
@@ -112,9 +125,9 @@ export function usePractice(options: UsePracticeOptions = {}) {
   const setPoemRangeFilter = useCallback((ranges: PoemRange[]) => {
     setState(prev => {
       const newFiltered = filterPoems(prev.poems, prev.kimarijiFilter, ranges);
-      // Only reshuffle if we have enough poems
-      if (newFiltered.length >= 12) {
-        const selected = selectRandomPoems(newFiltered, 12);
+      // Reshuffle with available poems (can be fewer than 12)
+      if (newFiltered.length > 0) {
+        const selected = selectRandomPoems(newFiltered, Math.min(12, newFiltered.length));
         const correct = selected[Math.floor(Math.random() * selected.length)];
         return {
           ...prev,
@@ -126,20 +139,22 @@ export function usePractice(options: UsePracticeOptions = {}) {
           isCorrect: null,
         };
       }
-      return { ...prev, poemRangeFilter: ranges };
+      return { ...prev, poemRangeFilter: ranges, selectedPoems: [], correctPoemId: null };
     });
   }, []);
 
-  // Shuffle cards (select new random 12 poems)
+  // Shuffle cards (select new random poems from filtered set)
   const shuffle = useCallback(() => {
     setState(prev => {
       const filtered = filterPoems(prev.poems, prev.kimarijiFilter, prev.poemRangeFilter);
-      const selected = selectRandomPoems(filtered, 12);
-      const correct = selected[Math.floor(Math.random() * selected.length)];
+      const selected = selectRandomPoems(filtered, Math.min(12, filtered.length));
+      const correct = selected.length > 0
+        ? selected[Math.floor(Math.random() * selected.length)]
+        : null;
       return {
         ...prev,
         selectedPoems: selected,
-        correctPoemId: correct.poemId,
+        correctPoemId: correct?.poemId || null,
         selectedPoemId: null,
         isAnswered: false,
         isCorrect: null,
@@ -150,16 +165,19 @@ export function usePractice(options: UsePracticeOptions = {}) {
   // Select a poem (answer)
   const selectPoem = useCallback((poemId: string) => {
     setState(prev => {
-      if (prev.isAnswered) return prev;
-      
+      if (prev.isAnswered || prev.isCompleted) return prev;
+
       const isCorrect = poemId === prev.correctPoemId;
+      const newQuestionCount = prev.questionCount + 1;
+      const isCompleted = newQuestionCount >= MAX_QUESTIONS;
       return {
         ...prev,
         selectedPoemId: poemId,
         isAnswered: true,
         isCorrect,
-        questionCount: prev.questionCount + 1,
+        questionCount: newQuestionCount,
         correctCount: prev.correctCount + (isCorrect ? 1 : 0),
+        isCompleted,
       };
     });
   }, []);
@@ -167,13 +185,76 @@ export function usePractice(options: UsePracticeOptions = {}) {
   // Move to next question
   const nextQuestion = useCallback(() => {
     setState(prev => {
+      // 50問終了している場合は何もしない
+      if (prev.isCompleted) return prev;
+
+      // 入れ替える札を決定
+      const poemsToReplace: string[] = [];
+
+      if (prev.correctPoemId) {
+        if (prev.isCorrect) {
+          // 正解: 正解札のみ入れ替え
+          poemsToReplace.push(prev.correctPoemId);
+        } else {
+          // 不正解: 選択札と正解札を入れ替え
+          poemsToReplace.push(prev.correctPoemId);
+          if (prev.selectedPoemId && prev.selectedPoemId !== prev.correctPoemId) {
+            poemsToReplace.push(prev.selectedPoemId);
+          }
+        }
+      }
+
+      // 残す札（入れ替えない札）
+      const remainingPoems = prev.selectedPoems.filter(
+        p => !poemsToReplace.includes(p.poemId)
+      );
+
+      // 新しい札を選ぶ（既存の札と重複しない）
       const filtered = filterPoems(prev.poems, prev.kimarijiFilter, prev.poemRangeFilter);
-      const selected = selectRandomPoems(filtered, 12);
-      const correct = selected[Math.floor(Math.random() * selected.length)];
+      const available = filtered.filter(
+        p => !remainingPoems.some(r => r.poemId === p.poemId)
+      );
+
+      // 十分な札がある場合は新しい札を追加、なければ既存札を再利用
+      const newPoems = selectRandomPoems(available, poemsToReplace.length);
+
+      // 入れ替え対象の位置に新しい札を挿入（残す札の位置は維持）
+      // 新しい札がない場合はその位置を削除
+      let newPoemIdx = 0;
+      const selected: Poem[] = [];
+      for (const p of prev.selectedPoems) {
+        if (poemsToReplace.includes(p.poemId)) {
+          if (newPoemIdx < newPoems.length) {
+            selected.push(newPoems[newPoemIdx++]);
+          }
+          // 新しい札が足りない場合は削除（pushしない）
+        } else {
+          selected.push(p);
+        }
+      }
+
+      // カードがなくなった場合は終了状態
+      if (selected.length === 0) {
+        return {
+          ...prev,
+          selectedPoems: [],
+          correctPoemId: null,
+          selectedPoemId: null,
+          isAnswered: false,
+          isCorrect: null,
+        };
+      }
+
+      // 新しい正解を選択（残った札から選ぶ、入れ替えた札は除外）
+      const replacedIds = newPoems.map(p => p.poemId);
+      const remainingCandidates = selected.filter(p => !replacedIds.includes(p.poemId));
+      const correctSource = remainingCandidates.length > 0 ? remainingCandidates : selected;
+      const correct = correctSource[Math.floor(Math.random() * correctSource.length)];
+
       return {
         ...prev,
         selectedPoems: selected,
-        correctPoemId: correct.poemId,
+        correctPoemId: correct?.poemId || null,
         selectedPoemId: null,
         isAnswered: false,
         isCorrect: null,
@@ -206,7 +287,9 @@ export function usePractice(options: UsePracticeOptions = {}) {
     correctCount: state.correctCount,
     isAnswered: state.isAnswered,
     isCorrect: state.isCorrect,
+    isCompleted: state.isCompleted,
     filteredPoemsCount: filteredPoems.length,
+    maxQuestions: MAX_QUESTIONS,
 
     // Actions
     toggleYomiKana,

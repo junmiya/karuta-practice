@@ -33,10 +33,11 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkSeasonBoundary = exports.adminGetJobRuns = exports.adminPublishSeasonV2 = exports.adminFinalizeSeasonV2 = exports.adminFreezeSeasonV2 = exports.adminSeedDefaultCalendar = exports.adminSaveSeasonCalendar = exports.adminGetSeasonCalendar = exports.adminSaveRuleset = exports.adminGetRuleset = exports.submitKyuiExam = exports.adminUpdateRankings = exports.adminFinalizeSeason = exports.adminFreezeSeason = exports.adminGetSeasons = exports.analyzeStats = exports.getPoemExplanation = exports.costGuardCleanup = exports.updateTitles = exports.checkSeasonTransition = exports.updateRankingsCache = exports.generateDailyReflections = exports.expireStaleSession = exports.updateSeasonStatus = exports.dailyRankingSnapshot = exports.submitOfficialRecord = exports.submitOfficialSession = exports.db = void 0;
+exports.checkSeasonBoundary = exports.adminGetJobRuns = exports.adminPublishSeasonV2 = exports.adminFinalizeSeasonV2 = exports.adminFreezeSeasonV2 = exports.adminSeedDefaultCalendar = exports.adminSaveSeasonCalendar = exports.adminGetSeasonCalendar = exports.adminSaveRuleset = exports.adminGetRuleset = exports.submitKyuiExam = exports.adminUpdateRankings = exports.adminFinalizeSeason = exports.adminFreezeSeason = exports.adminGetSeasons = exports.analyzeStats = exports.getPoemExplanation = exports.costGuardCleanup = exports.updateTitles = exports.checkSeasonTransition = exports.generateDailyReflections = exports.expireStaleSession = exports.updateSeasonStatus = exports.dailyRankingSnapshot = exports.submitOfficialRecord = exports.submitOfficialSession = exports.db = void 0;
 const admin = __importStar(require("firebase-admin"));
 // Initialize Firebase Admin
 admin.initializeApp();
+console.log('=== index.ts loaded, Firebase initialized ===');
 // Export Firestore instance for use in other modules
 exports.db = admin.firestore();
 // Re-export callable functions
@@ -50,9 +51,10 @@ Object.defineProperty(exports, "dailyRankingSnapshot", { enumerable: true, get: 
 Object.defineProperty(exports, "updateSeasonStatus", { enumerable: true, get: function () { return scheduledFunctions_1.updateSeasonStatus; } });
 Object.defineProperty(exports, "expireStaleSession", { enumerable: true, get: function () { return scheduledFunctions_1.expireStaleSession; } });
 // Re-export scheduled functions (Stage 1)
+// Note: updateRankingsCache removed - using realtime updateRanking instead
 var scheduledFunctionsStage1_1 = require("./scheduledFunctionsStage1");
 Object.defineProperty(exports, "generateDailyReflections", { enumerable: true, get: function () { return scheduledFunctionsStage1_1.generateDailyReflections; } });
-Object.defineProperty(exports, "updateRankingsCache", { enumerable: true, get: function () { return scheduledFunctionsStage1_1.updateRankingsCache; } });
+// updateRankingsCache,  // Disabled: realtime updateRanking handles this
 Object.defineProperty(exports, "checkSeasonTransition", { enumerable: true, get: function () { return scheduledFunctionsStage1_1.checkSeasonTransition; } });
 Object.defineProperty(exports, "updateTitles", { enumerable: true, get: function () { return scheduledFunctionsStage1_1.updateTitles; } });
 Object.defineProperty(exports, "costGuardCleanup", { enumerable: true, get: function () { return scheduledFunctionsStage1_1.costGuardCleanup; } });

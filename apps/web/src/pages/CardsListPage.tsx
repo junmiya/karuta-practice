@@ -93,19 +93,19 @@ export function CardsListPage() {
           </div>
         </div>
 
-        {/* Row 2: Kimariji Filter */}
-        <KimarijiSelector
-          selected={selectedKimariji}
-          onChange={setSelectedKimariji}
-          compact
-        />
-
-        {/* Row 3: Poem Range Filter */}
-        <PoemRangeSelector
-          selected={selectedPoemRange}
-          onChange={setSelectedPoemRange}
-          compact
-        />
+        {/* Filters: Kimariji + Poem Range */}
+        <div className="flex items-center gap-2">
+          <KimarijiSelector
+            selected={selectedKimariji}
+            onChange={setSelectedKimariji}
+            compact
+          />
+          <PoemRangeSelector
+            selected={selectedPoemRange}
+            onChange={setSelectedPoemRange}
+            compact
+          />
+        </div>
 
         {/* Row 4: Control Bar + Count */}
         <div className="flex items-center justify-between">

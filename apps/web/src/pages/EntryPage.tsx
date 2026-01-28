@@ -106,7 +106,7 @@ export function EntryPage() {
         <Card centered>
           <Heading as="h1" className="mb-4">ログインが必要です</Heading>
           <Text color="muted" className="mb-6">
-            公式競技にエントリーするにはログインしてください。
+            公式歌合にエントリーするにはログインしてください。
           </Text>
           <Button
             onClick={() => navigate('/profile')}
@@ -168,7 +168,7 @@ export function EntryPage() {
             <Button
               onClick={() => navigate('/official')}
             >
-              公式競技を開始する
+              公式歌合を開始する
             </Button>
           ) : (
             <div className="space-y-3">
@@ -272,7 +272,7 @@ export function EntryPage() {
             <div>
               <div className="font-medium text-gray-900">番付掲載に同意する</div>
               <div className="text-sm text-gray-600 mt-1">
-                公式競技の結果は番付（ランキング）に表示名（ニックネーム）で掲載されます。
+                公式歌合の結果は番付（ランキング）に表示名（ニックネーム）で掲載されます。
                 同意しない場合はエントリーできません。
               </div>
             </div>

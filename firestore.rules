@@ -21,7 +21,11 @@ service cloud.firestore {
 
     // セッション
     match /sessions/{sessionId} {
-      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
+      // 自分のセッションは読み取り可能、確定済みセッションは全員が読み取り可能（番付表示用）
+      allow read: if request.auth != null && (
+        resource.data.uid == request.auth.uid ||
+        resource.data.status == 'confirmed'
+      );
       allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
       allow update: if request.auth != null && resource.data.uid == request.auth.uid;
 
@@ -51,6 +55,17 @@ service cloud.firestore {
     match /practiceResults/{resultId} {
       allow read: if request.auth != null && resource.data.uid == request.auth.uid;
       allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+    }
+
+    // 公式記録提出（公開読み取り）
+    match /submissions/{id} {
+      allow read: if true;
+      allow create: if request.auth != null;
+    }
+
+    // 番付スナップショット（公開読み取り）
+    match /banzukeSnapshots/{id} {
+      allow read: if true;
     }
 
     // === 102: 歌合・節気別歌位確定 新コレクション ===

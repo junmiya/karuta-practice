@@ -44,11 +44,6 @@ export function PoemRangeSelector({
     onChange([]);
   };
 
-  // 選択中の首数を計算
-  const selectedPoemCount = selected.length > 0
-    ? selected.reduce((sum, r) => sum + (r.end - r.start + 1), 0)
-    : 100;
-
   if (compact) {
     // 1行コンパクト版（左寄せ）
     return (
@@ -72,9 +67,6 @@ export function PoemRangeSelector({
             );
           })}
         </div>
-        <span className="text-xs text-gray-400 whitespace-nowrap">
-          {selected.length > 0 ? `${selectedPoemCount}首` : '全100首'}
-        </span>
         {selected.length > 0 && (
           <button
             onClick={clearAll}

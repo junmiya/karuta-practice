@@ -4,93 +4,206 @@
       "collectionGroup": "seasons",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "startDate", "order": "DESCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "startDate",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "seasons",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "finalizeDate",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "sessions",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "uid", "order": "ASCENDING" },
-        { "fieldPath": "seasonId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" }
+        {
+          "fieldPath": "uid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "seasonId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "sessions",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "seasonId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "score", "order": "DESCENDING" }
+        {
+          "fieldPath": "seasonId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "score",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "sessions",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "uid", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "confirmedAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dayKeyJst",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "score",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "sessions",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "uid", "order": "ASCENDING" },
-        { "fieldPath": "seasonId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "confirmedAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "uid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "confirmedAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "sessions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "uid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "seasonId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "confirmedAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "entries",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "uid", "order": "ASCENDING" },
-        { "fieldPath": "seasonId", "order": "ASCENDING" }
+        {
+          "fieldPath": "uid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "seasonId",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "practiceResults",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "uid", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "uid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "events",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "uid", "order": "ASCENDING" },
-        { "fieldPath": "seasonKey", "order": "ASCENDING" }
+        {
+          "fieldPath": "uid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "seasonKey",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "events",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "seasonKey", "order": "ASCENDING" },
-        { "fieldPath": "eventType", "order": "ASCENDING" }
+        {
+          "fieldPath": "seasonKey",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "eventType",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "season_snapshots",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "pipeline.status", "order": "ASCENDING" },
-        { "fieldPath": "pipeline.publishedAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "pipeline.status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "pipeline.publishedAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "job_runs",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "seasonKey", "order": "ASCENDING" },
-        { "fieldPath": "startedAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "seasonKey",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "startedAt",
+          "order": "DESCENDING"
+        }
       ]
     }
   ],

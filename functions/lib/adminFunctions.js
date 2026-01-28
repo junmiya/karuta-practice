@@ -40,7 +40,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.adminCreateSeason = exports.adminGetSeasonStats = exports.adminUpdateRankings = exports.adminFinalizeSeason = exports.adminFreezeSeason = exports.adminGetSeasons = void 0;
+exports.adminCreateSeasonCalendar = exports.adminCreateSeason = exports.adminGetSeasonStats = exports.adminUpdateRankings = exports.adminFinalizeSeason = exports.adminFreezeSeason = exports.adminGetSeasons = void 0;
 const functions = __importStar(require("firebase-functions"));
 const seasonService_1 = require("./services/seasonService");
 const auditService_1 = require("./services/auditService");
@@ -396,6 +396,75 @@ exports.adminCreateSeason = functions
         }
         console.error('Error creating season:', error);
         throw new functions.https.HttpsError('internal', 'Failed to create season');
+    }
+});
+/**
+ * シーズンカレンダーを作成（管理者用）
+ * 2026年のデフォルトカレンダーを登録
+ */
+exports.adminCreateSeasonCalendar = functions
+    .region('asia-northeast1')
+    .https.onCall(async (data, context) => {
+    // 認証チェック
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+    }
+    const uid = context.auth.uid;
+    const { year } = data;
+    if (!year || typeof year !== 'number') {
+        throw new functions.https.HttpsError('invalid-argument', 'year is required (number)');
+    }
+    // 管理者チェック
+    if (!isAdmin(uid)) {
+        throw new functions.https.HttpsError('permission-denied', 'Admin access required');
+    }
+    try {
+        const { saveSeasonCalendar, getSeasonCalendar, generate2026DefaultCalendar } = await Promise.resolve().then(() => __importStar(require('./services/seasonCalendarService')));
+        // 既存チェック
+        const existing = await getSeasonCalendar(year);
+        if (existing) {
+            return {
+                success: true,
+                message: `Season calendar already exists for ${year}`,
+                calendar: {
+                    year: existing.year,
+                    periodsCount: existing.periods?.length || 0,
+                },
+            };
+        }
+        // 2026年のデフォルトカレンダーを生成・保存
+        if (year === 2026) {
+            const defaultCalendar = generate2026DefaultCalendar();
+            const saved = await saveSeasonCalendar(defaultCalendar);
+            // 監査ログ
+            await (0, auditService_1.writeAuditLog)({
+                eventType: 'season_frozen', // calendar_created用のイベントタイプなし
+                seasonId: `${year}_calendar`,
+                uid,
+                details: {
+                    action: 'calendar_created',
+                    triggeredBy: uid,
+                    year,
+                },
+            });
+            console.log(`Season calendar for ${year} created by admin ${uid}`);
+            return {
+                success: true,
+                message: `Season calendar created for ${year}`,
+                calendar: {
+                    year: saved.year,
+                    periodsCount: saved.periods?.length || 0,
+                },
+            };
+        }
+        throw new functions.https.HttpsError('invalid-argument', `No default calendar generator for year ${year}. Only 2026 is supported.`);
+    }
+    catch (error) {
+        if (error instanceof functions.https.HttpsError) {
+            throw error;
+        }
+        console.error('Error creating season calendar:', error);
+        throw new functions.https.HttpsError('internal', 'Failed to create season calendar');
     }
 });
 //# sourceMappingURL=adminFunctions.js.map

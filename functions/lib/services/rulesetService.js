@@ -59,6 +59,7 @@ async function saveRuleset(ruleset) {
     const existing = await ref.get();
     const data = {
         ...ruleset,
+        isActive: true,
         updatedAt: firestore_1.FieldValue.serverTimestamp(),
         ...(existing.exists ? {} : { createdAt: firestore_1.FieldValue.serverTimestamp() }),
     };

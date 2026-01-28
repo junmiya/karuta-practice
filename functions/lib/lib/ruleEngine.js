@@ -52,9 +52,9 @@ function determineTier(participantCount, officialMinParticipants) {
 function evaluateKyuiPromotion(currentLevel, examData, ruleset) {
     const currentIndex = utaawase_1.KYUI_LEVELS_ORDERED.indexOf(currentLevel);
     const nextIndex = currentIndex + 1;
-    // Already at max level
+    // Already at max level (六級)
     if (nextIndex >= utaawase_1.KYUI_LEVELS_ORDERED.length) {
-        return { promoted: false, newLevel: currentLevel, danEligible: currentLevel === 'gokkyu' };
+        return { promoted: false, newLevel: currentLevel, danEligible: currentLevel === 'rokkyu' };
     }
     const nextLevel = utaawase_1.KYUI_LEVELS_ORDERED[nextIndex];
     const requirement = ruleset.kyuiRequirements.find((r) => r.level === nextLevel);
@@ -72,9 +72,8 @@ function evaluateKyuiPromotion(currentLevel, examData, ruleset) {
     const questionCountMet = examData.questionCount >= requirement.questionCount;
     if (passRateMet && cardRequirementMet && questionCountMet) {
         const newLevel = nextLevel;
-        // 六級(rokkyu)到達でdan_eligible
-        const danEligible = newLevel === 'rokkyu' ||
-            utaawase_1.KYUI_LEVELS_ORDERED.indexOf(newLevel) >= utaawase_1.KYUI_LEVELS_ORDERED.indexOf('rokkyu');
+        // 六級(rokkyu)が最高位、到達でdan_eligible
+        const danEligible = newLevel === 'rokkyu';
         return { promoted: true, newLevel, danEligible };
     }
     return { promoted: false, newLevel: currentLevel, danEligible: false };
@@ -178,6 +177,23 @@ function validateSeasonCalendar(calendar) {
         for (const sid of requiredSeasons) {
             if (!foundSeasons.includes(sid)) {
                 errors.push(`Missing season period: ${sid}`);
+            }
+        }
+        // Validate monotonic increase: each period's end_at must equal next period's start_at
+        const ordered = [...calendar.periods].sort((a, b) => a.start_at.toMillis() - b.start_at.toMillis());
+        for (let i = 0; i < ordered.length - 1; i++) {
+            if (ordered[i].end_at.toMillis() !== ordered[i + 1].start_at.toMillis()) {
+                errors.push(`Gap or overlap between ${ordered[i].seasonId} and ${ordered[i + 1].seasonId}`);
+            }
+        }
+        // Validate winter.end_at == risshun_next
+        if (calendar.boundaries && calendar.boundaries.length === 5) {
+            const winterPeriod = calendar.periods.find((p) => p.seasonId === 'winter');
+            const risshunNext = calendar.boundaries.find((b) => b.marker === 'risshun_next');
+            if (winterPeriod && risshunNext) {
+                if (winterPeriod.end_at.toMillis() !== risshunNext.datetime.toMillis()) {
+                    errors.push('winter.end_at must equal risshun_next datetime');
+                }
             }
         }
     }

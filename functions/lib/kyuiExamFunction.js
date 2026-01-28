@@ -54,6 +54,13 @@ exports.submitKyuiExam = functions
     if (!questionCount || questionCount < 1) {
         throw new functions.https.HttpsError('invalid-argument', 'questionCountが必要です');
     }
+    // T4 acceptance: 50枚超過 or 10分(600秒)超過は不合格
+    if (questionCount > 50) {
+        throw new functions.https.HttpsError('invalid-argument', '出題数は最大50問です');
+    }
+    if (totalElapsedMs > 600_000) {
+        throw new functions.https.HttpsError('invalid-argument', '検定の制限時間(10分)を超過しています');
+    }
     try {
         // Get ruleset and user progress
         const ruleset = await (0, rulesetService_1.getRuleset)();

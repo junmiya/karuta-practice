@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
 import type { Poem } from '@/types/poem';
-import { Heading, Text } from '@/components/ui/Typography';
+import { Text } from '@/components/ui/Typography';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 
@@ -52,12 +52,32 @@ export function PoemDetailModal({ poem, onClose }: PoemDetailModalProps) {
                 />
 
                 {/* Fallback if image not found */}
-                <div className="manga-fallback hidden bg-white rounded-lg p-8 text-center">
-                    <Text color="muted" className="mb-4">マンガ画像は準備中です</Text>
-                    <div className="space-y-2">
-                        <Heading as="h3" size="h4">{poem.kimariji}</Heading>
-                        <Text>{poem.yomi}</Text>
-                        <Text color="muted">{poem.tori}</Text>
+                <div className="manga-fallback hidden bg-white rounded-lg p-6 space-y-4">
+                    {/* 上の句（読み札） */}
+                    <div className="bg-karuta-red/5 border border-karuta-red/20 rounded-lg p-4">
+                        <Text size="sm" color="muted" className="mb-1 font-semibold">上の句（読み札）</Text>
+                        <Text className="text-lg leading-relaxed">{poem.yomi}</Text>
+                        <Text size="sm" color="muted" className="mt-1">{poem.yomiKana}</Text>
+                    </div>
+
+                    {/* 下の句（取り札） */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <Text size="sm" color="muted" className="mb-1 font-semibold">下の句（取り札）</Text>
+                        <Text className="text-lg leading-relaxed">{poem.tori}</Text>
+                        <Text size="sm" color="muted" className="mt-1">{poem.toriKana}</Text>
+                    </div>
+
+                    {/* 決まり字・作者 */}
+                    <div className="flex items-center justify-between bg-gray-50 rounded-lg p-4">
+                        <div>
+                            <Text size="sm" color="muted" className="font-semibold">決まり字</Text>
+                            <Text className="text-xl font-bold text-karuta-red">{poem.kimariji}</Text>
+                            <Text size="sm" color="muted">{poem.kimarijiCount}字決まり</Text>
+                        </div>
+                        <div className="text-right">
+                            <Text size="sm" color="muted" className="font-semibold">作者</Text>
+                            <Text className="font-medium">{poem.author}</Text>
+                        </div>
                     </div>
                 </div>
             </div>

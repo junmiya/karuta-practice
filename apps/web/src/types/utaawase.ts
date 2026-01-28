@@ -85,10 +85,10 @@ export const DAN_LEVELS_ORDERED: DanLevel[] = [
 
 export const KYUI_LEVEL_LABELS: Record<KyuiLevel, string> = {
   beginner: '初級',
-  jyukkyu: '十級',
-  kyukyu: '九級',
-  hachikyu: '八級',
-  nanakyu: '七級',
+  jyukkyu: '二級',
+  kyukyu: '三級',
+  hachikyu: '四級',
+  nanakyu: '五級',
   rokkyu: '六級',
 };
 
@@ -99,6 +99,17 @@ export const DAN_LEVEL_LABELS: Record<DanLevel, string> = {
   yondan: '四段',
   godan: '五段',
   rokudan: '六段',
+};
+
+// 次のレベルへの昇級条件（現在のレベルからの昇級条件）
+// 検定: 50問、制限時間600秒（10分）
+export const KYUI_PROMOTION_CONDITIONS: Record<KyuiLevel, string> = {
+  beginner: '二級へ: 1字決まり 80%正解',
+  jyukkyu: '三級へ: 2字決まり 80%正解',
+  kyukyu: '四級へ: 3字決まり 80%正解',
+  hachikyu: '五級へ: 4字決まり 80%正解',
+  nanakyu: '六級へ: 5字決まり 80%正解',
+  rokkyu: '段位資格取得済（全札90%正解で達成）',
 };
 
 export function seasonKey(year: number, seasonId: SeasonId): string {

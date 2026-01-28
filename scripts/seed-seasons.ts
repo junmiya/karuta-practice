@@ -39,7 +39,7 @@ const now = Timestamp.now();
 const seasons: Season[] = [
   {
     seasonId: '2026_winter',
-    name: '2026年冬場所',
+    name: '2026年冬戦',
     startDate: Timestamp.fromDate(new Date('2026-01-01T00:00:00+09:00')),
     status: 'open', // 現在アクティブ（Stage 1形式）
     createdAt: now,

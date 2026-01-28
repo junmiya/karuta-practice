@@ -9,7 +9,7 @@ import {
   setDoc,
   updateDoc,
   serverTimestamp,
-  // Timestamp,
+  arrayUnion,
 } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { db, functions, auth } from './firebase';
@@ -82,28 +82,26 @@ export async function updateSessionStatus(
 }
 
 /**
- * Save a round to the session
+ * Save a round to the session (as array element, not subcollection)
+ * This reduces reads from 50 to 1 when submitting for confirmation
  */
 export async function saveRound(
   sessionId: string,
   round: Round
 ): Promise<void> {
-  const roundId = round.roundIndex.toString().padStart(2, '0');
-  const roundRef = doc(
-    db,
-    SESSIONS_COLLECTION,
-    sessionId,
-    'rounds',
-    roundId
-  );
+  const sessionRef = doc(db, SESSIONS_COLLECTION, sessionId);
 
-  await setDoc(roundRef, {
+  const roundData = {
     roundIndex: round.roundIndex,
     correctPoemId: round.correctPoemId,
     choices: round.choices,
     selectedPoemId: round.selectedPoemId,
     isCorrect: round.isCorrect,
     clientElapsedMs: round.clientElapsedMs,
+  };
+
+  await updateDoc(sessionRef, {
+    rounds: arrayUnion(roundData),
   });
 }
 

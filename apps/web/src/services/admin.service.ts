@@ -26,7 +26,7 @@ export async function initializeSeasons(): Promise<void> {
   const seasons: SeasonData[] = [
     {
       seasonId: '2026_winter',
-      name: '2026年冬場所',
+      name: '2026年冬戦',
       startDate: new Date('2026-01-01T00:00:00+09:00'),
       freezeDate: new Date('2026-03-25T23:59:59+09:00'),
       finalizeDate: new Date('2026-03-31T23:59:59+09:00'),
@@ -34,7 +34,7 @@ export async function initializeSeasons(): Promise<void> {
     },
     {
       seasonId: '2026_spring',
-      name: '2026年春場所',
+      name: '2026年春戦',
       startDate: new Date('2026-04-01T00:00:00+09:00'),
       freezeDate: new Date('2026-06-25T23:59:59+09:00'),
       finalizeDate: new Date('2026-06-30T23:59:59+09:00'),
@@ -42,7 +42,7 @@ export async function initializeSeasons(): Promise<void> {
     },
     {
       seasonId: '2026_summer',
-      name: '2026年夏場所',
+      name: '2026年夏戦',
       startDate: new Date('2026-07-01T00:00:00+09:00'),
       freezeDate: new Date('2026-09-25T23:59:59+09:00'),
       finalizeDate: new Date('2026-09-30T23:59:59+09:00'),
@@ -50,7 +50,7 @@ export async function initializeSeasons(): Promise<void> {
     },
     {
       seasonId: '2026_autumn',
-      name: '2026年秋場所',
+      name: '2026年秋戦',
       startDate: new Date('2026-10-01T00:00:00+09:00'),
       freezeDate: new Date('2026-12-25T23:59:59+09:00'),
       finalizeDate: new Date('2026-12-31T23:59:59+09:00'),

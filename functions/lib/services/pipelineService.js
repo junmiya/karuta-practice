@@ -125,34 +125,38 @@ async function freezeSeason(seasonKey, triggeredBy) {
         }
         // Gather all match events for this season
         const events = await (0, eventService_1.getSeasonEvents)(seasonKey, 'match');
-        // Build cumulative rankings from events
+        // Build best-3 rankings from events
         const scoreMap = new Map();
         for (const event of events) {
             if (event.matchData) {
-                const existing = scoreMap.get(event.uid) || { uid: event.uid, nickname: '', total: 0, count: 0 };
-                existing.total += event.matchData.score;
+                const existing = scoreMap.get(event.uid) || { uid: event.uid, nickname: '', scores: [], count: 0 };
+                existing.scores.push(event.matchData.score);
                 existing.count += 1;
                 scoreMap.set(event.uid, existing);
             }
         }
-        // Get nicknames
+        // Get nicknames and compute best-3 totals
         for (const [uid, entry] of scoreMap) {
             const userDoc = await db.collection('users').doc(uid).get();
             entry.nickname = userDoc.exists ? userDoc.data()?.nickname || 'Anonymous' : 'Anonymous';
         }
-        // Sort by cumulative score descending and assign ranks
-        const sorted = Array.from(scoreMap.values()).sort((a, b) => b.total - a.total);
+        // Sort by best-3 total descending and assign ranks
+        const withTotals = Array.from(scoreMap.values()).map((e) => {
+            const bestThree = e.scores.sort((a, b) => b - a).slice(0, 3);
+            return { ...e, bestThreeTotal: bestThree.reduce((sum, s) => sum + s, 0) };
+        });
+        const sorted = withTotals.sort((a, b) => b.bestThreeTotal - a.bestThreeTotal);
         const rankings = [];
         let currentRank = 1;
         for (let i = 0; i < sorted.length; i++) {
-            if (i > 0 && sorted[i].total < sorted[i - 1].total) {
+            if (i > 0 && sorted[i].bestThreeTotal < sorted[i - 1].bestThreeTotal) {
                 currentRank = i + 1;
             }
             rankings.push({
                 uid: sorted[i].uid,
                 nickname: sorted[i].nickname,
                 rank: currentRank,
-                cumulativeScore: sorted[i].total,
+                bestThreeTotal: sorted[i].bestThreeTotal,
                 matchCount: sorted[i].count,
             });
         }

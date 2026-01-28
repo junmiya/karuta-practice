@@ -23,10 +23,8 @@ export function KimarijiSelector({
   selected,
   onChange,
   compact = false,
-  label = '決まり字数',
+  label = '決まり字',
 }: KimarijiSelectorProps) {
-  const poemCounts = useMemo(() => getPoemCountByKimariji(), []);
-
   const toggleKimariji = (count: number) => {
     onChange(
       selected.includes(count)
@@ -38,10 +36,6 @@ export function KimarijiSelector({
   const clearAll = () => {
     onChange([]);
   };
-
-  const selectedPoemCount = selected.length > 0
-    ? selected.reduce((sum, k) => sum + (poemCounts[k] || 0), 0)
-    : 100;
 
   if (compact) {
     // 1行コンパクト版
@@ -66,9 +60,6 @@ export function KimarijiSelector({
             );
           })}
         </div>
-        <span className="text-xs text-gray-400 whitespace-nowrap">
-          {selected.length > 0 ? `${selectedPoemCount}首` : '全100首'}
-        </span>
         {selected.length > 0 && (
           <button
             onClick={clearAll}

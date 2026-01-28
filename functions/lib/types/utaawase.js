@@ -17,7 +17,7 @@ exports.UTAAWASE_COLLECTIONS = {
 // ヘルパー定数
 // =============================================================================
 exports.KYUI_LEVELS_ORDERED = [
-    'beginner', 'jyukkyu', 'kyukyu', 'hachikyu', 'nanakyu', 'rokkyu', 'gokkyu',
+    'beginner', 'jyukkyu', 'kyukyu', 'hachikyu', 'nanakyu', 'rokkyu',
 ];
 exports.DAN_LEVELS_ORDERED = [
     'shodan', 'nidan', 'sandan', 'yondan', 'godan', 'rokudan',

@@ -11,7 +11,7 @@ export type SeasonStatus = 'open' | 'frozen' | 'finalized' | 'archived';
 
 export interface Season {
   seasonId: string;          // "2026_spring", "2026_winter"
-  name: string;              // "2026年春場所"
+  name: string;              // "2026年春戦"
   status: SeasonStatus;
   startDate: Timestamp;
   freezeDate?: Timestamp;

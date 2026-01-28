@@ -22,8 +22,8 @@ export function Layout({ children }: LayoutProps) {
       </main>
       <footer className="bg-white border-t border-neutral-200 mt-auto">
         <Container className="py-4">
-          <div className="text-center text-sm text-neutral-700">
-            <p className="font-medium">百人一首 カルタ番付</p>
+          <div className="text-center text-sm text-neutral-500">
+            <p>© 2026 百人一首カルタ番付製作委員会</p>
           </div>
         </Container>
       </footer>

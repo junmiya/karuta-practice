@@ -67,10 +67,10 @@ function generateSeasonId(year, term) {
  */
 function generateSeasonName(year, term) {
     const termNames = {
-        spring: '春場所',
-        summer: '夏場所',
-        autumn: '秋場所',
-        winter: '冬場所',
+        spring: '春戦',
+        summer: '夏戦',
+        autumn: '秋戦',
+        winter: '冬戦',
     };
     return `${year}年${termNames[term]}`;
 }

@@ -96,7 +96,7 @@ async function updateKyuiLevel(uid, newLevel, danEligible) {
     await ref.update(update);
 }
 /**
- * 累積スコアを更新（matchイベント後）
+ * スコアを追加し、ベスト3合計を再計算（matchイベント後）
  */
 async function updateCumulativeScore(uid, seasonKey, score, isOfficial) {
     const ref = db.collection(utaawase_1.UTAAWASE_COLLECTIONS.USER_PROGRESS).doc(uid);
@@ -105,9 +105,12 @@ async function updateCumulativeScore(uid, seasonKey, score, isOfficial) {
         if (!doc.exists)
             return;
         const data = doc.data();
-        const currentScore = data.seasonScores?.[seasonKey] || 0;
+        const seasonData = data.seasonScores?.[seasonKey] || { scores: [], bestThreeTotal: 0 };
+        const scores = [...(seasonData.scores || []), score];
+        const bestThree = scores.sort((a, b) => b - a).slice(0, 3);
+        const bestThreeTotal = bestThree.reduce((sum, s) => sum + s, 0);
         const update = {
-            [`seasonScores.${seasonKey}`]: currentScore + score,
+            [`seasonScores.${seasonKey}`]: { scores, bestThreeTotal },
             updatedAt: firestore_1.FieldValue.serverTimestamp(),
         };
         if (isOfficial) {

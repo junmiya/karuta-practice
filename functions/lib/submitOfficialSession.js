@@ -46,10 +46,6 @@ const HttpsError = functions.https.HttpsError;
 const scoreCalculator_1 = require("./services/scoreCalculator");
 const sessionValidator_1 = require("./validators/sessionValidator");
 const rankingUpdater_1 = require("./services/rankingUpdater");
-const auditService_1 = require("./services/auditService");
-const eventService_1 = require("./services/eventService");
-const userProgressService_1 = require("./services/userProgressService");
-const costGuard_1 = require("./lib/costGuard");
 const db = admin.firestore();
 // Helper to get JST date key
 function getJstDateKey() {
@@ -62,23 +58,13 @@ function getJstDateKey() {
 exports.submitOfficialSession = functions
     .region('asia-northeast1')
     .https.onCall(async (data, context) => {
-    // Track function invocation
-    (0, costGuard_1.incrementFunctionCount)();
+    console.log('=== submitOfficialSession CALLED ===');
     // 1. Authentication check
     if (!context.auth) {
         throw new HttpsError('unauthenticated', 'ログインが必要です');
     }
     const uid = context.auth.uid;
     const { sessionId } = data;
-    // 2. Cost guard: Check if user is blocked
-    if ((0, costGuard_1.isUserBlocked)(uid)) {
-        throw new HttpsError('resource-exhausted', '一時的にアクセスが制限されています');
-    }
-    // 3. Cost guard: Rate limiting
-    if ((0, costGuard_1.checkSubmitRateLimit)(uid)) {
-        (0, costGuard_1.recordSuspiciousAccess)(uid);
-        throw new HttpsError('resource-exhausted', 'リクエストが多すぎます。しばらく待ってから再試行してください');
-    }
     if (!sessionId) {
         throw new HttpsError('invalid-argument', 'sessionIdが必要です');
     }
@@ -124,19 +110,34 @@ exports.submitOfficialSession = functions
                 return { status: 'expired' };
             }
         }
-        // 6. Get all rounds
-        const roundsSnapshot = await sessionRef.collection('rounds').get();
-        const rounds = roundsSnapshot.docs.map((doc) => {
-            const data = doc.data();
-            return {
+        // 6. Get rounds from session document (new format) or subcollection (legacy)
+        let rounds;
+        if (sessionData.rounds && Array.isArray(sessionData.rounds) && sessionData.rounds.length > 0) {
+            // New format: rounds stored as array in session document
+            rounds = sessionData.rounds.map((data) => ({
                 roundIndex: data.roundIndex,
                 correctPoemId: data.correctPoemId,
                 choices: data.choices,
                 selectedPoemId: data.selectedPoemId,
                 isCorrect: data.isCorrect,
                 clientElapsedMs: data.clientElapsedMs,
-            };
-        });
+            }));
+        }
+        else {
+            // Legacy format: rounds stored as subcollection (backward compatibility)
+            const roundsSnapshot = await sessionRef.collection('rounds').get();
+            rounds = roundsSnapshot.docs.map((doc) => {
+                const data = doc.data();
+                return {
+                    roundIndex: data.roundIndex,
+                    correctPoemId: data.correctPoemId,
+                    choices: data.choices,
+                    selectedPoemId: data.selectedPoemId,
+                    isCorrect: data.isCorrect,
+                    clientElapsedMs: data.clientElapsedMs,
+                };
+            });
+        }
         // Calculate correctCount and totalElapsedMs from rounds
         const correctCount = (0, sessionValidator_1.calculateCorrectCount)(rounds);
         const totalElapsedMs = (0, sessionValidator_1.calculateTotalElapsedMs)(rounds);
@@ -151,8 +152,6 @@ exports.submitOfficialSession = functions
                 correctCount,
                 totalElapsedMs,
             });
-            // Audit log for invalidation
-            await (0, auditService_1.logSessionInvalidated)(sessionId, uid, sessionData.seasonId, validationResult.reasons, validationResult.reasonCodes || [], validationResult.ruleVersion || '1.0.0').catch((err) => console.error('Audit log failed:', err));
             return {
                 status: 'invalid',
                 reasons: validationResult.reasons,
@@ -160,66 +159,39 @@ exports.submitOfficialSession = functions
         }
         // 8. Calculate score
         const scoreResult = (0, scoreCalculator_1.calculateScore)({ correctCount, totalElapsedMs });
-        // 9. Confirm session
+        // 9. Get user's nickname and entry info for ranking (parallel fetch)
+        const [userDoc, entryDoc] = await Promise.all([
+            db.collection('users').doc(uid).get(),
+            db.collection('entries').doc(sessionData.entryId).get(),
+        ]);
+        const nickname = userDoc.exists
+            ? userDoc.data()?.nickname || 'Anonymous'
+            : 'Anonymous';
+        const division = entryDoc.exists
+            ? entryDoc.data()?.division
+            : 'kyu';
+        // 10. Confirm session (include nickname for faster banzuke queries)
         await sessionRef.update({
             status: 'confirmed',
             score: scoreResult.score,
             correctCount,
             totalElapsedMs,
+            nickname,
             confirmedAt: firestore_1.FieldValue.serverTimestamp(),
             dayKeyJst: getJstDateKey(),
         });
-        // 10. Get user's nickname and entry info for ranking
-        const userDoc = await db.collection('users').doc(uid).get();
-        const nickname = userDoc.exists
-            ? userDoc.data()?.nickname || 'Anonymous'
-            : 'Anonymous';
-        // Get entry to find division
-        const entryId = sessionData.entryId;
-        const entryDoc = await db.collection('entries').doc(entryId).get();
-        const division = entryDoc.exists
-            ? entryDoc.data()?.division
-            : 'kyu';
-        // 11. Update ranking
-        await (0, rankingUpdater_1.updateRanking)({
-            seasonId: sessionData.seasonId,
-            division,
-            uid,
-            nickname,
-            newScore: scoreResult.score,
-        });
-        // 12. Update user stats
-        await (0, rankingUpdater_1.updateUserStats)(uid, scoreResult.score);
-        // 12b. V2 dual-write: Create match event + update cumulative score
-        try {
-            // Get participant count from entries for this season
-            const entriesSnapshot = await db.collection('entries')
-                .where('seasonId', '==', sessionData.seasonId)
-                .get();
-            const participantCount = entriesSnapshot.size;
-            const startedAt = sessionData.startedAt?.toDate() || new Date();
-            const matchEvent = await (0, eventService_1.createMatchEvent)({
+        // 11. Update ranking and user stats (parallel)
+        await Promise.all([
+            (0, rankingUpdater_1.updateRanking)({
+                seasonId: sessionData.seasonId,
+                division,
                 uid,
-                sessionId,
-                score: scoreResult.score,
-                correctCount,
-                totalElapsedMs,
-                allCards: sessionData.questionCount === 100,
-                participantCount,
-                startedAt,
-            });
-            if (matchEvent) {
-                const isOfficial = matchEvent.tier === 'official';
-                await (0, userProgressService_1.updateCumulativeScore)(uid, matchEvent.seasonKey, scoreResult.score, isOfficial);
-            }
-        }
-        catch (v2Error) {
-            // V2 dual-write is non-blocking; log error but don't fail the submission
-            console.error('V2 dual-write error (non-blocking):', v2Error);
-        }
-        // 13. Audit log for confirmation
-        await (0, auditService_1.logSessionConfirmed)(sessionId, uid, sessionData.seasonId, scoreResult.score, correctCount, '1.1.0' // ruleVersion
-        ).catch((err) => console.error('Audit log failed:', err));
+                nickname,
+                newScore: scoreResult.score,
+            }),
+            (0, rankingUpdater_1.updateUserStats)(uid, scoreResult.score),
+        ]);
+        console.log('=== submitOfficialSession SUCCESS ===', scoreResult.score);
         return {
             status: 'confirmed',
             score: scoreResult.score,
@@ -229,8 +201,10 @@ exports.submitOfficialSession = functions
         if (error instanceof HttpsError) {
             throw error;
         }
-        console.error('submitOfficialSession error:', error);
-        throw new HttpsError('internal', 'エラーが発生しました');
+        const errMsg = error instanceof Error ? error.message : String(error);
+        const errStack = error instanceof Error ? error.stack : '';
+        console.error('submitOfficialSession error:', errMsg, errStack);
+        throw new HttpsError('internal', `エラーが発生しました: ${errMsg}`);
     }
 });
 //# sourceMappingURL=submitOfficialSession.js.map

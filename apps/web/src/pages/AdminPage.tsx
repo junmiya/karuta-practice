@@ -212,7 +212,7 @@ export function AdminPage() {
   };
 
   const handleCreateSeason = async () => {
-    if (!confirm(`${newYear}年${newTerm === 'spring' ? '春' : newTerm === 'summer' ? '夏' : newTerm === 'autumn' ? '秋' : '冬'}場所を作成しますか？`)) {
+    if (!confirm(`${newYear}年${newTerm === 'spring' ? '春' : newTerm === 'summer' ? '夏' : newTerm === 'autumn' ? '秋' : '冬'}戦を作成しますか？`)) {
       return;
     }
 
@@ -269,51 +269,46 @@ export function AdminPage() {
       <div className="flex gap-2 border-b border-gray-200 pb-2">
         <button
           onClick={() => setActiveTab('seasons')}
-          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-            activeTab === 'seasons'
+          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeTab === 'seasons'
               ? 'bg-karuta-red text-white'
               : 'text-gray-600 hover:bg-gray-100'
-          }`}
+            }`}
         >
           シーズン管理
         </button>
         <button
           onClick={() => setActiveTab('create')}
-          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-            activeTab === 'create'
+          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeTab === 'create'
               ? 'bg-karuta-red text-white'
               : 'text-gray-600 hover:bg-gray-100'
-          }`}
+            }`}
         >
           新規シーズン
         </button>
         <button
           onClick={() => setActiveTab('calendar')}
-          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-            activeTab === 'calendar'
+          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeTab === 'calendar'
               ? 'bg-karuta-red text-white'
               : 'text-gray-600 hover:bg-gray-100'
-          }`}
+            }`}
         >
           節気カレンダー
         </button>
         <button
           onClick={() => setActiveTab('ruleset')}
-          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-            activeTab === 'ruleset'
+          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeTab === 'ruleset'
               ? 'bg-karuta-red text-white'
               : 'text-gray-600 hover:bg-gray-100'
-          }`}
+            }`}
         >
           ルールセット
         </button>
         <button
           onClick={() => setActiveTab('pipeline')}
-          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-            activeTab === 'pipeline'
+          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeTab === 'pipeline'
               ? 'bg-karuta-red text-white'
               : 'text-gray-600 hover:bg-gray-100'
-          }`}
+            }`}
         >
           確定パイプライン
         </button>
@@ -506,10 +501,10 @@ export function AdminPage() {
                 onChange={(e) => setNewTerm(e.target.value as 'spring' | 'summer' | 'autumn' | 'winter')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-karuta-red focus:border-karuta-red"
               >
-                <option value="spring">春場所 (4-6月)</option>
-                <option value="summer">夏場所 (7-9月)</option>
-                <option value="autumn">秋場所 (10-12月)</option>
-                <option value="winter">冬場所 (1-3月)</option>
+                <option value="spring">春戦 (2-5月)</option>
+                <option value="summer">夏戦 (5-8月)</option>
+                <option value="autumn">秋戦 (8-11月)</option>
+                <option value="winter">冬戦 (11-2月)</option>
               </select>
             </div>
 

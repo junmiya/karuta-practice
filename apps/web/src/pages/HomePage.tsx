@@ -5,7 +5,8 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { PoemDetailModal } from '@/components/PoemDetailModal';
 import { KimarijiSelector } from '@/components/KimarijiSelector';
 import { PoemRangeSelector, type PoemRange } from '@/components/PoemRangeSelector';
-import { ControlBar } from '@/components/ControlBar';
+import { DisplayOptionsToggle } from '@/components/DisplayOptionsToggle';
+import { SelectButton } from '@/components/ui/SelectButton';
 import { useAuth } from '@/hooks/useAuth';
 import { useLearned } from '@/hooks/useLearned';
 import { cn } from '@/lib/utils';
@@ -121,10 +122,10 @@ export function HomePage() {
 
   return (
     <div className="karuta-container space-y-2 py-2">
-      {/* Control Panel - 3行レイアウト */}
+      {/* Control Panel - 4行レイアウト */}
       <div className="bg-white/90 border border-gray-200 rounded-lg p-2 space-y-2">
-        {/* Line 1: Search + Count */}
-        <div className="flex gap-2">
+        {/* Line 1: Search + Count + Info */}
+        <div className="flex gap-2 items-center">
           <input
             type="text"
             value={searchText}
@@ -148,41 +149,63 @@ export function HomePage() {
               </button>
             ))}
           </div>
-        </div>
-
-        {/* Line 2: Kimariji */}
-        <KimarijiSelector
-          selected={selectedKimariji}
-          onChange={setSelectedKimariji}
-          compact
-        />
-
-        {/* Line 3: Poem Range */}
-        <PoemRangeSelector
-          selected={selectedPoemRange}
-          onChange={setSelectedPoemRange}
-          compact
-        />
-
-        {/* Line 4: Options + Info */}
-        <div className="flex items-center justify-between text-xs">
-          <ControlBar
-            showYomiKana={showYomiKana}
-            onToggleYomiKana={() => setShowYomiKana(!showYomiKana)}
-            showToriKana={showToriKana}
-            onToggleToriKana={() => setShowToriKana(!showToriKana)}
-            showKimariji={showKimariji}
-            onToggleKimariji={() => setShowKimariji(!showKimariji)}
-            learnedFilterMode={filterMode}
-            onCycleLearnedFilter={cycleFilterMode}
-            learnedCount={learnedCount}
-            isLearnedEnabled={isAuthenticated}
-            onClearLearned={isAuthenticated ? handleClearAll : undefined}
-            onShuffle={handleShuffle}
-          />
-          <span className="text-gray-400">
+          <span className="text-xs text-gray-400 whitespace-nowrap">
             {displayPoems.length}/{filteredPoems.length}首
           </span>
+        </div>
+
+        {/* Line 2: Display Options + Learned filter */}
+        <div className="flex items-center justify-between">
+          <DisplayOptionsToggle
+            showYomiKana={showYomiKana}
+            showToriKana={showToriKana}
+            showKimariji={showKimariji}
+            onToggleYomiKana={() => setShowYomiKana(!showYomiKana)}
+            onToggleToriKana={() => setShowToriKana(!showToriKana)}
+            onToggleKimariji={() => setShowKimariji(!showKimariji)}
+            onShuffle={handleShuffle}
+            label="表示"
+          />
+          <div className="flex items-center gap-1">
+            {/* 覚えた */}
+            <SelectButton
+              isSelected={filterMode !== 'normal'}
+              onVariant={filterMode === 'exclude' ? 'onRed' : 'onPrimary'}
+              size="sm"
+              shape="pill"
+              onClick={cycleFilterMode}
+              disabled={!isAuthenticated}
+              title={!isAuthenticated ? 'ログイン必須' : '通常→除外→優先'}
+              className="min-w-0 px-2 text-xs"
+            >
+              覚{learnedCount > 0 && <span className="ml-0.5">{learnedCount}</span>}
+              {filterMode !== 'normal' && <span className="ml-0.5">{filterMode === 'exclude' ? '除外' : '優先'}</span>}
+            </SelectButton>
+            {/* 覚えたクリア */}
+            {isAuthenticated && learnedCount > 0 && (
+              <button
+                onClick={handleClearAll}
+                className="text-xs text-gray-400 hover:text-red-500 transition-colors px-1"
+                title="覚えた札をすべてクリア"
+              >
+                ×
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Line 3: Filters: Kimariji + Poem Range */}
+        <div className="flex items-center gap-2">
+          <KimarijiSelector
+            selected={selectedKimariji}
+            onChange={setSelectedKimariji}
+            compact
+          />
+          <PoemRangeSelector
+            selected={selectedPoemRange}
+            onChange={setSelectedPoemRange}
+            compact
+          />
         </div>
       </div>
 

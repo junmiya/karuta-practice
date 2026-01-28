@@ -94,7 +94,7 @@ export function ProfilePage() {
         <Card className="text-center">
           <Heading as="h2" size="h2" className="mb-4">ログイン</Heading>
           <Text color="muted" className="mb-6">
-            競技機能や成績保存を利用するにはログインが必要です
+            歌合機能や成績保存を利用するにはログインが必要です
           </Text>
 
           {error && (

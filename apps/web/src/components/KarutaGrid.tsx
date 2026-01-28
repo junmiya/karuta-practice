@@ -31,9 +31,9 @@ export function KarutaGrid({
 
   return (
     <div className="karuta-grid">
-      {poems.map((poem) => (
+      {poems.map((poem, index) => (
         <KarutaCard
-          key={poem.poemId}
+          key={index}
           poem={poem}
           mode="tori"
           showKana={showKana}

@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getTodaysBanzuke } from '@/services/banzuke.service';
-import { getActiveSeason } from '@/services/entry.service';
+import { getActiveSeason, getUserEntry } from '@/services/entry.service';
 import {
   getActiveSeasonStage1,
   getLatestFinalizedSeason,
   getRankingCache,
   getBanzukeAsRanking,
 } from '@/services/stage1.service';
-import { getLatestPublishedSnapshot } from '@/services/utaawase.service';
+import { getLatestPublishedSnapshot, getUserProgress } from '@/services/utaawase.service';
+import { KYUI_LEVEL_LABELS, DAN_LEVEL_LABELS, KYUI_PROMOTION_CONDITIONS, KyuiLevel } from '@/types/utaawase';
 import { useRanking } from '@/hooks/useRanking';
 import { RankingList } from '@/components/RankingList';
 import { useAuth } from '@/hooks/useAuth';
@@ -27,7 +28,7 @@ type ViewMode = 'provisional' | 'official' | 'daily' | 'v2published';
 export function BanzukePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [viewMode, setViewMode] = useState<ViewMode>('provisional');
+  const [viewMode, setViewMode] = useState<ViewMode>('daily');
   const [division, setDivision] = useState<Division>('kyu');
   const [activeSeason, setActiveSeason] = useState<Season | null>(null);
   const [finalizedSeason, setFinalizedSeason] = useState<Season | null>(null);
@@ -37,63 +38,101 @@ export function BanzukePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [v2Snapshot, setV2Snapshot] = useState<SeasonSnapshot | null>(null);
+  const [userLevelLabel, setUserLevelLabel] = useState<string | null>(null);
+  const [promotionCondition, setPromotionCondition] = useState<string | null>(null);
 
   // Fetch seasons (Stage 1)
   useEffect(() => {
     async function fetchSeasons() {
+      // Fetch independently so one failure doesn't block the other
+      let active: Season | null = null;
       try {
-        // Try Stage 1 seasons first
-        const [active, finalized] = await Promise.all([
-          getActiveSeasonStage1(),
-          getLatestFinalizedSeason(),
-        ]);
+        active = await getActiveSeasonStage1();
+      } catch (err) {
+        console.error('Failed to fetch active season (Stage1):', err);
+      }
 
-        if (active) {
-          setActiveSeason(active);
-        } else {
-          // Fallback to Stage 0 season
+      if (!active) {
+        try {
           const legacySeason = await getActiveSeason();
           if (legacySeason) {
-            // Convert to Stage 1 format (explicit to avoid status type conflict)
-            setActiveSeason({
+            active = {
               seasonId: legacySeason.seasonId,
               name: legacySeason.name,
               status: 'open' as SeasonStatus,
               startDate: legacySeason.startDate,
               createdAt: legacySeason.startDate,
               updatedAt: legacySeason.startDate,
-            });
+            };
           }
+        } catch (err) {
+          console.error('Failed to fetch active season (legacy):', err);
         }
+      }
 
+      if (active) {
+        setActiveSeason(active);
+      }
+
+      try {
+        const finalized = await getLatestFinalizedSeason();
         if (finalized) {
           setFinalizedSeason(finalized);
         }
       } catch (err) {
-        console.error('Failed to fetch seasons:', err);
+        console.error('Failed to fetch finalized season:', err);
       }
     }
     fetchSeasons();
   }, []);
 
-  // Fetch provisional ranking (Stage 1)
+  // Fetch user's entry division and level
+  useEffect(() => {
+    async function fetchUserEntry() {
+      if (!user || !activeSeason) return;
+      try {
+        const entry = await getUserEntry(user.uid, activeSeason.seasonId);
+        if (entry) {
+          setDivision(entry.division); // Auto-select user's division
+
+          // Get user's current level from progress
+          const progress = await getUserProgress(user.uid);
+          if (progress) {
+            if (entry.division === 'dan' && progress.danLevel) {
+              setUserLevelLabel(DAN_LEVEL_LABELS[progress.danLevel] || progress.danLevel);
+              setPromotionCondition(null); // Dan has different promotion rules
+            } else {
+              const kyuLevel = progress.kyuiLevel as KyuiLevel;
+              setUserLevelLabel(KYUI_LEVEL_LABELS[kyuLevel] || kyuLevel);
+              setPromotionCondition(KYUI_PROMOTION_CONDITIONS[kyuLevel]);
+            }
+          } else {
+            // No progress = beginner level
+            setUserLevelLabel('初級');
+            setPromotionCondition(KYUI_PROMOTION_CONDITIONS.beginner);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch user entry:', err);
+      }
+    }
+    fetchUserEntry();
+  }, [user, activeSeason]);
+
+  // Fetch provisional ranking (Stage 1) - always fetch when season is available
   useEffect(() => {
     async function fetchProvisionalRanking() {
-      if (!activeSeason || viewMode !== 'provisional') return;
+      if (!activeSeason) return;
 
-      setLoading(true);
       try {
         const ranking = await getRankingCache(activeSeason.seasonId, division);
         setProvisionalRanking(ranking);
       } catch (err) {
         console.error('Failed to fetch provisional ranking:', err);
-        setError('暫定ランキングの取得に失敗しました');
-      } finally {
-        setLoading(false);
       }
     }
     fetchProvisionalRanking();
-  }, [activeSeason, division, viewMode]);
+  }, [activeSeason, division]);
 
   // Fetch official ranking (Stage 1)
   useEffect(() => {
@@ -120,22 +159,27 @@ export function BanzukePage() {
     division,
   });
 
-  // Fetch V2 published snapshot
+  // Fetch V2 published snapshot or fallback to provisional ranking
   useEffect(() => {
-    async function fetchV2Snapshot() {
+    async function fetchV2Data() {
       if (viewMode !== 'v2published') return;
       setLoading(true);
       try {
         const snapshot = await getLatestPublishedSnapshot();
         setV2Snapshot(snapshot);
+        // If no published snapshot, fallback to provisional ranking
+        if (!snapshot && activeSeason) {
+          const ranking = await getRankingCache(activeSeason.seasonId, division);
+          setProvisionalRanking(ranking);
+        }
       } catch (err) {
-        console.error('Failed to fetch V2 snapshot:', err);
+        console.error('Failed to fetch V2 data:', err);
       } finally {
         setLoading(false);
       }
     }
-    fetchV2Snapshot();
-  }, [viewMode]);
+    fetchV2Data();
+  }, [viewMode, activeSeason, division]);
 
   // Fetch daily rankings
   useEffect(() => {
@@ -164,7 +208,7 @@ export function BanzukePage() {
       : null;
 
   const isLoading = viewMode === 'provisional'
-    ? (loading || legacyLoading)
+    ? (provisionalRanking === null && legacyRanking === null && legacyLoading)
     : loading;
 
   const formatTime = (date: Date) => {
@@ -180,9 +224,9 @@ export function BanzukePage() {
         <div className="flex items-center justify-between gap-2">
           <div className="flex bg-gray-100 rounded p-0.5">
             {[
+              { id: 'daily' as const, label: '本日' },
               { id: 'provisional' as const, label: '暫定' },
               { id: 'official' as const, label: '公式', disabled: !finalizedSeason },
-              { id: 'daily' as const, label: '本日' },
               { id: 'v2published' as const, label: '歌位' },
             ].map((mode) => (
               <button
@@ -202,7 +246,7 @@ export function BanzukePage() {
             ))}
           </div>
 
-          {(viewMode === 'provisional' || viewMode === 'official') && (
+          {(viewMode === 'provisional' || viewMode === 'official' || viewMode === 'v2published') && (
             <div className="flex bg-gray-100 rounded p-0.5">
               {[
                 { id: 'kyu' as const, label: '級位' },
@@ -225,12 +269,24 @@ export function BanzukePage() {
           )}
         </div>
 
-        {/* Line 2: Info text */}
-        <div className="text-xs text-gray-500">
-          {viewMode === 'provisional' && '約10分ごと更新・公式提出のみ'}
-          {viewMode === 'official' && '確定済み・変更なし'}
-          {viewMode === 'daily' && `${new Date().toLocaleDateString('ja-JP')}の記録`}
-          {viewMode === 'v2published' && '節気別歌位確定結果（publish済み）'}
+        {/* Line 2: Info text + User's division */}
+        <div className="flex items-center justify-between text-xs text-gray-500">
+          <span>
+            {viewMode === 'provisional' && 'リアルタイム更新・公式提出のみ'}
+            {viewMode === 'official' && '確定済み・変更なし'}
+            {viewMode === 'daily' && `${new Date().toLocaleDateString('ja-JP')}の記録`}
+            {viewMode === 'v2published' && '節気別歌位確定結果（publish済み）'}
+          </span>
+          {userLevelLabel && (
+            <div className="text-right">
+              <Badge variant="info" className="text-xs">
+                現在: {userLevelLabel}
+              </Badge>
+              {promotionCondition && (
+                <div className="text-xs text-gray-400 mt-0.5">{promotionCondition}</div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -321,10 +377,27 @@ export function BanzukePage() {
                 </div>
               </div>
             </Card>
+          ) : provisionalRanking ? (
+            <Card>
+              <div className="mb-2">
+                <Badge variant="info" className="text-xs">暫定</Badge>
+              </div>
+              <RankingList
+                ranking={provisionalRanking}
+                currentUserId={user?.uid}
+                loading={false}
+                emptyMessage="まだランキングデータがありません"
+              />
+              {provisionalRanking.totalParticipants && (
+                <div className="mt-2 text-xs text-gray-400 text-right">
+                  参加者数: {provisionalRanking.totalParticipants}名
+                </div>
+              )}
+            </Card>
           ) : (
             <Card>
               <Text className="text-center py-8 text-gray-500">
-                publish済みの歌位データがありません
+                歌位データがありません
               </Text>
             </Card>
           )}
@@ -405,7 +478,7 @@ export function BanzukePage() {
                     onClick={() => navigate('/entry')}
                     className="text-karuta-tansei hover:underline"
                   >
-                    公式競技に挑戦 →
+                    公式歌合に挑戦 →
                   </button>
                 </div>
               )}

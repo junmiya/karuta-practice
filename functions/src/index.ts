@@ -2,6 +2,7 @@ import * as admin from 'firebase-admin';
 
 // Initialize Firebase Admin
 admin.initializeApp();
+console.log('=== index.ts loaded, Firebase initialized ===');
 
 // Export Firestore instance for use in other modules
 export const db = admin.firestore();
@@ -18,9 +19,10 @@ export {
 } from './scheduledFunctions';
 
 // Re-export scheduled functions (Stage 1)
+// Note: updateRankingsCache removed - using realtime updateRanking instead
 export {
   generateDailyReflections,
-  updateRankingsCache,
+  // updateRankingsCache,  // Disabled: realtime updateRanking handles this
   checkSeasonTransition,
   updateTitles,
   costGuardCleanup,
