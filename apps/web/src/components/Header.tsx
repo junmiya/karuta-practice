@@ -62,6 +62,7 @@ export function Header() {
           {/* Title */}
           <button onClick={() => navigate('/')} className="hover:opacity-80 transition-opacity">
             <span className="text-sm font-bold text-karuta-tansei">百人一首 カルタ番付</span>
+            <span className="text-xs text-neutral-400 ml-1">v0.1β</span>
           </button>
 
           {/* Profile / Login */}

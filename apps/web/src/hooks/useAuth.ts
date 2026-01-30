@@ -6,6 +6,7 @@ import {
   signUpWithEmail,
   signInWithEmail,
   signOut,
+  handleRedirectResult,
 } from '@/services/auth.service';
 import {
   getUserProfile,
@@ -31,6 +32,11 @@ export function useAuth() {
   // Listen to auth state changes
   useEffect(() => {
     let isSubscribed = true;
+
+    // Handle redirect result (for redirect-based auth)
+    handleRedirectResult().catch((error) => {
+      console.error('Failed to handle redirect result:', error);
+    });
 
     // タイムアウト: 3秒経っても認証状態が確定しない場合はloading: falseに
     const timeout = setTimeout(() => {
@@ -97,21 +103,14 @@ export function useAuth() {
   const loginWithGoogle = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
+      // This will redirect to Google, so no result is returned here
       await signInWithGoogle();
+      // After redirect, the page will reload and handleRedirectResult will be called
     } catch (err: unknown) {
       console.error('Google login error:', err);
       const errorCode = (err as { code?: string })?.code;
-      const errorMessage = (err as { message?: string })?.message;
       let displayError = 'Googleログインに失敗しました';
-      if (errorMessage === 'Sign-in already in progress') {
-        displayError = 'ログイン処理中です。しばらくお待ちください';
-      } else if (errorCode === 'auth/popup-closed-by-user') {
-        displayError = 'ログインがキャンセルされました';
-      } else if (errorCode === 'auth/popup-blocked') {
-        displayError = 'ポップアップがブロックされました。ポップアップを許可してください';
-      } else if (errorCode === 'auth/cancelled-popup-request') {
-        displayError = 'ログインがキャンセルされました';
-      } else if (errorCode === 'auth/network-request-failed') {
+      if (errorCode === 'auth/network-request-failed') {
         displayError = 'ネットワークエラーです。接続を確認してください';
       }
       setState((prev) => ({
