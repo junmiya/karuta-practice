@@ -203,6 +203,28 @@ body {
   grid-template-columns: repeat(var(--karuta-columns), 1fr);
 }
 
+/* 7枚グリッド（級位別歌合・初級用）- 4+3配置 */
+.karuta-grid-7 {
+  display: grid;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: var(--karuta-grid-max-width);
+  margin: 0 auto;
+  padding: 0.25rem;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* 9枚グリッド（級位別歌合用）- 3x3配置 */
+.karuta-grid-9 {
+  display: grid;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: var(--karuta-grid-max-width);
+  margin: 0 auto;
+  padding: 0.25rem;
+  grid-template-columns: repeat(3, 1fr);
+}
+
 /* Smaller gap for narrow screens - 横幅いっぱいに表示 */
 @media (max-width: 640px) {
 
@@ -212,7 +234,9 @@ body {
   }
 
   .karuta-grid,
-  .karuta-grid-all {
+  .karuta-grid-all,
+  .karuta-grid-7,
+  .karuta-grid-9 {
     max-width: 100%;
     gap: 0.125rem;
     padding: 0.125rem;

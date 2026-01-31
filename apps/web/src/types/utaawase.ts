@@ -115,3 +115,32 @@ export const KYUI_PROMOTION_CONDITIONS: Record<KyuiLevel, string> = {
 export function seasonKey(year: number, seasonId: SeasonId): string {
   return `${year}_${seasonId}`;
 }
+
+/**
+ * 級位別公式歌合の設定
+ * cardCount: 表示枚数（7/9/12）
+ * questionCount: 出題数
+ * maxKimariji: 出題範囲（1-maxKimarijiの決まり字）
+ */
+export const KYUI_MATCH_CONFIG: Record<KyuiLevel, {
+  cardCount: 7 | 9 | 12;
+  questionCount: number;
+  maxKimariji: number;
+  targetCardCount: number;
+}> = {
+  beginner: { cardCount: 7, questionCount: 7, maxKimariji: 1, targetCardCount: 7 },
+  jyukkyu: { cardCount: 9, questionCount: 20, maxKimariji: 2, targetCardCount: 42 },
+  kyukyu: { cardCount: 9, questionCount: 20, maxKimariji: 3, targetCardCount: 37 },
+  hachikyu: { cardCount: 9, questionCount: 20, maxKimariji: 4, targetCardCount: 6 },
+  nanakyu: { cardCount: 9, questionCount: 20, maxKimariji: 5, targetCardCount: 2 },
+  rokkyu: { cardCount: 9, questionCount: 30, maxKimariji: 6, targetCardCount: 6 },
+};
+
+export const KYUI_MATCH_LABELS: Record<KyuiLevel, string> = {
+  beginner: '初級の歌合',
+  jyukkyu: '二級の歌合',
+  kyukyu: '三級の歌合',
+  hachikyu: '四級の歌合',
+  nanakyu: '五級の歌合',
+  rokkyu: '六級の歌合',
+};

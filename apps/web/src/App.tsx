@@ -17,6 +17,7 @@ import { OfficialPage } from './pages/OfficialPage';
 import { AdminPage } from './pages/AdminPage';
 import { KyuiExamPage } from './pages/KyuiExamPage';
 import { UtaawaseRokuPage } from './pages/UtaawaseRokuPage';
+import { KyuiMatchPage } from './pages/KyuiMatchPage';
 
 export function App() {
   return (
@@ -43,6 +44,7 @@ export function App() {
             <Route path="/entry" element={<EntryPage />} />
             <Route path="/official" element={<OfficialPage />} />
             <Route path="/kyui-exam" element={<KyuiExamPage />} />
+            <Route path="/kyui-match" element={<KyuiMatchPage />} />
 
             {/* 歌合録タブ（要ログイン） */}
             <Route path="/utaawaseroku" element={<UtaawaseRokuPage />} />
