@@ -51,3 +51,41 @@ export async function getCurrentSeasonSnapshot(seasonKey: string): Promise<Seaso
   if (!snap.exists()) return null;
   return snap.data() as SeasonSnapshot;
 }
+
+/**
+ * 歌位保持者一覧を取得
+ * (user_progressコレクションから歌位を持つユーザーを取得)
+ */
+export async function getUtakuraiHolders(): Promise<UserProgress[]> {
+  // 歌位（名人・永世名人）を持つユーザー
+  const utakuraiQuery = query(
+    collection(db, 'user_progress'),
+    where('utakuraiLevel', '!=', null)
+  );
+  const utakuraiSnap = await getDocs(utakuraiQuery);
+  return utakuraiSnap.docs.map(doc => doc.data() as UserProgress);
+}
+
+/**
+ * 段位保持者一覧を取得
+ */
+export async function getDanHolders(): Promise<UserProgress[]> {
+  const danQuery = query(
+    collection(db, 'user_progress'),
+    where('danLevel', '!=', null)
+  );
+  const danSnap = await getDocs(danQuery);
+  return danSnap.docs.map(doc => doc.data() as UserProgress);
+}
+
+/**
+ * 伝位保持者一覧を取得
+ */
+export async function getDenHolders(): Promise<UserProgress[]> {
+  const denQuery = query(
+    collection(db, 'user_progress'),
+    where('denLevel', '!=', null)
+  );
+  const denSnap = await getDocs(denQuery);
+  return denSnap.docs.map(doc => doc.data() as UserProgress);
+}

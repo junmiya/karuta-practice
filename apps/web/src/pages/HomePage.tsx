@@ -6,7 +6,6 @@ import { PoemDetailModal } from '@/components/PoemDetailModal';
 import { KimarijiSelector } from '@/components/KimarijiSelector';
 import { PoemRangeSelector, type PoemRange } from '@/components/PoemRangeSelector';
 import { DisplayOptionsToggle } from '@/components/DisplayOptionsToggle';
-import { SelectButton } from '@/components/ui/SelectButton';
 import { useAuth } from '@/hooks/useAuth';
 import { useLearned } from '@/hooks/useLearned';
 import { cn } from '@/lib/utils';
@@ -124,8 +123,8 @@ export function HomePage() {
     <div className="karuta-container space-y-2 py-2">
       {/* Control Panel - 4行レイアウト */}
       <div className="bg-white/90 border border-gray-200 rounded-lg p-2 space-y-2">
-        {/* Line 1: Search + Count + Info */}
-        <div className="flex gap-2 items-center">
+        {/* Line 1: Search + Count */}
+        <div className="flex items-center gap-2">
           <input
             type="text"
             value={searchText}
@@ -154,59 +153,35 @@ export function HomePage() {
           </span>
         </div>
 
-        {/* Line 2: Display Options + Learned filter */}
-        <div className="flex items-center justify-between">
-          <DisplayOptionsToggle
-            showYomiKana={showYomiKana}
-            showToriKana={showToriKana}
-            showKimariji={showKimariji}
-            onToggleYomiKana={() => setShowYomiKana(!showYomiKana)}
-            onToggleToriKana={() => setShowToriKana(!showToriKana)}
-            onToggleKimariji={() => setShowKimariji(!showKimariji)}
-            onShuffle={handleShuffle}
-            label="表示"
-          />
-          <div className="flex items-center gap-1">
-            {/* 覚えた */}
-            <SelectButton
-              isSelected={filterMode !== 'normal'}
-              onVariant={filterMode === 'exclude' ? 'onRed' : 'onPrimary'}
-              size="sm"
-              shape="pill"
-              onClick={cycleFilterMode}
-              disabled={!isAuthenticated}
-              title={!isAuthenticated ? 'ログイン必須' : '通常→除外→優先'}
-              className="min-w-0 px-2 text-xs"
-            >
-              覚{learnedCount > 0 && <span className="ml-0.5">{learnedCount}</span>}
-              {filterMode !== 'normal' && <span className="ml-0.5">{filterMode === 'exclude' ? '除外' : '優先'}</span>}
-            </SelectButton>
-            {/* 覚えたクリア */}
-            {isAuthenticated && learnedCount > 0 && (
-              <button
-                onClick={handleClearAll}
-                className="text-xs text-gray-400 hover:text-red-500 transition-colors px-1"
-                title="覚えた札をすべてクリア"
-              >
-                ×
-              </button>
-            )}
-          </div>
-        </div>
+        {/* Line 2: Display Options + Learned */}
+        <DisplayOptionsToggle
+          showYomiKana={showYomiKana}
+          showToriKana={showToriKana}
+          showKimariji={showKimariji}
+          onToggleYomiKana={() => setShowYomiKana(!showYomiKana)}
+          onToggleToriKana={() => setShowToriKana(!showToriKana)}
+          onToggleKimariji={() => setShowKimariji(!showKimariji)}
+          onShuffle={handleShuffle}
+          learnedCount={learnedCount}
+          filterMode={filterMode}
+          onCycleFilterMode={cycleFilterMode}
+          onClearLearned={handleClearAll}
+          isAuthenticated={isAuthenticated}
+        />
 
-        {/* Line 3: Filters: Kimariji + Poem Range */}
-        <div className="flex items-center gap-2">
-          <KimarijiSelector
-            selected={selectedKimariji}
-            onChange={setSelectedKimariji}
-            compact
-          />
-          <PoemRangeSelector
-            selected={selectedPoemRange}
-            onChange={setSelectedPoemRange}
-            compact
-          />
-        </div>
+        {/* Line 3: Kimariji Filter */}
+        <KimarijiSelector
+          selected={selectedKimariji}
+          onChange={setSelectedKimariji}
+          compact
+        />
+
+        {/* Line 4: Poem Range Filter */}
+        <PoemRangeSelector
+          selected={selectedPoemRange}
+          onChange={setSelectedPoemRange}
+          compact
+        />
       </div>
 
       {/* Cards Grid - デバイス向きベースのグリッド (横向き=4×3, 縦向き=3×4) */}

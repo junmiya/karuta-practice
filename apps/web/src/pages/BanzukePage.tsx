@@ -8,8 +8,8 @@ import {
   getRankingCache,
   getBanzukeAsRanking,
 } from '@/services/stage1.service';
-import { getLatestPublishedSnapshot, getUserProgress } from '@/services/utaawase.service';
-import { KYUI_LEVEL_LABELS, DAN_LEVEL_LABELS, KYUI_PROMOTION_CONDITIONS, KyuiLevel } from '@/types/utaawase';
+import { getLatestPublishedSnapshot, getUserProgress, getUtakuraiHolders, getDanHolders, getDenHolders } from '@/services/utaawase.service';
+import { KYUI_LEVEL_LABELS, DAN_LEVEL_LABELS, KYUI_PROMOTION_CONDITIONS, KyuiLevel, UserProgress, DanLevel } from '@/types/utaawase';
 import { useRanking } from '@/hooks/useRanking';
 import { RankingList } from '@/components/RankingList';
 import { useAuth } from '@/hooks/useAuth';
@@ -40,6 +40,9 @@ export function BanzukePage() {
   const [v2Snapshot, setV2Snapshot] = useState<SeasonSnapshot | null>(null);
   const [userLevelLabel, setUserLevelLabel] = useState<string | null>(null);
   const [promotionCondition, setPromotionCondition] = useState<string | null>(null);
+  const [utakuraiHolders, setUtakuraiHolders] = useState<UserProgress[]>([]);
+  const [danHolders, setDanHolders] = useState<UserProgress[]>([]);
+  const [denHolders, setDenHolders] = useState<UserProgress[]>([]);
 
   // Fetch seasons (Stage 1)
   useEffect(() => {
@@ -159,19 +162,23 @@ export function BanzukePage() {
     division,
   });
 
-  // Fetch V2 published snapshot or fallback to provisional ranking
+  // Fetch V2 published snapshot and utaurai holders
   useEffect(() => {
     async function fetchV2Data() {
       if (viewMode !== 'v2published') return;
       setLoading(true);
       try {
-        const snapshot = await getLatestPublishedSnapshot();
+        // Fetch utakurai holders (歌位保持者)
+        const [utakurai, dan, den, snapshot] = await Promise.all([
+          getUtakuraiHolders(),
+          getDanHolders(),
+          getDenHolders(),
+          getLatestPublishedSnapshot(),
+        ]);
+        setUtakuraiHolders(utakurai);
+        setDanHolders(dan);
+        setDenHolders(den);
         setV2Snapshot(snapshot);
-        // If no published snapshot, fallback to provisional ranking
-        if (!snapshot && activeSeason) {
-          const ranking = await getRankingCache(activeSeason.seasonId, division);
-          setProvisionalRanking(ranking);
-        }
       } catch (err) {
         console.error('Failed to fetch V2 data:', err);
       } finally {
@@ -179,7 +186,7 @@ export function BanzukePage() {
       }
     }
     fetchV2Data();
-  }, [viewMode, activeSeason, division]);
+  }, [viewMode]);
 
   // Fetch daily rankings
   useEffect(() => {
@@ -311,95 +318,113 @@ export function BanzukePage() {
         </Card>
       )}
 
-      {/* V2 Published Snapshot */}
+      {/* 歌位保持者一覧 */}
       {viewMode === 'v2published' && (
         <>
           {loading ? (
             <LoadingState message="歌位データを読み込み中..." />
-          ) : v2Snapshot ? (
-            <Card>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Text className="font-bold">{v2Snapshot.seasonKey}</Text>
-                  <Badge variant="success">publish済み</Badge>
-                </div>
-                <Text size="sm" color="muted">
-                  参加者: {v2Snapshot.totalParticipants}名 / イベント: {v2Snapshot.totalEvents}件
-                </Text>
-
-                {/* Promotions */}
-                {v2Snapshot.promotions.length > 0 && (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                    <Text size="sm" className="font-bold mb-2">昇格結果</Text>
-                    {v2Snapshot.promotions.map((p, i) => (
-                      <div key={i} className="text-sm">
-                        {p.nickname}: {p.fromLevel} → {p.toLevel} ({p.promotionType})
+          ) : (
+            <div className="space-y-3">
+              {/* 歌位（名人・永世名人） */}
+              <Card>
+                <Text className="font-bold mb-3">歌位</Text>
+                {utakuraiHolders.length > 0 ? (
+                  <div className="space-y-2">
+                    {utakuraiHolders.map((holder) => (
+                      <div
+                        key={holder.uid}
+                        className={cn(
+                          "flex items-center justify-between py-2 px-3 rounded-lg bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200",
+                          holder.uid === user?.uid && "ring-2 ring-karuta-red"
+                        )}
+                      >
+                        <span className="font-medium">{holder.nickname}</span>
+                        <Badge variant="warning" className="text-xs">
+                          {holder.utakuraiLevel === 'eisei_meijin' ? '永世名人' : '名人'}
+                        </Badge>
                       </div>
                     ))}
                   </div>
+                ) : (
+                  <Text size="sm" color="muted" className="text-center py-4">
+                    歌位保持者はまだいません
+                  </Text>
                 )}
+              </Card>
 
-                {/* Rankings */}
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b-2 border-gray-200">
-                        <th className="text-left py-2 px-2">順位</th>
-                        <th className="text-left py-2 px-2">表示名</th>
-                        <th className="text-right py-2 px-2">累積スコア</th>
-                        <th className="text-right py-2 px-2">試合数</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {v2Snapshot.rankings.map((entry) => (
-                        <tr
-                          key={entry.uid}
-                          className={cn(
-                            "border-b border-gray-100",
-                            entry.uid === user?.uid && "bg-karuta-red/5"
-                          )}
-                        >
-                          <td className="py-2 px-2 font-bold">{entry.rank}</td>
-                          <td className="py-2 px-2">{entry.nickname}</td>
-                          <td className="py-2 px-2 text-right font-bold text-karuta-gold">{entry.bestThreeTotal}</td>
-                          <td className="py-2 px-2 text-right">{entry.matchCount}</td>
-                        </tr>
-                      ))}
-                      {v2Snapshot.rankings.length === 0 && (
-                        <tr>
-                          <td colSpan={4} className="py-8 text-center text-gray-500">
-                            ランキングデータがありません
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </Card>
-          ) : provisionalRanking ? (
-            <Card>
-              <div className="mb-2">
-                <Badge variant="info" className="text-xs">暫定</Badge>
-              </div>
-              <RankingList
-                ranking={provisionalRanking}
-                currentUserId={user?.uid}
-                loading={false}
-                emptyMessage="まだランキングデータがありません"
-              />
-              {provisionalRanking.totalParticipants && (
-                <div className="mt-2 text-xs text-gray-400 text-right">
-                  参加者数: {provisionalRanking.totalParticipants}名
-                </div>
+              {/* 伝位 */}
+              <Card>
+                <Text className="font-bold mb-3">伝位</Text>
+                {denHolders.length > 0 ? (
+                  <div className="space-y-2">
+                    {denHolders.map((holder) => (
+                      <div
+                        key={holder.uid}
+                        className={cn(
+                          "flex items-center justify-between py-2 px-3 rounded-lg bg-purple-50 border border-purple-200",
+                          holder.uid === user?.uid && "ring-2 ring-karuta-red"
+                        )}
+                      >
+                        <span className="font-medium">{holder.nickname}</span>
+                        <Badge variant="secondary" className="text-xs">
+                          {holder.denLevel === 'kaiden' ? '皆伝' :
+                           holder.denLevel === 'okuden' ? '奥伝' :
+                           holder.denLevel === 'chuden' ? '中伝' : '初伝'}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <Text size="sm" color="muted" className="text-center py-4">
+                    伝位保持者はまだいません
+                  </Text>
+                )}
+              </Card>
+
+              {/* 段位 */}
+              <Card>
+                <Text className="font-bold mb-3">段位</Text>
+                {danHolders.length > 0 ? (
+                  <div className="space-y-2">
+                    {danHolders.map((holder) => (
+                      <div
+                        key={holder.uid}
+                        className={cn(
+                          "flex items-center justify-between py-2 px-3 rounded-lg bg-blue-50 border border-blue-200",
+                          holder.uid === user?.uid && "ring-2 ring-karuta-red"
+                        )}
+                      >
+                        <span className="font-medium">{holder.nickname}</span>
+                        <Badge variant="info" className="text-xs">
+                          {DAN_LEVEL_LABELS[holder.danLevel as DanLevel] || holder.danLevel}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <Text size="sm" color="muted" className="text-center py-4">
+                    段位保持者はまだいません
+                  </Text>
+                )}
+              </Card>
+
+              {/* 最新の昇格結果 */}
+              {v2Snapshot && v2Snapshot.promotions.length > 0 && (
+                <Card>
+                  <Text className="font-bold mb-3">最新の昇格結果（{v2Snapshot.seasonKey}）</Text>
+                  <div className="space-y-2">
+                    {v2Snapshot.promotions.map((p, i) => (
+                      <div key={i} className="flex items-center justify-between py-2 px-3 rounded-lg bg-green-50 border border-green-200">
+                        <span className="font-medium">{p.nickname}</span>
+                        <span className="text-sm text-gray-600">
+                          {p.fromLevel} → <span className="font-bold text-green-700">{p.toLevel}</span>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
               )}
-            </Card>
-          ) : (
-            <Card>
-              <Text className="text-center py-8 text-gray-500">
-                歌位データがありません
-              </Text>
-            </Card>
+            </div>
           )}
         </>
       )}

@@ -94,19 +94,19 @@ export function KeikoPage() {
           label="表示"
         />
 
-        {/* Filters: Kimariji + Poem Range */}
-        <div className="flex items-center gap-2">
-          <KimarijiSelector
-            selected={selectedKimariji}
-            onChange={setSelectedKimariji}
-            compact
-          />
-          <PoemRangeSelector
-            selected={selectedPoemRange}
-            onChange={setSelectedPoemRange}
-            compact
-          />
-        </div>
+        {/* Kimariji Filter */}
+        <KimarijiSelector
+          selected={selectedKimariji}
+          onChange={setSelectedKimariji}
+          compact
+        />
+
+        {/* Poem Range Filter */}
+        <PoemRangeSelector
+          selected={selectedPoemRange}
+          onChange={setSelectedPoemRange}
+          compact
+        />
 
         {/* Mode buttons */}
         <div className="grid grid-cols-2 gap-2">

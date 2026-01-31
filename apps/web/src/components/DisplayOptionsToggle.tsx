@@ -9,6 +9,12 @@ interface DisplayOptionsToggleProps {
   onToggleKimariji: () => void;
   onShuffle?: () => void;
   label?: string;
+  // 覚えた機能 (optional)
+  learnedCount?: number;
+  filterMode?: 'normal' | 'exclude' | 'prioritize';
+  onCycleFilterMode?: () => void;
+  onClearLearned?: () => void;
+  isAuthenticated?: boolean;
 }
 
 /**
@@ -17,6 +23,7 @@ interface DisplayOptionsToggleProps {
  * - 取札: 漢字/かな
  * - 決まり字: ON/OFF
  * - シャッフル (optional)
+ * - 覚えた (optional)
  */
 export function DisplayOptionsToggle({
   showYomiKana,
@@ -27,6 +34,11 @@ export function DisplayOptionsToggle({
   onToggleKimariji,
   onShuffle,
   label,
+  learnedCount = 0,
+  filterMode = 'normal',
+  onCycleFilterMode,
+  onClearLearned,
+  isAuthenticated = false,
 }: DisplayOptionsToggleProps) {
   const baseBtn = "h-7 px-2.5 text-xs font-bold rounded-full transition-all border";
   const activeBtn = "bg-white shadow-sm";
@@ -85,6 +97,38 @@ export function DisplayOptionsToggle({
             title="シャッフル"
           >
             🔀
+          </button>
+        )}
+
+        {/* 覚えた (optional) */}
+        {onCycleFilterMode && (
+          <button
+            onClick={onCycleFilterMode}
+            disabled={!isAuthenticated}
+            title={!isAuthenticated ? 'ログイン必須' : '通常→除外→優先'}
+            className={cn(
+              baseBtn,
+              filterMode === 'exclude'
+                ? `${activeBtn} text-red-600 border-red-300`
+                : filterMode === 'prioritize'
+                  ? `${activeBtn} text-karuta-tansei border-karuta-tansei/30`
+                  : inactiveBtn,
+              !isAuthenticated && "opacity-50 cursor-not-allowed"
+            )}
+          >
+            覚{learnedCount > 0 && <span className="ml-0.5">{learnedCount}</span>}
+            {filterMode !== 'normal' && <span className="ml-0.5">{filterMode === 'exclude' ? '除外' : '優先'}</span>}
+          </button>
+        )}
+
+        {/* 覚えたクリア (optional) */}
+        {onClearLearned && isAuthenticated && learnedCount > 0 && (
+          <button
+            onClick={onClearLearned}
+            className="text-xs text-gray-400 hover:text-red-500 transition-colors px-1"
+            title="覚えた札をすべてクリア"
+          >
+            ×
           </button>
         )}
       </div>
