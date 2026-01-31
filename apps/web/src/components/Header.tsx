@@ -19,6 +19,9 @@ export function Header() {
     if (path === '/utakurai') {
       return location.pathname === '/utakurai';
     }
+    if (path === '/utaawaseroku') {
+      return location.pathname === '/utaawaseroku';
+    }
     return location.pathname.startsWith(path);
   };
 
@@ -104,6 +107,7 @@ export function Header() {
           <TabButton path="/keiko" label="稽古" required />
           <TabButton path="/keikoroku" label="稽古録" required />
           <TabButton path="/utaawase" label="歌合" required />
+          <TabButton path="/utaawaseroku" label="歌合録" required />
           <TabButton path="/utakurai" label="歌位" required />
         </nav>
       </Container>

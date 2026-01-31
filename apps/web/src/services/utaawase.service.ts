@@ -89,3 +89,47 @@ export async function getDenHolders(): Promise<UserProgress[]> {
   const denSnap = await getDocs(denQuery);
   return denSnap.docs.map(doc => doc.data() as UserProgress);
 }
+
+/**
+ * ユーザーの競技セッション履歴を取得
+ */
+export interface UserSession {
+  sessionId: string;
+  status: string;
+  score?: number;
+  correctCount?: number;
+  totalElapsedMs?: number;
+  startedAt: Date;
+  submittedAt?: Date;
+  confirmedAt?: Date;
+  dayKeyJst?: string;
+  seasonId: string;
+}
+
+export async function getUserSessions(uid: string, limitCount = 50): Promise<UserSession[]> {
+  const q = query(
+    collection(db, 'sessions'),
+    where('uid', '==', uid),
+    orderBy('startedAt', 'desc')
+  );
+  const snap = await getDocs(q);
+
+  const sessions: UserSession[] = [];
+  snap.docs.slice(0, limitCount).forEach(doc => {
+    const data = doc.data();
+    sessions.push({
+      sessionId: doc.id,
+      status: data.status,
+      score: data.score,
+      correctCount: data.correctCount,
+      totalElapsedMs: data.totalElapsedMs,
+      startedAt: data.startedAt?.toDate() || new Date(),
+      submittedAt: data.submittedAt?.toDate(),
+      confirmedAt: data.confirmedAt?.toDate(),
+      dayKeyJst: data.dayKeyJst,
+      seasonId: data.seasonId,
+    });
+  });
+
+  return sessions;
+}
