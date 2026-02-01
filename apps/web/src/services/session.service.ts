@@ -23,7 +23,8 @@ const SESSIONS_COLLECTION = 'sessions';
 export async function createSession(
   uid: string,
   seasonId: string,
-  entryId: string
+  entryId: string,
+  roundCount: number = 50
 ): Promise<string> {
   const sessionRef = doc(collection(db, SESSIONS_COLLECTION));
   const sessionId = sessionRef.id;
@@ -32,7 +33,7 @@ export async function createSession(
     uid,
     seasonId,
     entryId,
-    roundCount: 50,
+    roundCount,
     status: 'created' as SessionStatus,
     startedAt: serverTimestamp(),
   };

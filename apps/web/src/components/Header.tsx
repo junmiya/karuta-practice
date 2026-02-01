@@ -22,6 +22,9 @@ export function Header() {
     if (path === '/utaawaseroku') {
       return location.pathname === '/utaawaseroku';
     }
+    if (path === '/utaawase') {
+      return location.pathname === '/utaawase' || location.pathname === '/entry' || location.pathname === '/official' || location.pathname === '/kyui-exam' || location.pathname === '/kyui-match';
+    }
     return location.pathname.startsWith(path);
   };
 

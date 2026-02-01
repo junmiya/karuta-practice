@@ -71,6 +71,57 @@ export const adminSaveRuleset = functions
     }
   });
 
+export const adminSeedDefaultRuleset = functions
+  .region('asia-northeast1')
+  .https.onCall(async (_data, context) => {
+    const uid = requireAdmin(context);
+    try {
+      const defaultRuleset = {
+        version: '1.0.0',
+        yamlContent: '# Default Ruleset v1.0.0',
+        kyuiRequirements: [
+          { level: 'beginner' as const, label: '見習', kimarijiFuda: null, questionCount: 0, passRate: 0, allCards: false },
+          { level: 'jyukkyu' as const, label: '初級', kimarijiFuda: 1, questionCount: 10, passRate: 80, allCards: false },
+          { level: 'kyukyu' as const, label: '二級', kimarijiFuda: 2, questionCount: 10, passRate: 80, allCards: false },
+          { level: 'hachikyu' as const, label: '三級', kimarijiFuda: 3, questionCount: 10, passRate: 80, allCards: false },
+          { level: 'nanakyu' as const, label: '四級', kimarijiFuda: 4, questionCount: 10, passRate: 80, allCards: false },
+          { level: 'rokkyu' as const, label: '五級', kimarijiFuda: 5, questionCount: 10, passRate: 80, allCards: false },
+        ],
+        danRequirements: [
+          { level: 'shodan' as const, label: '初段', topRatio: 0.5, allCardsRequired: true },
+          { level: 'nidan' as const, label: '二段', topRatio: 0.4, allCardsRequired: true },
+          { level: 'sandan' as const, label: '三段', topRatio: 0.3, allCardsRequired: true },
+          { level: 'yondan' as const, label: '四段', topRatio: 0.2, allCardsRequired: true },
+          { level: 'godan' as const, label: '五段', topRatio: 0.1, allCardsRequired: true },
+          { level: 'rokudan' as const, label: '六段', topRatio: 0.05, allCardsRequired: true },
+        ],
+        denRequirements: [
+          { level: 'shoden' as const, label: '初伝', officialWinCount: 1 },
+          { level: 'chuden' as const, label: '中伝', officialWinCount: 3 },
+          { level: 'okuden' as const, label: '奥伝', officialWinCount: 5 },
+          { level: 'kaiden' as const, label: '皆伝', officialWinCount: 10 },
+        ],
+        utakuraiRequirements: [
+          { level: 'meijin' as const, label: '名人', championCount: 3 },
+          { level: 'eisei_meijin' as const, label: '永世名人', championCount: 10 },
+        ],
+        officialMinParticipants: 3,
+        isActive: true,
+      };
+
+      const saved = await saveRuleset(defaultRuleset);
+      await writeAuditLog({
+        eventType: 'ranking_recalculated',
+        uid,
+        details: { action: 'seed_default_ruleset', version: '1.0.0' },
+      });
+      return { success: true, ruleset: saved };
+    } catch (error: any) {
+      console.error('Error seeding default ruleset:', error);
+      throw new functions.https.HttpsError('internal', error.message || 'Failed to seed ruleset');
+    }
+  });
+
 // =============================================================================
 // 節気カレンダー管理
 // =============================================================================

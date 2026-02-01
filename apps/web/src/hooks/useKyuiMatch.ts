@@ -106,7 +106,7 @@ export function useKyuiMatch(options: UseKyuiMatchOptions) {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const sessionId = await createSession(uid, seasonId, entryId);
+      const sessionId = await createSession(uid, seasonId, entryId, questionCount);
       sessionIdRef.current = sessionId;
       processedRoundsRef.current = new Set();
 
@@ -137,7 +137,7 @@ export function useKyuiMatch(options: UseKyuiMatchOptions) {
       }));
       return null;
     }
-  }, [uid, seasonId, entryId, eligiblePoems, cardCount]);
+  }, [uid, seasonId, entryId, eligiblePoems, cardCount, questionCount]);
 
   // Answer current question
   const answerQuestion = useCallback(

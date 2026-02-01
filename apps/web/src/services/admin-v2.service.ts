@@ -17,6 +17,12 @@ export async function adminSaveRuleset(ruleset: any) {
   return result.data as { success: boolean; ruleset: any };
 }
 
+export async function adminSeedDefaultRuleset() {
+  const fn = httpsCallable(functions, 'adminSeedDefaultRuleset');
+  const result = await fn();
+  return result.data as { success: boolean; ruleset: any };
+}
+
 // Season Calendar
 export async function adminGetSeasonCalendar(year: number) {
   const fn = httpsCallable(functions, 'adminGetSeasonCalendar');

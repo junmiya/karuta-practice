@@ -84,12 +84,12 @@ export const DAN_LEVELS_ORDERED: DanLevel[] = [
 ];
 
 export const KYUI_LEVEL_LABELS: Record<KyuiLevel, string> = {
-  beginner: '初級',
-  jyukkyu: '二級',
-  kyukyu: '三級',
-  hachikyu: '四級',
-  nanakyu: '五級',
-  rokkyu: '六級',
+  beginner: '見習',
+  jyukkyu: '初級',
+  kyukyu: '二級',
+  hachikyu: '三級',
+  nanakyu: '四級',
+  rokkyu: '五級',
 };
 
 export const DAN_LEVEL_LABELS: Record<DanLevel, string> = {
@@ -104,11 +104,11 @@ export const DAN_LEVEL_LABELS: Record<DanLevel, string> = {
 // 次のレベルへの昇級条件（現在のレベルからの昇級条件）
 // 検定: 50問、制限時間600秒（10分）
 export const KYUI_PROMOTION_CONDITIONS: Record<KyuiLevel, string> = {
-  beginner: '二級へ: 1字決まり 80%正解',
-  jyukkyu: '三級へ: 2字決まり 80%正解',
-  kyukyu: '四級へ: 3字決まり 80%正解',
-  hachikyu: '五級へ: 4字決まり 80%正解',
-  nanakyu: '六級へ: 5字決まり 80%正解',
+  beginner: '初級へ: 1字決まり 80%正解',
+  jyukkyu: '二級へ: 2字決まり 80%正解',
+  kyukyu: '三級へ: 3字決まり 80%正解',
+  hachikyu: '四級へ: 4字決まり 80%正解',
+  nanakyu: '五級へ: 5字決まり 80%正解',
   rokkyu: '段位資格取得済（全札90%正解で達成）',
 };
 
@@ -137,10 +137,30 @@ export const KYUI_MATCH_CONFIG: Record<KyuiLevel, {
 };
 
 export const KYUI_MATCH_LABELS: Record<KyuiLevel, string> = {
-  beginner: '初級の歌合',
-  jyukkyu: '二級の歌合',
-  kyukyu: '三級の歌合',
-  hachikyu: '四級の歌合',
-  nanakyu: '五級の歌合',
-  rokkyu: '六級の歌合',
+  beginner: '見習の歌合',
+  jyukkyu: '初級の歌合',
+  kyukyu: '二級の歌合',
+  hachikyu: '三級の歌合',
+  nanakyu: '四級の歌合',
+  rokkyu: '五級の歌合',
+};
+
+/**
+ * 級位検定の設定
+ * examKimariji: 検定で出題する決まり字（その字数のみ）
+ * passRate: 合格に必要な正答率
+ * nextLevel: 合格後の級位
+ */
+export const KYUI_EXAM_CONFIG: Record<KyuiLevel, {
+  examKimariji: number | null;  // null = 全札
+  passRate: number;
+  nextLevel: KyuiLevel | 'dan';
+  examLabel: string;
+}> = {
+  beginner: { examKimariji: 1, passRate: 80, nextLevel: 'jyukkyu', examLabel: '初級検定（1字決まり）' },
+  jyukkyu: { examKimariji: 2, passRate: 80, nextLevel: 'kyukyu', examLabel: '二級検定（2字決まり）' },
+  kyukyu: { examKimariji: 3, passRate: 80, nextLevel: 'hachikyu', examLabel: '三級検定（3字決まり）' },
+  hachikyu: { examKimariji: 4, passRate: 80, nextLevel: 'nanakyu', examLabel: '四級検定（4字決まり）' },
+  nanakyu: { examKimariji: 5, passRate: 80, nextLevel: 'rokkyu', examLabel: '五級検定（5字決まり）' },
+  rokkyu: { examKimariji: null, passRate: 90, nextLevel: 'dan', examLabel: '段位資格検定（全札）' },
 };

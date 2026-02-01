@@ -1,33 +1,81 @@
 /**
  * 102: 級位検定ページ
- * 対象札フィルタ + 即時結果表示
+ * 現在の級位に基づいて自動的に次の級への検定を実施
  */
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useKyuiExam } from '@/hooks/useKyuiExam';
+import { getUserProgress } from '@/services/utaawase.service';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Heading, Text } from '@/components/ui/Typography';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { AuthRequiredState } from '@/components/ui/PageStates';
-import { KYUI_LEVEL_LABELS, KyuiLevel } from '@/types/utaawase';
+import { AuthRequiredState, LoadingState } from '@/components/ui/PageStates';
+import { KYUI_LEVEL_LABELS, KYUI_EXAM_CONFIG, type KyuiLevel } from '@/types/utaawase';
 
 export function KyuiExamPage() {
+  const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const [kyuiLevel, setKyuiLevel] = useState<KyuiLevel | null>(null);
+  const [loadingLevel, setLoadingLevel] = useState(true);
+
   const {
     phase,
     result,
     error,
-    kimarijiFuda,
     setKimarijiFuda,
-    allCards,
     setAllCards,
     startExam,
     submitExam,
     reset,
   } = useKyuiExam();
 
-  if (authLoading) return null;
+  // Fetch user's current kyui level
+  useEffect(() => {
+    async function fetchLevel() {
+      if (!user) {
+        setLoadingLevel(false);
+        return;
+      }
+      try {
+        const progress = await getUserProgress(user.uid);
+        setKyuiLevel(progress?.kyuiLevel || 'beginner');
+      } catch (err) {
+        console.error('Failed to fetch user progress:', err);
+        setKyuiLevel('beginner');
+      } finally {
+        setLoadingLevel(false);
+      }
+    }
+    if (!authLoading) {
+      fetchLevel();
+    }
+  }, [user, authLoading]);
+
+  // Set exam config based on current level
+  useEffect(() => {
+    if (kyuiLevel) {
+      const config = KYUI_EXAM_CONFIG[kyuiLevel];
+      if (config.examKimariji === null) {
+        setAllCards(true);
+        setKimarijiFuda(null);
+      } else {
+        setAllCards(false);
+        setKimarijiFuda(config.examKimariji);
+      }
+    }
+  }, [kyuiLevel, setAllCards, setKimarijiFuda]);
+
+  if (authLoading || loadingLevel) {
+    return (
+      <div className="karuta-container space-y-2 py-2">
+        <PageHeader title="級位検定" subtitle="級位の昇級試験" />
+        <LoadingState />
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -37,6 +85,22 @@ export function KyuiExamPage() {
       </div>
     );
   }
+
+  if (!kyuiLevel) {
+    return (
+      <div className="karuta-container space-y-2 py-2">
+        <PageHeader title="級位検定" subtitle="級位の昇級試験" />
+        <Card className="text-center py-4">
+          <Text>レベル情報を取得できませんでした</Text>
+          <Button onClick={() => navigate('/utaawase')} className="mt-4">
+            戻る
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
+  const examConfig = KYUI_EXAM_CONFIG[kyuiLevel];
 
   return (
     <div className="karuta-container space-y-2 py-2">
@@ -48,63 +112,44 @@ export function KyuiExamPage() {
         </Card>
       )}
 
+      {/* Current Level Display */}
+      <Card padding="sm" className="bg-blue-50/50 border-blue-200">
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-600">現在の級位</div>
+          <Badge variant="info" className="text-sm">
+            {KYUI_LEVEL_LABELS[kyuiLevel]}
+          </Badge>
+        </div>
+      </Card>
+
       {/* Setup Phase */}
       {phase === 'setup' && (
         <Card>
-          <Heading as="h3" size="h3" className="mb-4">検定設定</Heading>
-
-          <div className="space-y-4">
-            <div>
-              <label className="flex items-center gap-2 mb-2">
-                <input
-                  type="checkbox"
-                  checked={allCards}
-                  onChange={(e) => {
-                    setAllCards(e.target.checked);
-                    if (e.target.checked) setKimarijiFuda(null);
-                  }}
-                  className="rounded"
-                />
-                <Text>全札 (100首)</Text>
-              </label>
-
-              {!allCards && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    決まり字上限
-                  </label>
-                  <select
-                    value={kimarijiFuda || 1}
-                    onChange={(e) => setKimarijiFuda(parseInt(e.target.value, 10))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  >
-                    <option value={1}>一字決まり</option>
-                    <option value={2}>二字決まり</option>
-                    <option value={3}>三字決まり</option>
-                    <option value={4}>四字決まり</option>
-                    <option value={5}>五字決まり</option>
-                    <option value={6}>六字決まり</option>
-                  </select>
-                </div>
-              )}
-            </div>
-
-            <Text size="sm" color="muted">
-              検定では出題された札に回答し、合格正答率を達成すると昇級します。
-              1回の検定で1段階のみ昇級可能です（飛び級不可）。
-            </Text>
-
-            <Button onClick={startExam} fullWidth size="lg">
-              検定を開始
-            </Button>
+          <div className="text-center mb-4">
+            <Heading as="h3" size="h3" className="mb-2">{examConfig.examLabel}</Heading>
+            <Badge variant="success" className="text-sm">
+              {examConfig.passRate}%正解で合格
+            </Badge>
           </div>
+
+          <div className="bg-gray-50 rounded-lg p-4 mb-4">
+            <ul className="text-sm text-gray-600 space-y-1">
+              <li>・{examConfig.examKimariji ? `${examConfig.examKimariji}字決まりの札のみ出題` : '全札（100首）から出題'}</li>
+              <li>・{examConfig.passRate}%以上の正答率で合格</li>
+              <li>・合格すると{examConfig.nextLevel === 'dan' ? '段位資格を取得' : `${KYUI_LEVEL_LABELS[examConfig.nextLevel]}に昇級`}</li>
+            </ul>
+          </div>
+
+          <Button onClick={startExam} fullWidth size="lg">
+            検定を開始
+          </Button>
         </Card>
       )}
 
       {/* In Progress Phase - simplified placeholder */}
       {phase === 'inProgress' && (
         <Card>
-          <Heading as="h3" size="h3" className="mb-4">検定中...</Heading>
+          <Heading as="h3" size="h3" className="mb-4">{examConfig.examLabel}</Heading>
           <Text size="sm" color="muted" className="mb-4">
             検定の出題・回答はPracticePageのフローを利用します。
             ここでは結果を手動入力してテストできます。
@@ -167,11 +212,11 @@ export function KyuiExamPage() {
         <Card>
           <div className="text-center space-y-4">
             <Heading as="h3" size="h3">
-              {result.passed ? '合格！' : '不合格'}
+              {result.passed ? '合格' : '不合格'}
             </Heading>
 
-            <div className="text-6xl">
-              {result.passed ? '🎉' : '📝'}
+            <div className="text-4xl">
+              {result.passed ? '🎊' : ''}
             </div>
 
             <div className="space-y-2">
@@ -184,23 +229,28 @@ export function KyuiExamPage() {
                     {' → '}
                     {KYUI_LEVEL_LABELS[result.currentLevel as KyuiLevel] || result.currentLevel}
                   </Text>
-                  <Text size="sm" color="muted">昇級しました！</Text>
+                  <Text size="sm" color="muted">昇級しました</Text>
                   {result.danEligible && (
-                    <Badge variant="success" className="mt-2">段位の部 参加資格取得！</Badge>
+                    <Badge variant="success" className="mt-2">段位の部 参加資格取得</Badge>
                   )}
                 </div>
               )}
 
               {!result.promoted && (
                 <Text size="sm" color="muted">
-                  合格条件を満たしませんでした。再挑戦できます。
+                  {examConfig.passRate}%以上で合格です。再挑戦できます。
                 </Text>
               )}
             </div>
 
-            <Button onClick={reset} fullWidth>
-              検定メニューに戻る
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={reset} className="flex-1">
+                再挑戦
+              </Button>
+              <Button onClick={() => navigate('/utaawase')} variant="secondary" className="flex-1">
+                歌合に戻る
+              </Button>
+            </div>
           </div>
         </Card>
       )}

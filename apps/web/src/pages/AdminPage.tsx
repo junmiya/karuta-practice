@@ -14,6 +14,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { LoadingState, AuthRequiredState, InfoBox } from '@/components/ui/PageStates';
 import {
   adminGetRuleset,
+  adminSeedDefaultRuleset,
   adminGetSeasonCalendar,
   adminSeedDefaultCalendar,
   adminFreezeSeason2,
@@ -608,27 +609,49 @@ export function AdminPage() {
         <Card>
           <Heading as="h3" size="h3" className="mb-4">ルールセット管理</Heading>
           <div className="space-y-3">
-            <Button
-              onClick={async () => {
-                setRulesetLoading(true);
-                try {
-                  const res = await adminGetRuleset();
-                  setRulesetData(res.ruleset);
-                  if (res.ruleset?.yamlContent) {
-                    setRulesetYaml(res.ruleset.yamlContent);
+            <div className="flex gap-2">
+              <Button
+                onClick={async () => {
+                  setRulesetLoading(true);
+                  try {
+                    const res = await adminGetRuleset();
+                    setRulesetData(res.ruleset);
+                    if (res.ruleset?.yamlContent) {
+                      setRulesetYaml(res.ruleset.yamlContent);
+                    }
+                    if (!res.ruleset) setMessage('ルールセットが未登録です');
+                  } catch (err: any) {
+                    setError(err.message || '取得に失敗しました');
+                  } finally {
+                    setRulesetLoading(false);
                   }
-                  if (!res.ruleset) setMessage('ルールセットが未登録です');
-                } catch (err: any) {
-                  setError(err.message || '取得に失敗しました');
-                } finally {
-                  setRulesetLoading(false);
-                }
-              }}
-              disabled={rulesetLoading}
-              size="sm"
-            >
-              {rulesetLoading ? '読込中...' : '現在のルールセットを読み込み'}
-            </Button>
+                }}
+                disabled={rulesetLoading}
+                size="sm"
+              >
+                {rulesetLoading ? '読込中...' : '現在のルールセットを読み込み'}
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!confirm('デフォルトルールセットを投入しますか？既存のルールセットは上書きされます。')) return;
+                  setRulesetLoading(true);
+                  try {
+                    const res = await adminSeedDefaultRuleset();
+                    setRulesetData(res.ruleset);
+                    setMessage('デフォルトルールセットを投入しました');
+                  } catch (err: any) {
+                    setError(err.message || 'ルールセット投入に失敗しました');
+                  } finally {
+                    setRulesetLoading(false);
+                  }
+                }}
+                disabled={rulesetLoading}
+                variant="secondary"
+                size="sm"
+              >
+                デフォルト投入
+              </Button>
+            </div>
 
             {rulesetData && (
               <div className="bg-gray-50 rounded-lg p-3">

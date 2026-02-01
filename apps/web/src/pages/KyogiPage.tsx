@@ -12,7 +12,7 @@ import { getCurrentSeason } from '@/services/stage1.service';
 import { getUserProgress } from '@/services/utaawase.service';
 import type { Season } from '@/types/entry';
 import type { KyuiLevel, UserProgress } from '@/types/utaawase';
-import { KYUI_LEVEL_LABELS, KYUI_MATCH_CONFIG, KYUI_MATCH_LABELS } from '@/types/utaawase';
+import { KYUI_LEVEL_LABELS, KYUI_LEVELS_ORDERED, KYUI_MATCH_CONFIG, KYUI_MATCH_LABELS, KYUI_PROMOTION_CONDITIONS } from '@/types/utaawase';
 
 export function KyogiPage() {
   const navigate = useNavigate();
@@ -45,6 +45,12 @@ export function KyogiPage() {
   const kimarijiRangeText = config.maxKimariji === 1
     ? '1字決まり'
     : `1-${config.maxKimariji}字決まり`;
+
+  // Get next level info for exam
+  const currentLevelIndex = KYUI_LEVELS_ORDERED.indexOf(kyuiLevel);
+  const nextLevel = currentLevelIndex < KYUI_LEVELS_ORDERED.length - 1
+    ? KYUI_LEVELS_ORDERED[currentLevelIndex + 1]
+    : null;
 
   return (
     <div className="karuta-container space-y-2 py-2">
@@ -81,32 +87,43 @@ export function KyogiPage() {
         </Card>
       )}
 
-      {/* Kyui-level Match Entry */}
+      {/* 級位検定 - for advancement */}
       <Card padding="sm" className="bg-white/80">
-        <h3 className="font-bold text-gray-700 mb-2">級位別歌合</h3>
+        <div className="flex items-center gap-2 mb-2">
+          <h3 className="font-bold text-gray-700">級位検定</h3>
+          <span className="text-xs text-gray-400">- 昇級するための試験</span>
+        </div>
         {isAuthenticated && isProfileComplete ? (
-          <div className="space-y-3">
-            <div className="bg-gray-50 rounded-lg p-3">
+          kyuiLevel !== 'rokkyu' ? (
+            <div className="bg-green-50 rounded-lg p-3 border border-green-200">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-gray-800">{KYUI_MATCH_LABELS[kyuiLevel]}</span>
-                <Badge variant="secondary" className="text-xs">{KYUI_LEVEL_LABELS[kyuiLevel]}</Badge>
+                <span className="font-medium text-gray-800">
+                  {nextLevel ? `${KYUI_LEVEL_LABELS[nextLevel]}への検定` : '検定'}
+                </span>
+                <Badge variant="success" className="text-xs">80%で合格</Badge>
               </div>
-              <ul className="text-xs text-gray-600 space-y-0.5 mb-3">
-                <li>・{config.questionCount}問・{config.cardCount}枚</li>
-                <li>・{kimarijiRangeText}</li>
-              </ul>
+              <p className="text-xs text-gray-600 mb-3">
+                {KYUI_PROMOTION_CONDITIONS[kyuiLevel]}
+              </p>
               <Button
-                onClick={() => navigate('/kyui-match')}
+                onClick={() => navigate('/kyui-exam')}
                 className="w-full"
               >
-                エントリー
+                検定を受ける
               </Button>
             </div>
-          </div>
+          ) : (
+            <div className="text-center py-3">
+              <Badge variant="success" className="text-sm mb-2">六級達成済</Badge>
+              <p className="text-xs text-gray-500">
+                全ての級位を修了しました。上級歌合に挑戦できます。
+              </p>
+            </div>
+          )
         ) : (
           <div className="text-center py-2">
             <p className="text-sm text-gray-600 mb-3">
-              級位別歌合に参加するにはログインが必要です
+              検定を受けるにはログインが必要です
             </p>
             <Button onClick={() => navigate('/profile')}>
               ログイン / プロフィール設定
@@ -115,28 +132,62 @@ export function KyogiPage() {
         )}
       </Card>
 
-      {/* Advanced Match Entry (六級達成者のみ) */}
+      {/* 級位別歌合 - for competition at current level */}
+      <Card padding="sm" className="bg-white/80">
+        <div className="flex items-center gap-2 mb-2">
+          <h3 className="font-bold text-gray-700">級位別歌合</h3>
+          <span className="text-xs text-gray-400">- 今の級位で腕試し</span>
+        </div>
+        {isAuthenticated && isProfileComplete ? (
+          <div className="bg-gray-50 rounded-lg p-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-medium text-gray-800">{KYUI_MATCH_LABELS[kyuiLevel]}</span>
+              <Badge variant="secondary" className="text-xs">{KYUI_LEVEL_LABELS[kyuiLevel]}</Badge>
+            </div>
+            <ul className="text-xs text-gray-600 space-y-0.5 mb-3">
+              <li>・{config.questionCount}問・{config.cardCount}枚・{kimarijiRangeText}</li>
+              <li>・スコアが番付に反映されます（昇級はしません）</li>
+            </ul>
+            <Button
+              onClick={() => navigate('/kyui-match')}
+              className="w-full"
+              variant="secondary"
+            >
+              歌合に挑戦
+            </Button>
+          </div>
+        ) : (
+          <div className="text-center py-2">
+            <p className="text-sm text-gray-500">
+              ログインすると参加できます
+            </p>
+          </div>
+        )}
+      </Card>
+
+      {/* 上級歌合 (六級達成者のみ) */}
       <Card padding="sm" className={`${hasRokkyu ? 'bg-white/80' : 'bg-gray-100/50'}`}>
-        <h3 className="font-bold text-gray-700 mb-2">上級歌合</h3>
+        <div className="flex items-center gap-2 mb-2">
+          <h3 className="font-bold text-gray-700">上級歌合</h3>
+          <span className="text-xs text-gray-400">- 六級達成後の本格競技</span>
+        </div>
         {isAuthenticated && isProfileComplete ? (
           hasRokkyu ? (
-            <div className="space-y-3">
-              <div className="bg-gray-50 rounded-lg p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium text-gray-800">公式歌合（上級）</span>
-                  <Badge variant="warning" className="text-xs">六級達成者限定</Badge>
-                </div>
-                <ul className="text-xs text-gray-600 space-y-0.5 mb-3">
-                  <li>・50問・12枚</li>
-                  <li>・全札（100首）</li>
-                </ul>
-                <Button
-                  onClick={() => navigate('/entry')}
-                  className="w-full"
-                >
-                  エントリー
-                </Button>
+            <div className="bg-amber-50 rounded-lg p-3 border border-amber-200">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-medium text-gray-800">公式歌合（上級）</span>
+                <Badge variant="warning" className="text-xs">六級達成者限定</Badge>
               </div>
+              <ul className="text-xs text-gray-600 space-y-0.5 mb-3">
+                <li>・50問・12枚・全札（100首）</li>
+                <li>・スコアが番付に反映されます</li>
+              </ul>
+              <Button
+                onClick={() => navigate('/entry')}
+                className="w-full"
+              >
+                エントリー
+              </Button>
             </div>
           ) : (
             <div className="text-center py-3">
@@ -155,28 +206,6 @@ export function KyogiPage() {
             </p>
           </div>
         )}
-      </Card>
-
-      {/* Info */}
-      <Card padding="sm" className="bg-gray-50/50">
-        <div className="space-y-3 text-sm">
-          <div>
-            <h4 className="font-medium text-gray-700 mb-1">公式記録の条件</h4>
-            <ul className="text-xs text-gray-600 space-y-0.5 pl-3">
-              <li>・出題数を完答</li>
-              <li>・異常値判定をパス（極端に速い回答は無効）</li>
-              <li>・制限時間以内に完了</li>
-            </ul>
-          </div>
-          <div className="pt-2 border-t border-gray-200">
-            <h4 className="font-medium text-gray-700 mb-1">スコア計算</h4>
-            <p className="text-xs text-gray-600">
-              <code className="bg-white px-1.5 py-0.5 rounded border border-gray-200">
-                正答数×100 + max(0, 300-秒数)
-              </code>
-            </p>
-          </div>
-        </div>
       </Card>
     </div>
   );

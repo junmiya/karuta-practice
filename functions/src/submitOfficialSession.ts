@@ -148,10 +148,11 @@ export const submitOfficialSession = functions
       // Calculate correctCount and totalElapsedMs from rounds
       const correctCount = calculateCorrectCount(rounds);
       const totalElapsedMs = calculateTotalElapsedMs(rounds);
+      const roundCount = sessionData.roundCount || 50;
 
       // 7. Anomaly detection
       const validationResult = validateSession(
-        { correctCount, totalElapsedMs },
+        { correctCount, totalElapsedMs, roundCount },
         rounds
       );
 

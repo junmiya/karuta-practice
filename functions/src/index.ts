@@ -50,6 +50,7 @@ export { submitKyuiExam } from './kyuiExamFunction';
 export {
   adminGetRuleset,
   adminSaveRuleset,
+  adminSeedDefaultRuleset,
   adminGetSeasonCalendar,
   adminSaveSeasonCalendar,
   adminSeedDefaultCalendar,

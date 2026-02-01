@@ -588,7 +588,7 @@ export function UtaawaseRokuPage() {
                 <div>
                   <span className="font-medium">級位</span>
                   <span className="text-gray-500 ml-2">
-                    初級 → 二級 → 三級 → 四級 → 五級 → 六級
+                    見習 → 初級 → 二級 → 三級 → 四級 → 五級
                   </span>
                 </div>
               </div>
