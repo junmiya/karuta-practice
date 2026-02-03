@@ -103,15 +103,23 @@ export function useAuth() {
   const loginWithGoogle = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
-      // This will redirect to Google, so no result is returned here
       await signInWithGoogle();
-      // After redirect, the page will reload and handleRedirectResult will be called
+      // ポップアップの場合はここで認証完了、リダイレクトの場合はページ再読み込み後に処理
     } catch (err: unknown) {
       console.error('Google login error:', err);
       const errorCode = (err as { code?: string })?.code;
+      const errorMessage = (err as { message?: string })?.message;
+      console.error('Error code:', errorCode, 'Message:', errorMessage);
+
       let displayError = 'Googleログインに失敗しました';
-      if (errorCode === 'auth/network-request-failed') {
+      if (errorCode === 'auth/popup-closed-by-user') {
+        displayError = 'ログインがキャンセルされました';
+      } else if (errorCode === 'auth/popup-blocked') {
+        displayError = 'ポップアップがブロックされました。ポップアップを許可してください';
+      } else if (errorCode === 'auth/network-request-failed') {
         displayError = 'ネットワークエラーです。接続を確認してください';
+      } else if (errorCode === 'auth/unauthorized-domain') {
+        displayError = 'このドメインは認証が許可されていません';
       }
       setState((prev) => ({
         ...prev,

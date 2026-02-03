@@ -12,7 +12,7 @@ import { auth } from './firebase';
 const googleProvider = new GoogleAuthProvider();
 
 /**
- * Sign in with Google account using redirect (more reliable on mobile/some browsers)
+ * Sign in with Google account using redirect
  */
 export async function signInWithGoogle(): Promise<void> {
   await signInWithRedirect(auth, googleProvider);
