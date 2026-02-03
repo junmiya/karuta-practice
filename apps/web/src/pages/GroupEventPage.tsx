@@ -10,7 +10,7 @@ import {
   getGroupEvents,
   createEvent,
   joinEvent,
-  leaveEvent,
+  // leaveEvent, // TODO: Add leave button in UI
 } from '@/services/group.service';
 import type { GroupEvent } from '@/types/group';
 
@@ -105,17 +105,7 @@ export function GroupEventPage() {
     }
   };
 
-  const handleLeave = async (eventId: string) => {
-    setJoining(eventId);
-    try {
-      await leaveEvent(eventId);
-      await loadEvents();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '退出に失敗しました');
-    } finally {
-      setJoining(null);
-    }
-  };
+  // TODO: Add leave button in UI (use leaveEvent service function)
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('ja-JP', {

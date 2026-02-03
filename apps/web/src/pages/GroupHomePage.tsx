@@ -13,7 +13,7 @@ export function GroupHomePage() {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { group, loading, error, refresh } = useGroup(groupId);
+  const { group, loading, error, refresh: _refresh } = useGroup(groupId);
   const { members } = useGroupMembers(groupId);
   const { inviteCode, loading: inviteLoading, fetch: fetchInvite, regenerate, revoke } = useInviteCode(groupId);
   const { leaveGroup, loading: leaveLoading } = useLeaveGroup();
