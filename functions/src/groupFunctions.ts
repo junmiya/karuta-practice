@@ -99,15 +99,29 @@ export const createGroup = functions
       throw new functions.https.HttpsError('invalid-argument', descValidation.message!);
     }
 
+    // 団体名の重複チェック
+    const trimmedName = data.name.trim();
+    const existingGroups = await db
+      .collection(GROUP_COLLECTIONS.GROUPS)
+      .where('name', '==', trimmedName)
+      .where('status', '==', 'active')
+      .limit(1)
+      .get();
+
+    if (!existingGroups.empty) {
+      throw new functions.https.HttpsError('already-exists', 'この団体名は既に使用されています');
+    }
+
     const groupRef = db.collection(GROUP_COLLECTIONS.GROUPS).doc();
     const groupId = groupRef.id;
     const now = Timestamp.now();
 
     // 団体ドキュメント作成
+    const trimmedDescription = data.description?.trim();
     const groupDoc: GroupDoc = {
       groupId,
-      name: data.name.trim(),
-      description: data.description?.trim(),
+      name: trimmedName,
+      ...(trimmedDescription ? { description: trimmedDescription } : {}),
       ownerUserId: uid,
       status: 'active',
       memberCount: 1,

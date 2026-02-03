@@ -20,15 +20,21 @@ export async function writeGroupAuditLog(params: {
 }): Promise<string> {
   const eventId = generateAuditEventId('group');
 
-  const logDoc: Omit<GroupAuditLogDoc, 'timestamp'> & { timestamp: admin.firestore.FieldValue } = {
+  const logDoc: Record<string, unknown> = {
     eventId,
     eventType: params.eventType,
     actorId: params.actorId,
     groupId: params.groupId,
-    targetId: params.targetId,
-    details: params.details || {},
     timestamp: FieldValue.serverTimestamp(),
   };
+
+  // Optional fields - only include if defined
+  if (params.targetId !== undefined) {
+    logDoc.targetId = params.targetId;
+  }
+  if (params.details && Object.keys(params.details).length > 0) {
+    logDoc.details = params.details;
+  }
 
   await db.collection('audit_logs').doc(eventId).set(logDoc);
 
