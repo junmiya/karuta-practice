@@ -99,5 +99,42 @@ service cloud.firestore {
     match /job_runs/{runId} {
       allow read, write: if false;
     }
+
+    // === 103: 団体機能 新コレクション ===
+
+    // 団体（認証済みユーザーのみ読み取り、サーバのみ書込）
+    match /groups/{groupId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // 団体メンバーシップ（認証済みユーザーのみ読み取り、サーバのみ書込）
+    match /group_memberships/{membershipId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // 招待コード（サーバのみ — ハッシュ漏洩防止）
+    match /group_invites/{inviteId} {
+      allow read, write: if false;
+    }
+
+    // 団体内イベント（認証済みユーザーのみ読み取り、サーバのみ書込）
+    match /group_events/{eventId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // イベント参加者（認証済みユーザーのみ読み取り、サーバのみ書込）
+    match /group_event_participants/{participantId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // 団体成績（公開読み取り、サーバのみ書込）
+    match /group_stats/{statsId} {
+      allow read: if true;
+      allow write: if false;
+    }
   }
 }

@@ -17,6 +17,7 @@ import {
   Round,
 } from './validators/sessionValidator';
 import { updateRanking, updateUserStats } from './services/rankingUpdater';
+import { updateGroupStats } from './services/groupStatsService';
 
 const db = admin.firestore();
 
@@ -199,7 +200,7 @@ export const submitOfficialSession = functions
       });
 
       // 11. Update ranking and user stats (parallel)
-      await Promise.all([
+      const updatePromises: Promise<void>[] = [
         updateRanking({
           seasonId: sessionData.seasonId,
           division,
@@ -208,7 +209,21 @@ export const submitOfficialSession = functions
           newScore: scoreResult.score,
         }),
         updateUserStats(uid, scoreResult.score),
-      ]);
+      ];
+
+      // 103: 団体戦対応 - 団体成績も更新
+      if (sessionData.affiliatedGroupId && sessionData.affiliatedGroupName) {
+        updatePromises.push(
+          updateGroupStats({
+            groupId: sessionData.affiliatedGroupId,
+            groupName: sessionData.affiliatedGroupName,
+            seasonKey: sessionData.seasonId,
+            score: scoreResult.score,
+          })
+        );
+      }
+
+      await Promise.all(updatePromises);
 
       console.log('=== submitOfficialSession SUCCESS ===', scoreResult.score);
 

@@ -18,6 +18,12 @@ import { AdminPage } from './pages/AdminPage';
 import { KyuiExamPage } from './pages/KyuiExamPage';
 import { UtaawaseRokuPage } from './pages/UtaawaseRokuPage';
 import { KyuiMatchPage } from './pages/KyuiMatchPage';
+import { GroupListPage } from './pages/GroupListPage';
+import { GroupCreatePage } from './pages/GroupCreatePage';
+import { GroupHomePage } from './pages/GroupHomePage';
+import { GroupJoinPage } from './pages/GroupJoinPage';
+import { GroupMembersPage } from './pages/GroupMembersPage';
+import { GroupEventPage } from './pages/GroupEventPage';
 
 export function App() {
   return (
@@ -57,6 +63,14 @@ export function App() {
 
             {/* 管理者ページ */}
             <Route path="/admin" element={<AdminPage />} />
+
+            {/* 団体機能 */}
+            <Route path="/groups" element={<GroupListPage />} />
+            <Route path="/groups/create" element={<GroupCreatePage />} />
+            <Route path="/groups/:groupId" element={<GroupHomePage />} />
+            <Route path="/groups/:groupId/members" element={<GroupMembersPage />} />
+            <Route path="/groups/:groupId/events" element={<GroupEventPage />} />
+            <Route path="/join" element={<GroupJoinPage />} />
           </Routes>
           </Layout>
         </BrowserRouter>

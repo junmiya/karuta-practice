@@ -24,12 +24,14 @@ export async function createSession(
   uid: string,
   seasonId: string,
   entryId: string,
-  roundCount: number = 50
+  roundCount: number = 50,
+  affiliatedGroupId?: string,
+  affiliatedGroupName?: string
 ): Promise<string> {
   const sessionRef = doc(collection(db, SESSIONS_COLLECTION));
   const sessionId = sessionRef.id;
 
-  const session = {
+  const session: Record<string, unknown> = {
     uid,
     seasonId,
     entryId,
@@ -37,6 +39,12 @@ export async function createSession(
     status: 'created' as SessionStatus,
     startedAt: serverTimestamp(),
   };
+
+  // 103: 団体戦対応 - affiliatedGroupIdが指定されている場合は追加
+  if (affiliatedGroupId && affiliatedGroupName) {
+    session.affiliatedGroupId = affiliatedGroupId;
+    session.affiliatedGroupName = affiliatedGroupName;
+  }
 
   await setDoc(sessionRef, session);
   return sessionId;

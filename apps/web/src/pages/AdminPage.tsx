@@ -1,10 +1,9 @@
 /**
- * Admin Dashboard - シーズン管理・統計・手動運用操作
+ * Admin Dashboard - V2統一版
+ * 節気カレンダー・ルールセット・確定パイプライン管理
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { httpsCallable } from 'firebase/functions';
-import { functions } from '@/services/firebase';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -21,57 +20,34 @@ import {
   adminFinalizeSeason2,
   adminPublishSeason,
   adminGetJobRuns,
+  adminGetCurrentSeasonInfo,
+  adminGetSnapshotStatus,
+  adminGetAllGroups,
+  adminSuspendGroup,
+  adminResumeGroup,
+  adminDeleteGroup,
+  adminGetGroupAuditLogs,
+  type AdminGroup,
+  type AdminGroupAuditLog,
 } from '@/services/admin-v2.service';
 
-interface Season {
-  seasonId: string;
-  name: string;
-  status: 'open' | 'frozen' | 'finalized' | 'archived';
-  startDate: string | null;
-  freezeDate: string | null;
-  finalizeDate: string | null;
-  updatedAt: string | null;
-}
+type TabType = 'calendar' | 'ruleset' | 'pipeline' | 'groups';
 
-interface SeasonStats {
-  seasonId: string;
-  entries: {
-    total: number;
-    kyu: number;
-    dan: number;
-  };
-  sessions: {
-    total: number;
-    confirmed: number;
-    invalid: number;
-    pending: number;
-  };
-}
-
-const statusLabels: Record<string, { label: string; variant: 'info' | 'warning' | 'success' | 'secondary' }> = {
-  open: { label: '開催中', variant: 'info' },
-  frozen: { label: '凍結中', variant: 'warning' },
-  finalized: { label: '確定', variant: 'success' },
-  archived: { label: 'アーカイブ', variant: 'secondary' },
+// Pipeline status labels
+const STATUS_LABELS: Record<string, { label: string; color: string }> = {
+  not_created: { label: '未作成', color: 'secondary' },
+  draft: { label: 'ドラフト', color: 'secondary' },
+  frozen: { label: '凍結中', color: 'warning' },
+  finalized: { label: '確定済', color: 'info' },
+  published: { label: '公開済', color: 'success' },
 };
-
-type TabType = 'seasons' | 'create' | 'calendar' | 'ruleset' | 'pipeline';
 
 export function AdminPage() {
   const { user, loading: authLoading } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<TabType>('seasons');
-  const [seasons, setSeasons] = useState<Season[]>([]);
-  const [seasonStats, setSeasonStats] = useState<Record<string, SeasonStats>>({});
-  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<TabType>('calendar');
   const [error, setError] = useState<string | null>(null);
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-
-  // New season form
-  const [newYear, setNewYear] = useState(new Date().getFullYear());
-  const [newTerm, setNewTerm] = useState<'spring' | 'summer' | 'autumn' | 'winter'>('spring');
-  const [creating, setCreating] = useState(false);
 
   // Calendar tab state
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
@@ -87,166 +63,149 @@ export function AdminPage() {
   const [pipelineSeasonKey, setPipelineSeasonKey] = useState('');
   const [pipelineLoading, setPipelineLoading] = useState(false);
   const [jobRuns, setJobRuns] = useState<any[]>([]);
+  const [seasonInfo, setSeasonInfo] = useState<{
+    currentSeason: { seasonKey: string; seasonId: string; year: number } | null;
+    previousSeason: { seasonKey: string; seasonId: string; year: number } | null;
+  } | null>(null);
+  const [snapshotStatus, setSnapshotStatus] = useState<{
+    status: string;
+    frozenAt: string | null;
+    finalizedAt: string | null;
+    publishedAt: string | null;
+    totalParticipants: number;
+    totalEvents: number;
+  } | null>(null);
 
-  // Fetch seasons
-  const fetchSeasons = useCallback(async () => {
-    if (!user) return;
+  // Groups tab state
+  const [groups, setGroups] = useState<AdminGroup[]>([]);
+  const [groupsLoading, setGroupsLoading] = useState(false);
+  const [groupsFilter, setGroupsFilter] = useState<'all' | 'active' | 'suspended'>('all');
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const [groupAuditLogs, setGroupAuditLogs] = useState<AdminGroupAuditLog[]>([]);
+  const [suspendReason, setSuspendReason] = useState('');
+  const [showSuspendDialog, setShowSuspendDialog] = useState<string | null>(null);
 
-    try {
-      setLoading(true);
-      const adminGetSeasons = httpsCallable<unknown, { success: boolean; seasons: Season[] }>(
-        functions,
-        'adminGetSeasons'
-      );
-      const result = await adminGetSeasons({});
-      if (result.data.success) {
-        setSeasons(result.data.seasons);
-      }
-    } catch (err) {
-      console.error('Failed to fetch seasons:', err);
-      setError('シーズン情報の取得に失敗しました');
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
+  // Load current season info when pipeline tab is opened
   useEffect(() => {
-    if (!authLoading && user) {
-      fetchSeasons();
+    if (activeTab === 'pipeline' && user && !seasonInfo) {
+      loadSeasonInfo();
     }
-  }, [user, authLoading, fetchSeasons]);
+  }, [activeTab, user]);
 
-  // Fetch stats for a season
-  const fetchSeasonStats = async (seasonId: string) => {
-    try {
-      const adminGetSeasonStats = httpsCallable<{ seasonId: string }, { success: boolean; stats: SeasonStats }>(
-        functions,
-        'adminGetSeasonStats'
-      );
-      const result = await adminGetSeasonStats({ seasonId });
-      if (result.data.success) {
-        setSeasonStats((prev) => ({ ...prev, [seasonId]: result.data.stats }));
-      }
-    } catch (err) {
-      console.error('Failed to fetch stats:', err);
-    }
-  };
-
-  // Load stats for open/frozen seasons
+  // Load groups when groups tab is opened
   useEffect(() => {
-    seasons
-      .filter((s) => s.status === 'open' || s.status === 'frozen')
-      .forEach((s) => {
-        if (!seasonStats[s.seasonId]) {
-          fetchSeasonStats(s.seasonId);
-        }
-      });
-  }, [seasons, seasonStats]);
+    if (activeTab === 'groups' && user) {
+      loadGroups();
+    }
+  }, [activeTab, user, groupsFilter]);
 
-  const handleFreeze = async (seasonId: string) => {
-    if (!confirm(`シーズン ${seasonId} を凍結しますか？\n凍結後は新規提出が反映されなくなります。`)) {
+  const loadGroups = async () => {
+    setGroupsLoading(true);
+    try {
+      const res = await adminGetAllGroups({ status: groupsFilter });
+      setGroups(res.groups || []);
+    } catch (err: any) {
+      setError(err.message || '団体一覧の取得に失敗しました');
+    } finally {
+      setGroupsLoading(false);
+    }
+  };
+
+  const loadGroupAuditLogs = async (groupId: string) => {
+    try {
+      const res = await adminGetGroupAuditLogs(groupId, 50);
+      setGroupAuditLogs(res.logs || []);
+      setSelectedGroupId(groupId);
+    } catch (err: any) {
+      setError(err.message || '監査ログの取得に失敗しました');
+    }
+  };
+
+  const handleSuspendGroup = async (groupId: string) => {
+    if (!suspendReason.trim()) {
+      setError('停止理由を入力してください');
       return;
     }
-
+    setGroupsLoading(true);
     try {
-      setActionLoading(seasonId);
-      setMessage(null);
-      const adminFreezeSeason = httpsCallable<{ seasonId: string }, { success: boolean }>(
-        functions,
-        'adminFreezeSeason'
-      );
-      await adminFreezeSeason({ seasonId });
-      setMessage(`${seasonId} を凍結しました`);
-      await fetchSeasons();
-    } catch (err: unknown) {
-      console.error('Failed to freeze season:', err);
-      const errorMessage = err instanceof Error ? err.message : '凍結に失敗しました';
-      setError(errorMessage);
+      await adminSuspendGroup(groupId, suspendReason);
+      setMessage('団体を停止しました');
+      setShowSuspendDialog(null);
+      setSuspendReason('');
+      await loadGroups();
+    } catch (err: any) {
+      setError(err.message || '団体の停止に失敗しました');
     } finally {
-      setActionLoading(null);
+      setGroupsLoading(false);
     }
   };
 
-  const handleFinalize = async (seasonId: string) => {
-    if (!confirm(`シーズン ${seasonId} を確定しますか？\n確定後は番付が公式として固定されます。`)) {
-      return;
-    }
-
+  const handleResumeGroup = async (groupId: string) => {
+    if (!confirm('この団体を再開しますか？')) return;
+    setGroupsLoading(true);
     try {
-      setActionLoading(seasonId);
-      setMessage(null);
-      const adminFinalizeSeason = httpsCallable<{ seasonId: string }, { success: boolean }>(
-        functions,
-        'adminFinalizeSeason'
-      );
-      await adminFinalizeSeason({ seasonId });
-      setMessage(`${seasonId} を確定しました`);
-      await fetchSeasons();
-    } catch (err: unknown) {
-      console.error('Failed to finalize season:', err);
-      const errorMessage = err instanceof Error ? err.message : '確定に失敗しました';
-      setError(errorMessage);
+      await adminResumeGroup(groupId);
+      setMessage('団体を再開しました');
+      await loadGroups();
+    } catch (err: any) {
+      setError(err.message || '団体の再開に失敗しました');
     } finally {
-      setActionLoading(null);
+      setGroupsLoading(false);
     }
   };
 
-  const handleUpdateRankings = async (seasonId: string) => {
+  const handleDeleteGroup = async (groupId: string, groupName: string) => {
+    if (!confirm(`団体「${groupName}」を削除しますか？この操作は取り消せません。`)) return;
+    if (!confirm('本当に削除してよろしいですか？関連するすべてのデータが削除されます。')) return;
+    setGroupsLoading(true);
     try {
-      setActionLoading(`ranking-${seasonId}`);
-      setMessage(null);
-      const adminUpdateRankings = httpsCallable<{ seasonId: string }, { success: boolean; message: string }>(
-        functions,
-        'adminUpdateRankings'
-      );
-      const result = await adminUpdateRankings({ seasonId });
-      setMessage(result.data.message);
-      // Refresh stats
-      fetchSeasonStats(seasonId);
-    } catch (err: unknown) {
-      console.error('Failed to update rankings:', err);
-      const errorMessage = err instanceof Error ? err.message : 'ランキング更新に失敗しました';
-      setError(errorMessage);
+      await adminDeleteGroup(groupId);
+      setMessage('団体を削除しました');
+      await loadGroups();
+    } catch (err: any) {
+      setError(err.message || '団体の削除に失敗しました');
     } finally {
-      setActionLoading(null);
+      setGroupsLoading(false);
     }
   };
 
-  const handleCreateSeason = async () => {
-    if (!confirm(`${newYear}年${newTerm === 'spring' ? '春' : newTerm === 'summer' ? '夏' : newTerm === 'autumn' ? '秋' : '冬'}戦を作成しますか？`)) {
-      return;
-    }
-
+  const loadSeasonInfo = async () => {
     try {
-      setCreating(true);
-      setMessage(null);
-      const adminCreateSeason = httpsCallable<
-        { year: number; term: string },
-        { success: boolean; season: { seasonId: string; name: string } }
-      >(functions, 'adminCreateSeason');
-      const result = await adminCreateSeason({ year: newYear, term: newTerm });
-      setMessage(`${result.data.season.name} を作成しました`);
-      await fetchSeasons();
-      setActiveTab('seasons');
-    } catch (err: unknown) {
-      console.error('Failed to create season:', err);
-      const errorMessage = err instanceof Error ? err.message : 'シーズン作成に失敗しました';
-      setError(errorMessage);
-    } finally {
-      setCreating(false);
+      const res = await adminGetCurrentSeasonInfo();
+      setSeasonInfo(res);
+      // Default to previous season (most likely to need processing)
+      if (res.previousSeason) {
+        setPipelineSeasonKey(res.previousSeason.seasonKey);
+      } else if (res.currentSeason) {
+        setPipelineSeasonKey(res.currentSeason.seasonKey);
+      }
+    } catch (err: any) {
+      console.error('Failed to load season info:', err);
     }
   };
 
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return '-';
-    return new Date(dateStr).toLocaleString('ja-JP');
+  // Load snapshot status when season key changes
+  useEffect(() => {
+    if (pipelineSeasonKey && activeTab === 'pipeline') {
+      loadSnapshotStatus();
+    }
+  }, [pipelineSeasonKey, activeTab]);
+
+  const loadSnapshotStatus = async () => {
+    if (!pipelineSeasonKey) return;
+    try {
+      const res = await adminGetSnapshotStatus(pipelineSeasonKey);
+      setSnapshotStatus(res);
+    } catch (err: any) {
+      console.error('Failed to load snapshot status:', err);
+    }
   };
 
   // Auth check
   if (authLoading) {
     return (
       <div className="karuta-container space-y-2 py-2">
-        <PageHeader title="管理者ダッシュボード" subtitle="シーズン管理・統計・手動運用" />
+        <PageHeader title="管理者ダッシュボード" subtitle="節気カレンダー・ルールセット・確定パイプライン" />
         <LoadingState />
       </div>
     );
@@ -255,7 +214,7 @@ export function AdminPage() {
   if (!user) {
     return (
       <div className="karuta-container space-y-2 py-2">
-        <PageHeader title="管理者ダッシュボード" subtitle="シーズン管理・統計・手動運用" />
+        <PageHeader title="管理者ダッシュボード" subtitle="節気カレンダー・ルールセット・確定パイプライン" />
         <AuthRequiredState message="管理者ページにアクセスするにはログインが必要です" />
       </div>
     );
@@ -264,33 +223,15 @@ export function AdminPage() {
   return (
     <div className="karuta-container space-y-2 py-2">
       {/* Header */}
-      <PageHeader title="管理者ダッシュボード" subtitle="シーズン管理・統計・手動運用" />
+      <PageHeader title="管理者ダッシュボード" subtitle="節気カレンダー・ルールセット・確定パイプライン" />
 
       {/* Tab Navigation */}
       <div className="flex gap-2 border-b border-gray-200 pb-2">
         <button
-          onClick={() => setActiveTab('seasons')}
-          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeTab === 'seasons'
-              ? 'bg-karuta-red text-white'
-              : 'text-gray-600 hover:bg-gray-100'
-            }`}
-        >
-          シーズン管理
-        </button>
-        <button
-          onClick={() => setActiveTab('create')}
-          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeTab === 'create'
-              ? 'bg-karuta-red text-white'
-              : 'text-gray-600 hover:bg-gray-100'
-            }`}
-        >
-          新規シーズン
-        </button>
-        <button
           onClick={() => setActiveTab('calendar')}
           className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeTab === 'calendar'
-              ? 'bg-karuta-red text-white'
-              : 'text-gray-600 hover:bg-gray-100'
+            ? 'bg-karuta-red text-white'
+            : 'text-gray-600 hover:bg-gray-100'
             }`}
         >
           節気カレンダー
@@ -298,8 +239,8 @@ export function AdminPage() {
         <button
           onClick={() => setActiveTab('ruleset')}
           className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeTab === 'ruleset'
-              ? 'bg-karuta-red text-white'
-              : 'text-gray-600 hover:bg-gray-100'
+            ? 'bg-karuta-red text-white'
+            : 'text-gray-600 hover:bg-gray-100'
             }`}
         >
           ルールセット
@@ -307,11 +248,20 @@ export function AdminPage() {
         <button
           onClick={() => setActiveTab('pipeline')}
           className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeTab === 'pipeline'
-              ? 'bg-karuta-red text-white'
-              : 'text-gray-600 hover:bg-gray-100'
+            ? 'bg-karuta-red text-white'
+            : 'text-gray-600 hover:bg-gray-100'
             }`}
         >
           確定パイプライン
+        </button>
+        <button
+          onClick={() => setActiveTab('groups')}
+          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeTab === 'groups'
+            ? 'bg-karuta-red text-white'
+            : 'text-gray-600 hover:bg-gray-100'
+            }`}
+        >
+          団体管理
         </button>
       </div>
 
@@ -330,200 +280,6 @@ export function AdminPage() {
           <Button variant="ghost" size="sm" onClick={() => setError(null)} className="mt-2">
             閉じる
           </Button>
-        </Card>
-      )}
-
-      {/* Seasons Tab */}
-      {activeTab === 'seasons' && (
-        <Card>
-          <Heading as="h3" size="h3" className="mb-4">シーズン一覧</Heading>
-
-          {loading ? (
-            <LoadingState message="シーズン情報を読み込み中..." />
-          ) : seasons.length === 0 ? (
-            <Text color="muted" className="text-center py-8">
-              シーズンがありません
-            </Text>
-          ) : (
-            <div className="space-y-2">
-              {seasons.map((season) => {
-                const statusInfo = statusLabels[season.status] || { label: season.status, variant: 'secondary' as const };
-                const isActionLoading = actionLoading === season.seasonId;
-                const isRankingLoading = actionLoading === `ranking-${season.seasonId}`;
-                const stats = seasonStats[season.seasonId];
-
-                return (
-                  <div
-                    key={season.seasonId}
-                    className="border border-gray-200 rounded-lg p-4"
-                  >
-                    {/* Header */}
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <Text className="font-bold">{season.name}</Text>
-                          <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
-                        </div>
-                        <Text size="sm" color="muted">{season.seasonId}</Text>
-                      </div>
-                    </div>
-
-                    {/* Stats */}
-                    {stats && (
-                      <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-                          <div>
-                            <Text size="sm" color="muted">エントリー</Text>
-                            <Text className="font-bold text-lg">{stats.entries.total}</Text>
-                            <Text size="xs" color="muted">
-                              級{stats.entries.kyu} / 段{stats.entries.dan}
-                            </Text>
-                          </div>
-                          <div>
-                            <Text size="sm" color="muted">セッション</Text>
-                            <Text className="font-bold text-lg">{stats.sessions.total}</Text>
-                          </div>
-                          <div>
-                            <Text size="sm" color="muted">確定</Text>
-                            <Text className="font-bold text-lg text-green-600">{stats.sessions.confirmed}</Text>
-                          </div>
-                          <div>
-                            <Text size="sm" color="muted">無効</Text>
-                            <Text className="font-bold text-lg text-red-600">{stats.sessions.invalid}</Text>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Dates */}
-                    <div className="grid grid-cols-2 gap-2 text-sm mb-4">
-                      <div>
-                        <Text size="sm" color="muted">開始日</Text>
-                        <Text size="sm">{formatDate(season.startDate)}</Text>
-                      </div>
-                      <div>
-                        <Text size="sm" color="muted">凍結日</Text>
-                        <Text size="sm">{formatDate(season.freezeDate)}</Text>
-                      </div>
-                      <div>
-                        <Text size="sm" color="muted">確定日</Text>
-                        <Text size="sm">{formatDate(season.finalizeDate)}</Text>
-                      </div>
-                      <div>
-                        <Text size="sm" color="muted">更新日</Text>
-                        <Text size="sm">{formatDate(season.updatedAt)}</Text>
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex flex-wrap gap-2">
-                      {season.status === 'open' && (
-                        <>
-                          <Button
-                            onClick={() => handleFreeze(season.seasonId)}
-                            disabled={isActionLoading}
-                            variant="secondary"
-                            size="sm"
-                            className="bg-yellow-100 hover:bg-yellow-200 border-yellow-300"
-                          >
-                            {isActionLoading ? '処理中...' : '凍結'}
-                          </Button>
-                          <Button
-                            onClick={() => handleUpdateRankings(season.seasonId)}
-                            disabled={isRankingLoading}
-                            variant="secondary"
-                            size="sm"
-                          >
-                            {isRankingLoading ? '更新中...' : 'ランキング更新'}
-                          </Button>
-                          <Button
-                            onClick={() => fetchSeasonStats(season.seasonId)}
-                            variant="ghost"
-                            size="sm"
-                          >
-                            統計更新
-                          </Button>
-                        </>
-                      )}
-                      {season.status === 'frozen' && (
-                        <>
-                          <Button
-                            onClick={() => handleFinalize(season.seasonId)}
-                            disabled={isActionLoading}
-                            variant="secondary"
-                            size="sm"
-                            className="bg-green-100 hover:bg-green-200 border-green-300"
-                          >
-                            {isActionLoading ? '処理中...' : '確定'}
-                          </Button>
-                          <Button
-                            onClick={() => fetchSeasonStats(season.seasonId)}
-                            variant="ghost"
-                            size="sm"
-                          >
-                            統計更新
-                          </Button>
-                        </>
-                      )}
-                      {(season.status === 'finalized' || season.status === 'archived') && (
-                        <Text size="sm" color="muted">操作不可</Text>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </Card>
-      )}
-
-      {/* Create Season Tab */}
-      {activeTab === 'create' && (
-        <Card>
-          <Heading as="h3" size="h3" className="mb-4">新規シーズン作成</Heading>
-
-          <div className="space-y-2">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">年</label>
-              <input
-                type="number"
-                value={newYear}
-                onChange={(e) => setNewYear(parseInt(e.target.value, 10))}
-                min={2024}
-                max={2030}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-karuta-red focus:border-karuta-red"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">期</label>
-              <select
-                value={newTerm}
-                onChange={(e) => setNewTerm(e.target.value as 'spring' | 'summer' | 'autumn' | 'winter')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-karuta-red focus:border-karuta-red"
-              >
-                <option value="spring">春戦 (2-5月)</option>
-                <option value="summer">夏戦 (5-8月)</option>
-                <option value="autumn">秋戦 (8-11月)</option>
-                <option value="winter">冬戦 (11-2月)</option>
-              </select>
-            </div>
-
-            <div className="bg-gray-50 rounded-lg p-3">
-              <Text size="sm" color="muted">
-                作成されるシーズンID: <span className="font-mono font-bold">{newYear}_{newTerm}</span>
-              </Text>
-            </div>
-
-            <Button
-              onClick={handleCreateSeason}
-              disabled={creating}
-              fullWidth
-              size="lg"
-            >
-              {creating ? '作成中...' : 'シーズンを作成'}
-            </Button>
-          </div>
         </Card>
       )}
 
@@ -692,9 +448,35 @@ export function AdminPage() {
         <Card>
           <Heading as="h3" size="h3" className="mb-4">確定パイプライン</Heading>
           <div className="space-y-3">
+            {/* Season Info */}
+            {seasonInfo && (
+              <div className="bg-blue-50 rounded-lg p-3 space-y-2">
+                <Text size="sm" className="font-bold">シーズン情報（自動検出）</Text>
+                <div className="flex gap-4 text-sm">
+                  {seasonInfo.currentSeason && (
+                    <button
+                      onClick={() => setPipelineSeasonKey(seasonInfo.currentSeason!.seasonKey)}
+                      className={`px-3 py-1 rounded ${pipelineSeasonKey === seasonInfo.currentSeason.seasonKey ? 'bg-blue-200' : 'bg-white'}`}
+                    >
+                      現在: {seasonInfo.currentSeason.seasonKey}
+                    </button>
+                  )}
+                  {seasonInfo.previousSeason && (
+                    <button
+                      onClick={() => setPipelineSeasonKey(seasonInfo.previousSeason!.seasonKey)}
+                      className={`px-3 py-1 rounded ${pipelineSeasonKey === seasonInfo.previousSeason.seasonKey ? 'bg-blue-200' : 'bg-white'}`}
+                    >
+                      前回: {seasonInfo.previousSeason.seasonKey}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Season Key Input */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                シーズンキー (例: 2026_spring)
+                シーズンキー（手動入力可）
               </label>
               <input
                 type="text"
@@ -705,6 +487,25 @@ export function AdminPage() {
               />
             </div>
 
+            {/* Snapshot Status */}
+            {snapshotStatus && (
+              <div className="bg-gray-50 rounded-lg p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <Text size="sm" className="font-bold">状態:</Text>
+                  <Badge variant={STATUS_LABELS[snapshotStatus.status]?.color as any || 'secondary'}>
+                    {STATUS_LABELS[snapshotStatus.status]?.label || snapshotStatus.status}
+                  </Badge>
+                </div>
+                <div className="text-xs text-gray-600 space-y-1">
+                  <div>参加者: {snapshotStatus.totalParticipants}名 / イベント: {snapshotStatus.totalEvents}件</div>
+                  {snapshotStatus.frozenAt && <div>凍結: {new Date(snapshotStatus.frozenAt).toLocaleString('ja-JP')}</div>}
+                  {snapshotStatus.finalizedAt && <div>確定: {new Date(snapshotStatus.finalizedAt).toLocaleString('ja-JP')}</div>}
+                  {snapshotStatus.publishedAt && <div>公開: {new Date(snapshotStatus.publishedAt).toLocaleString('ja-JP')}</div>}
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
             <div className="flex flex-wrap gap-2">
               <Button
                 onClick={async () => {
@@ -714,6 +515,7 @@ export function AdminPage() {
                   try {
                     await adminFreezeSeason2(pipelineSeasonKey);
                     setMessage(`${pipelineSeasonKey} を凍結しました`);
+                    await loadSnapshotStatus();
                   } catch (err: any) {
                     setError(err.message || '凍結に失敗しました');
                   } finally {
@@ -735,6 +537,7 @@ export function AdminPage() {
                   try {
                     await adminFinalizeSeason2(pipelineSeasonKey);
                     setMessage(`${pipelineSeasonKey} を確定しました`);
+                    await loadSnapshotStatus();
                   } catch (err: any) {
                     setError(err.message || '確定に失敗しました');
                   } finally {
@@ -756,6 +559,7 @@ export function AdminPage() {
                   try {
                     await adminPublishSeason(pipelineSeasonKey);
                     setMessage(`${pipelineSeasonKey} を公開しました`);
+                    await loadSnapshotStatus();
                   } catch (err: any) {
                     setError(err.message || '公開に失敗しました');
                   } finally {
@@ -805,6 +609,200 @@ export function AdminPage() {
                 ))}
               </div>
             )}
+
+            {/* Auto-processing info */}
+            <InfoBox title="自動処理について" variant="info">
+              <Text size="xs">
+                毎日00:01 JSTに自動処理が実行されます:
+                シーズン終了時に自動freeze → 24時間後に自動finalize → 即時publish
+              </Text>
+            </InfoBox>
+          </div>
+        </Card>
+      )}
+
+      {/* Groups Tab */}
+      {activeTab === 'groups' && (
+        <Card>
+          <Heading as="h3" size="h3" className="mb-4">団体管理</Heading>
+          <div className="space-y-4">
+            {/* Filter */}
+            <div className="flex gap-2 items-center">
+              <Text size="sm" className="font-medium">フィルター:</Text>
+              <select
+                value={groupsFilter}
+                onChange={(e) => setGroupsFilter(e.target.value as 'all' | 'active' | 'suspended')}
+                className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
+              >
+                <option value="all">すべて</option>
+                <option value="active">有効</option>
+                <option value="suspended">停止中</option>
+              </select>
+              <Button
+                onClick={loadGroups}
+                disabled={groupsLoading}
+                size="sm"
+                variant="ghost"
+              >
+                更新
+              </Button>
+            </div>
+
+            {/* Groups List */}
+            {groupsLoading ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-karuta-red"></div>
+              </div>
+            ) : groups.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                団体がありません
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {groups.map((group) => (
+                  <div
+                    key={group.id}
+                    className={`border rounded-lg p-4 ${group.status === 'suspended' ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200'}`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <Text className="font-bold">{group.name}</Text>
+                          <Badge variant={group.status === 'active' ? 'success' : 'warning'}>
+                            {group.status === 'active' ? '有効' : '停止中'}
+                          </Badge>
+                        </div>
+                        {group.description && (
+                          <Text size="sm" color="muted" className="mt-1">{group.description}</Text>
+                        )}
+                        <div className="flex gap-4 mt-2 text-xs text-gray-500">
+                          <span>メンバー: {group.memberCount}人</span>
+                          <span>作成: {new Date(group.createdAt).toLocaleDateString('ja-JP')}</span>
+                          {group.suspendedAt && (
+                            <span className="text-red-600">
+                              停止: {new Date(group.suspendedAt).toLocaleDateString('ja-JP')}
+                            </span>
+                          )}
+                        </div>
+                        {group.suspendReason && (
+                          <Text size="xs" className="text-red-600 mt-1">理由: {group.suspendReason}</Text>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => loadGroupAuditLogs(group.id)}
+                          size="sm"
+                          variant="ghost"
+                        >
+                          ログ
+                        </Button>
+                        {group.status === 'active' ? (
+                          <Button
+                            onClick={() => setShowSuspendDialog(group.id)}
+                            size="sm"
+                            variant="secondary"
+                            className="bg-yellow-100 hover:bg-yellow-200 border-yellow-300"
+                          >
+                            停止
+                          </Button>
+                        ) : (
+                          <Button
+                            onClick={() => handleResumeGroup(group.id)}
+                            size="sm"
+                            variant="secondary"
+                            className="bg-green-100 hover:bg-green-200 border-green-300"
+                          >
+                            再開
+                          </Button>
+                        )}
+                        <Button
+                          onClick={() => handleDeleteGroup(group.id, group.name)}
+                          size="sm"
+                          variant="secondary"
+                          className="bg-red-100 hover:bg-red-200 border-red-300 text-red-700"
+                        >
+                          削除
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Suspend Dialog */}
+                    {showSuspendDialog === group.id && (
+                      <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <Text size="sm" className="font-medium mb-2">停止理由を入力してください:</Text>
+                        <input
+                          type="text"
+                          value={suspendReason}
+                          onChange={(e) => setSuspendReason(e.target.value)}
+                          placeholder="例: 規約違反のため"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm mb-2"
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => handleSuspendGroup(group.id)}
+                            size="sm"
+                            variant="secondary"
+                            className="bg-yellow-200 hover:bg-yellow-300"
+                          >
+                            停止実行
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              setShowSuspendDialog(null);
+                              setSuspendReason('');
+                            }}
+                            size="sm"
+                            variant="ghost"
+                          >
+                            キャンセル
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Audit Logs Modal */}
+            {selectedGroupId && groupAuditLogs.length > 0 && (
+              <div className="bg-gray-50 rounded-lg p-4 mt-4">
+                <div className="flex justify-between items-center mb-3">
+                  <Text className="font-bold">監査ログ</Text>
+                  <Button
+                    onClick={() => {
+                      setSelectedGroupId(null);
+                      setGroupAuditLogs([]);
+                    }}
+                    size="sm"
+                    variant="ghost"
+                  >
+                    閉じる
+                  </Button>
+                </div>
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {groupAuditLogs.map((log) => (
+                    <div key={log.id} className="text-xs border-b border-gray-200 pb-2">
+                      <div className="flex justify-between">
+                        <span className="font-medium">{log.action}</span>
+                        <span className="text-gray-500">
+                          {new Date(log.createdAt).toLocaleString('ja-JP')}
+                        </span>
+                      </div>
+                      <div className="text-gray-600">
+                        実行者: {log.actorEmail || log.actorId}
+                        {log.targetId && <span> / 対象: {log.targetId}</span>}
+                      </div>
+                      {log.details && (
+                        <div className="text-gray-500 mt-1">
+                          {JSON.stringify(log.details)}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </Card>
       )}
@@ -812,11 +810,10 @@ export function AdminPage() {
       {/* Info */}
       <InfoBox title="操作について" variant="info">
         <ul className="space-y-1">
-          <li>• <strong>凍結</strong>: シーズンを集計停止状態にします。新規提出は反映されなくなります。</li>
-          <li>• <strong>確定</strong>: 凍結中のシーズンを確定し、公式番付として固定します。</li>
-          <li>• <strong>ランキング更新</strong>: 手動でランキングキャッシュを更新します。</li>
-          <li>• 通常は凍結から24時間後に自動確定されます。</li>
-          <li>• 確定後は原則再計算しません（重大不正時のみ）。</li>
+          <li>• <strong>節気カレンダー</strong>: 年間の四季（春戦・夏戦・秋戦・冬戦）期間を管理します。</li>
+          <li>• <strong>ルールセット</strong>: 級位・段位・伝位の昇格条件を管理します。</li>
+          <li>• <strong>確定パイプライン</strong>: シーズン終了時の凍結→確定→公開を実行します。</li>
+          <li>• <strong>団体管理</strong>: 団体の停止・再開・削除、監査ログの確認を行います。</li>
         </ul>
       </InfoBox>
     </div>

@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Heading, Text } from '@/components/ui/Typography';
 import { ControlBar } from '@/components/ControlBar';
+import { GroupSelector } from '@/components/group/GroupSelector';
 import type { Poem } from '@/types/poem';
 import type { SeasonStatus } from '@/types/entry';
 
@@ -30,6 +31,9 @@ export function OfficialPage() {
   const [pendingToggle, setPendingToggle] = useState<'yomi' | 'tori' | null>(null);
   const [phase, setPhase] = useState<'waiting' | 'countdown' | 'playing'>('waiting');
   const [countdown, setCountdown] = useState(0);
+  // 103: 団体戦対応
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const [selectedGroupName, setSelectedGroupName] = useState<string | null>(null);
 
   // Initialize session data
   useEffect(() => {
@@ -70,6 +74,9 @@ export function OfficialPage() {
     uid: user?.uid || '',
     seasonId: seasonId || '',
     entryId: entryId || '',
+    // 103: 団体戦対応
+    affiliatedGroupId: selectedGroupId || undefined,
+    affiliatedGroupName: selectedGroupName || undefined,
   });
 
   const {
@@ -263,6 +270,12 @@ export function OfficialPage() {
 
   const progress = ((currentRoundIndex + 1) / 50) * 100;
 
+  // Handle group selection
+  const handleGroupSelect = (groupId: string | null, groupName: string | null) => {
+    setSelectedGroupId(groupId);
+    setSelectedGroupName(groupName);
+  };
+
   // Waiting phase: show start button, settings, and grid preview
   if (phase === 'waiting') {
     return (
@@ -271,6 +284,14 @@ export function OfficialPage() {
           <Heading as="h1" size="h2" className="mb-2">公式歌合</Heading>
           <Text size="sm" color="muted" className="mb-4">50問 ・ 取札を確認して準備ができたら開始</Text>
         </div>
+
+        {/* 103: 団体選択 */}
+        <Card className="p-3">
+          <GroupSelector
+            selectedGroupId={selectedGroupId}
+            onSelect={handleGroupSelect}
+          />
+        </Card>
 
         {/* Display settings + Start button */}
         <Card className="p-3">

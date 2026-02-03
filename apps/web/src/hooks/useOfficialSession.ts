@@ -19,6 +19,8 @@ interface UseOfficialSessionOptions {
   uid: string;
   seasonId: string;
   entryId: string;
+  affiliatedGroupId?: string;
+  affiliatedGroupName?: string;
 }
 
 interface OfficialSessionState {
@@ -42,7 +44,7 @@ function selectRandomPoems(poems: Poem[], count: number): Poem[] {
 }
 
 export function useOfficialSession(options: UseOfficialSessionOptions) {
-  const { uid, seasonId, entryId } = options;
+  const { uid, seasonId, entryId, affiliatedGroupId, affiliatedGroupName } = options;
   const allPoems = useMemo(() => getAllPoemsSync(), []);
 
   const [state, setState] = useState<OfficialSessionState>({
@@ -96,7 +98,7 @@ export function useOfficialSession(options: UseOfficialSessionOptions) {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const sessionId = await createSession(uid, seasonId, entryId);
+      const sessionId = await createSession(uid, seasonId, entryId, 50, affiliatedGroupId, affiliatedGroupName);
       sessionIdRef.current = sessionId;
       processedRoundsRef.current = new Set();
 
@@ -127,7 +129,7 @@ export function useOfficialSession(options: UseOfficialSessionOptions) {
       }));
       return null;
     }
-  }, [uid, seasonId, entryId, allPoems]);
+  }, [uid, seasonId, entryId, allPoems, affiliatedGroupId, affiliatedGroupName]);
 
   // Answer current question
   const answerQuestion = useCallback(

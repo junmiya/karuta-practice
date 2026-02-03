@@ -1,0 +1,278 @@
+# 団体内イベント API Contract
+# Firebase Callable Functions
+
+openapi: 3.0.3
+info:
+  title: Group Event API
+  version: 1.0.0
+  description: 団体内イベント管理のCallable Functions API
+
+paths:
+  /createEvent:
+    post:
+      summary: イベントを作成
+      description: 団体管理者または団体運営のみ実行可能
+      operationId: createEvent
+      tags: [Event]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [groupId, title, startAt, endAt]
+              properties:
+                groupId: { type: string }
+                title:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                description:
+                  type: string
+                  maxLength: 1000
+                startAt:
+                  type: string
+                  format: date-time
+                endAt:
+                  type: string
+                  format: date-time
+                visibility:
+                  type: string
+                  enum: [group_only, public]
+                  default: group_only
+      responses:
+        '200':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  eventId: { type: string }
+        '403':
+          description: 権限不足（団体管理者/運営以外）
+
+  /updateEvent:
+    post:
+      summary: イベントを更新
+      description: 団体管理者または団体運営のみ実行可能
+      operationId: updateEvent
+      tags: [Event]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [eventId]
+              properties:
+                eventId: { type: string }
+                title: { type: string, maxLength: 100 }
+                description: { type: string, maxLength: 1000 }
+                startAt: { type: string, format: date-time }
+                endAt: { type: string, format: date-time }
+                visibility: { type: string, enum: [group_only, public] }
+      responses:
+        '200':
+          description: 更新成功
+        '403':
+          description: 権限不足
+
+  /publishEvent:
+    post:
+      summary: イベントを公開
+      description: draft → published に遷移
+      operationId: publishEvent
+      tags: [Event]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [eventId]
+              properties:
+                eventId: { type: string }
+      responses:
+        '200':
+          description: 公開成功
+        '400':
+          description: 既にpublished/closed
+        '403':
+          description: 権限不足
+
+  /unpublishEvent:
+    post:
+      summary: イベントを非公開に戻す
+      description: published → draft に遷移
+      operationId: unpublishEvent
+      tags: [Event]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [eventId]
+              properties:
+                eventId: { type: string }
+      responses:
+        '200':
+          description: 非公開成功
+        '400':
+          description: closedは非公開に戻せない
+        '403':
+          description: 権限不足
+
+  /closeEvent:
+    post:
+      summary: イベントを終了
+      description: draft/published → closed に遷移
+      operationId: closeEvent
+      tags: [Event]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [eventId]
+              properties:
+                eventId: { type: string }
+      responses:
+        '200':
+          description: 終了成功
+        '403':
+          description: 権限不足
+
+  /getGroupEvents:
+    post:
+      summary: 団体のイベント一覧を取得
+      description: 団体メンバーのみ実行可能
+      operationId: getGroupEvents
+      tags: [Event]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [groupId]
+              properties:
+                groupId: { type: string }
+                status:
+                  type: string
+                  enum: [draft, published, closed, all]
+                  default: all
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Event'
+        '403':
+          description: 権限不足（団体メンバー以外）
+
+  /joinEvent:
+    post:
+      summary: イベントに参加
+      description: 団体メンバーのみ実行可能。published状態のイベントのみ参加可。
+      operationId: joinEvent
+      tags: [Event]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [eventId]
+              properties:
+                eventId: { type: string }
+      responses:
+        '200':
+          description: 参加成功
+        '400':
+          description: イベントが公開中ではない / 既に参加済み
+        '403':
+          description: 権限不足
+
+  /leaveEvent:
+    post:
+      summary: イベント参加をキャンセル
+      operationId: leaveEvent
+      tags: [Event]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [eventId]
+              properties:
+                eventId: { type: string }
+      responses:
+        '200':
+          description: キャンセル成功
+        '400':
+          description: 参加していない / イベントが終了済み
+
+  /getEventParticipants:
+    post:
+      summary: イベント参加者一覧を取得
+      description: 団体メンバーのみ実行可能
+      operationId: getEventParticipants
+      tags: [Event]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [eventId]
+              properties:
+                eventId: { type: string }
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  participants:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Participant'
+
+components:
+  schemas:
+    Event:
+      type: object
+      properties:
+        eventId: { type: string }
+        groupId: { type: string }
+        title: { type: string }
+        description: { type: string }
+        startAt: { type: string, format: date-time }
+        endAt: { type: string, format: date-time }
+        isOfficial: { type: boolean }
+        visibility: { type: string, enum: [group_only, public] }
+        status: { type: string, enum: [draft, published, closed] }
+        participantCount: { type: integer }
+        createdBy: { type: string }
+        createdAt: { type: string, format: date-time }
+        isParticipating: { type: boolean, description: リクエストユーザーの参加状況 }
+
+    Participant:
+      type: object
+      properties:
+        userId: { type: string }
+        nickname: { type: string }
+        joinedAt: { type: string, format: date-time }

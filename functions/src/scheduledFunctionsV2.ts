@@ -1,18 +1,24 @@
 /**
  * 102: スケジュール関数V2
- * checkSeasonBoundary: 毎日00:01 JST、節気境界チェック→自動freeze
+ * checkSeasonBoundary: 毎日00:01 JST、節気境界チェック→自動freeze/finalize/publish
  */
 import * as functions from 'firebase-functions';
 import { getCurrentSeasonInfo } from './services/seasonCalendarService';
-import { freezeSeason } from './services/pipelineService';
+import { freezeSeason, finalizeSeason, publishSeason } from './services/pipelineService';
+import { aggregateAllGroupStats } from './services/groupStatsService';
 import * as admin from 'firebase-admin';
-import { UTAAWASE_COLLECTIONS } from './types/utaawase';
+import { UTAAWASE_COLLECTIONS, SeasonSnapshot } from './types/utaawase';
 
 const db = admin.firestore();
 
+// 24時間（ミリ秒）
+const FINALIZE_DELAY_MS = 24 * 60 * 60 * 1000;
+
 /**
  * 毎日00:01 JST に実行
- * 現在日時が新しい節気に入った場合、前の節気の戦をfreezeする
+ * - 新しい節気に入った場合、前の節気の戦をfreezeする
+ * - frozen から24時間経過したら自動finalize
+ * - finalized になったら即時publish
  */
 export const checkSeasonBoundary = functions
   .region('asia-northeast1')
@@ -30,12 +36,11 @@ export const checkSeasonBoundary = functions
 
       console.log(`Current season: ${currentInfo.seasonKey}`);
 
-      // Check if the previous season needs freezing
-      // We need to check if any season_snapshot for any prior season is still in 'draft'
+      // Check if the previous season needs processing
       const seasonOrder = ['spring', 'summer', 'autumn', 'winter'];
       const currentSeasonIndex = seasonOrder.indexOf(currentInfo.seasonId);
 
-      // Check previous season (could be previous year's winter)
+      // Calculate previous season
       let prevYear = currentInfo.seasonYear;
       let prevSeasonIndex = currentSeasonIndex - 1;
       if (prevSeasonIndex < 0) {
@@ -44,29 +49,108 @@ export const checkSeasonBoundary = functions
       }
       const prevSeasonKey = `${prevYear}_${seasonOrder[prevSeasonIndex]}`;
 
-      // Check if previous season snapshot exists and is draft
-      const snapshotRef = db.collection(UTAAWASE_COLLECTIONS.SEASON_SNAPSHOTS).doc(prevSeasonKey);
-      const snapshotDoc = await snapshotRef.get();
+      // Process previous season through pipeline
+      await processSeasonPipeline(prevSeasonKey, now);
 
-      if (!snapshotDoc.exists) {
-        // Check if there are any events for this season
-        const eventsSnapshot = await db.collection(UTAAWASE_COLLECTIONS.EVENTS)
-          .where('seasonKey', '==', prevSeasonKey)
-          .limit(1)
-          .get();
+      // Also check current season (for manual interventions that might be pending)
+      await processSeasonPipeline(currentInfo.seasonKey, now);
 
-        if (!eventsSnapshot.empty) {
-          console.log(`Auto-freezing season: ${prevSeasonKey}`);
-          await freezeSeason(prevSeasonKey, 'system');
-        }
-      } else {
-        const data = snapshotDoc.data();
-        if (data?.pipeline?.status === 'draft') {
-          console.log(`Auto-freezing season: ${prevSeasonKey}`);
-          await freezeSeason(prevSeasonKey, 'system');
-        }
-      }
     } catch (error) {
       console.error('checkSeasonBoundary error:', error);
+    }
+  });
+
+/**
+ * シーズンのパイプライン状態をチェックし、次ステップを自動実行
+ */
+async function processSeasonPipeline(seasonKey: string, now: Date): Promise<void> {
+  const snapshotRef = db.collection(UTAAWASE_COLLECTIONS.SEASON_SNAPSHOTS).doc(seasonKey);
+  const snapshotDoc = await snapshotRef.get();
+
+  if (!snapshotDoc.exists) {
+    // Check if there are any events for this season
+    const eventsSnapshot = await db.collection(UTAAWASE_COLLECTIONS.EVENTS)
+      .where('seasonKey', '==', seasonKey)
+      .limit(1)
+      .get();
+
+    if (!eventsSnapshot.empty) {
+      console.log(`Auto-freezing season: ${seasonKey}`);
+      await freezeSeason(seasonKey, 'system');
+    }
+    return;
+  }
+
+  const snapshot = snapshotDoc.data() as SeasonSnapshot;
+  const status = snapshot.pipeline?.status;
+
+  // Draft → Freeze (if season ended)
+  if (status === 'draft') {
+    console.log(`Auto-freezing season: ${seasonKey}`);
+    await freezeSeason(seasonKey, 'system');
+    return;
+  }
+
+  // Frozen → Finalize (after 24 hours)
+  if (status === 'frozen') {
+    const frozenAt = snapshot.pipeline?.frozenAt;
+    if (frozenAt) {
+      const frozenTime = frozenAt.toMillis();
+      const elapsed = now.getTime() - frozenTime;
+      if (elapsed >= FINALIZE_DELAY_MS) {
+        console.log(`Auto-finalizing season: ${seasonKey} (frozen for ${Math.floor(elapsed / 3600000)}h)`);
+        await finalizeSeason(seasonKey, 'system');
+        // Continue to publish
+        console.log(`Auto-publishing season: ${seasonKey}`);
+        await publishSeason(seasonKey, 'system');
+      } else {
+        console.log(`Season ${seasonKey} frozen, waiting for finalize (${Math.floor((FINALIZE_DELAY_MS - elapsed) / 3600000)}h remaining)`);
+      }
+    }
+    return;
+  }
+
+  // Finalized → Publish (immediately)
+  if (status === 'finalized') {
+    console.log(`Auto-publishing season: ${seasonKey}`);
+    await publishSeason(seasonKey, 'system');
+    return;
+  }
+
+  // Published → Already done
+  if (status === 'published') {
+    console.log(`Season ${seasonKey} already published`);
+  }
+}
+
+// =============================================================================
+// 103: 団体成績の定期集計
+// =============================================================================
+
+/**
+ * T050: 毎日02:00 JST に実行
+ * - 全団体の成績を再集計する
+ */
+export const aggregateGroupStats = functions
+  .region('asia-northeast1')
+  .pubsub.schedule('0 2 * * *')
+  .timeZone('Asia/Tokyo')
+  .onRun(async () => {
+    try {
+      const now = new Date();
+      const currentInfo = await getCurrentSeasonInfo(now);
+
+      if (!currentInfo) {
+        console.log('No active season calendar found for group stats aggregation');
+        return;
+      }
+
+      console.log(`Aggregating group stats for season: ${currentInfo.seasonKey}`);
+
+      const result = await aggregateAllGroupStats(currentInfo.seasonKey);
+
+      console.log(`Group stats aggregation complete: processed=${result.processed}, errors=${result.errors}`);
+    } catch (error) {
+      console.error('aggregateGroupStats error:', error);
     }
   });

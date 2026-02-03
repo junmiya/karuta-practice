@@ -1,0 +1,213 @@
+# 招待コード API Contract
+# Firebase Callable Functions
+
+openapi: 3.0.3
+info:
+  title: Invite Code API
+  version: 1.0.0
+  description: 招待コード管理のCallable Functions API
+
+paths:
+  /joinGroup:
+    post:
+      summary: 招待コードで団体に参加
+      description: |
+        招待コードを検証し、団体に参加。
+        - ハッシュ比較で検証
+        - 期限、無効化状態、上限をチェック
+        - 成功時はjoinCountをインクリメント
+        - 監査ログを記録
+      operationId: joinGroup
+      tags: [Invite]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [groupId, inviteCode]
+              properties:
+                groupId:
+                  type: string
+                  description: 団体ID
+                inviteCode:
+                  type: string
+                  description: 招待コード（平文）
+      responses:
+        '200':
+          description: 参加成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  groupId: { type: string }
+                  groupName: { type: string }
+        '401':
+          description: 未認証（ログイン必須）
+        '400':
+          description: |
+            参加失敗。以下のエラーコードを返却：
+            - INVALID_CODE: 招待コードが無効
+            - EXPIRED: 期限切れ
+            - REVOKED: 無効化済み
+            - MAX_JOINS_REACHED: 上限到達
+            - ALREADY_MEMBER: 既に参加済み
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, enum: [false] }
+                  errorCode:
+                    type: string
+                    enum: [INVALID_CODE, EXPIRED, REVOKED, MAX_JOINS_REACHED, ALREADY_MEMBER]
+                  message: { type: string }
+
+  /regenerateInviteCode:
+    post:
+      summary: 招待コードを再生成
+      description: |
+        団体管理者のみ実行可能。
+        現在の招待コードを無効化し、新しいコードを生成。
+      operationId: regenerateInviteCode
+      tags: [Invite]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [groupId]
+              properties:
+                groupId:
+                  type: string
+                expiresInDays:
+                  type: integer
+                  minimum: 1
+                  maximum: 30
+                  default: 7
+                  description: 有効期限（日数）
+                maxJoins:
+                  type: integer
+                  minimum: 1
+                  maximum: 1000
+                  default: 100
+                  description: 最大参加人数
+      responses:
+        '200':
+          description: 再生成成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  inviteCode: { type: string, description: 新しい招待コード（平文、この応答のみ） }
+                  expiresAt: { type: string, format: date-time }
+                  maxJoins: { type: integer }
+        '403':
+          description: 権限不足（団体管理者以外）
+
+  /revokeInviteCode:
+    post:
+      summary: 招待コードを無効化
+      description: 団体管理者のみ実行可能。再生成せずに無効化のみ。
+      operationId: revokeInviteCode
+      tags: [Invite]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [groupId]
+              properties:
+                groupId: { type: string }
+      responses:
+        '200':
+          description: 無効化成功
+        '403':
+          description: 権限不足
+
+  /getInviteInfo:
+    post:
+      summary: 招待コード情報を取得
+      description: |
+        団体管理者のみ実行可能。
+        招待コードのハッシュは返却しない（QR表示用URLのみ）。
+      operationId: getInviteInfo
+      tags: [Invite]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [groupId]
+              properties:
+                groupId: { type: string }
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hasValidInvite: { type: boolean }
+                  expiresAt: { type: string, format: date-time }
+                  maxJoins: { type: integer }
+                  joinCount: { type: integer }
+                  isExpired: { type: boolean }
+                  isRevoked: { type: boolean }
+                  isMaxed: { type: boolean }
+        '403':
+          description: 権限不足
+
+  /getInviteCode:
+    post:
+      summary: 招待コード（平文）を取得
+      description: |
+        団体管理者のみ実行可能。
+        QR表示やコピー用に平文コードを返却。
+        セキュリティ上、このエンドポイントへのアクセスは監査ログに記録。
+      operationId: getInviteCode
+      tags: [Invite]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [groupId]
+              properties:
+                groupId: { type: string }
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  inviteCode: { type: string, description: 招待コード（平文） }
+                  inviteUrl: { type: string, description: 招待URL（QR用） }
+                  expiresAt: { type: string, format: date-time }
+        '400':
+          description: 有効な招待コードがない
+        '403':
+          description: 権限不足
+
+components:
+  schemas:
+    InviteValidationResult:
+      type: object
+      properties:
+        isValid: { type: boolean }
+        errorCode:
+          type: string
+          enum: [INVALID_CODE, EXPIRED, REVOKED, MAX_JOINS_REACHED, ALREADY_MEMBER]
+        groupId: { type: string }
+        groupName: { type: string }

@@ -34,14 +34,8 @@ export { getPoemExplanation } from './getPoemExplanation';
 // Export AI Stats Analysis
 export { analyzeStats } from './analyzeStats';
 
-// Export admin functions (Stage 1)
-export {
-  adminGetSeasons,
-  adminFreezeSeason,
-  adminFinalizeSeason,
-  adminUpdateRankings,
-  adminCreateSeason,
-} from './adminFunctions';
+// Note: V1 admin functions (adminFunctions.ts) have been deprecated
+// All admin operations now use V2 functions from adminFunctionsV2.ts
 
 // Export kyui exam function (102)
 export { submitKyuiExam } from './kyuiExamFunction';
@@ -58,7 +52,42 @@ export {
   adminFinalizeSeasonV2,
   adminPublishSeasonV2,
   adminGetJobRuns,
+  adminGetCurrentSeasonInfo,
+  adminGetSnapshotStatus,
+  // 103: 団体管理（プラットフォーム管理者用）
+  adminSuspendGroup,
+  adminResumeGroup,
+  adminDeleteGroup,
+  adminGetGroupAuditLogs,
+  adminGetAllGroups,
 } from './adminFunctionsV2';
 
 // Export scheduled functions (102)
-export { checkSeasonBoundary } from './scheduledFunctionsV2';
+export { checkSeasonBoundary, aggregateGroupStats } from './scheduledFunctionsV2';
+
+// Export group functions (103: 団体機能)
+export {
+  createGroup,
+  getGroupInfo as getGroup,
+  getMyGroups,
+  updateGroup,
+  deleteGroup,
+  regenerateInviteCode,
+  revokeInviteCode,
+  getInviteCode,
+  joinGroup,
+  getInviteInfo,
+  getGroupMembers,
+  changeRole,
+  removeMember,
+  leaveGroup,
+  createEvent,
+  updateEvent,
+  publishEvent,
+  unpublishEvent,
+  closeEvent,
+  getGroupEvents,
+  joinEvent,
+  leaveEvent,
+  getEventParticipants,
+} from './groupFunctions';
