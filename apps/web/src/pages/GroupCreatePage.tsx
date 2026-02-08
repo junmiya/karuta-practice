@@ -3,12 +3,12 @@
  */
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useCreateGroup } from '@/hooks/useGroup';
 
 export function GroupCreatePage() {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuthContext();
   const { createGroup, loading, error } = useCreateGroup();
 
   const [name, setName] = useState('');

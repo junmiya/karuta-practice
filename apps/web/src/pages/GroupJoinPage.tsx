@@ -3,13 +3,13 @@
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useJoinGroup } from '@/hooks/useGroupMembership';
 
 export function GroupJoinPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuthContext();
   const { joinGroup, loading, error, clearError } = useJoinGroup();
 
   const groupIdFromUrl = searchParams.get('groupId') || '';

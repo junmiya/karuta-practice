@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import {
   getUserEntry,
   createEntry,
@@ -29,7 +29,7 @@ const SEASON_STATUS_INFO: Record<SeasonStatus, { label: string; description: str
 
 export function EntryPage() {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuthContext();
 
   const [season, setSeason] = useState<Season | null>(null);
   const [existingEntry, setExistingEntry] = useState<Entry | null>(null);

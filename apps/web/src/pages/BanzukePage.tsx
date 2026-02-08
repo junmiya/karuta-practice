@@ -12,7 +12,7 @@ import { getLatestPublishedSnapshot, getUserProgress, getUtakuraiHolders, getDan
 import { KYUI_LEVEL_LABELS, DAN_LEVEL_LABELS, KYUI_PROMOTION_CONDITIONS, UserProgress, DanLevel, normalizeKyuiLevel } from '@/types/utaawase';
 import { useRanking } from '@/hooks/useRanking';
 import { RankingList } from '@/components/RankingList';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Text } from '@/components/ui/Typography';
@@ -27,7 +27,7 @@ type ViewMode = 'provisional' | 'official' | 'daily' | 'v2published';
 
 export function BanzukePage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const [viewMode, setViewMode] = useState<ViewMode>('daily');
   const [division, setDivision] = useState<Division>('kyu');
   const [activeSeason, setActiveSeason] = useState<Season | null>(null);

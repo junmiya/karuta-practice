@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -43,7 +43,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 export function AdminPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuthContext();
 
   const [activeTab, setActiveTab] = useState<TabType>('calendar');
   const [error, setError] = useState<string | null>(null);

@@ -3,14 +3,14 @@
  */
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useGroup, useUpdateGroup, useDeleteGroup } from '@/hooks/useGroup';
 import { useGroupMembers } from '@/hooks/useGroupMembership';
 
 export function GroupEditPage() {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const { group, loading: groupLoading, error: groupError } = useGroup(groupId);
   const { members } = useGroupMembers(groupId);
   const { updateGroup, loading: updateLoading, error: updateError } = useUpdateGroup();

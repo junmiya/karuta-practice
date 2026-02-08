@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { KarutaGrid } from '@/components/KarutaGrid';
 import { useKyuiMatch } from '@/hooks/useKyuiMatch';
 import { getUserEntry } from '@/services/entry.service';
@@ -23,7 +23,7 @@ import { KYUI_LEVEL_LABELS, KYUI_MATCH_CONFIG, KYUI_MATCH_LABELS, normalizeKyuiL
 export function KyuiMatchPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuthContext();
 
   // Get kyui level from URL params, default to user's current level
   const levelParam = searchParams.get('level') as KyuiLevel | null;

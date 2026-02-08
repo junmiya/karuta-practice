@@ -3,7 +3,7 @@
  */
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useGroup } from '@/hooks/useGroup';
 import { useGroupMembers, useChangeRole, useRemoveMember } from '@/hooks/useGroupMembership';
 import type { GroupRole } from '@/types/group';
@@ -22,7 +22,7 @@ const ROLE_COLORS: Record<GroupRole, string> = {
 
 export function GroupMembersPage() {
   const { groupId } = useParams<{ groupId: string }>();
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const { group, loading: groupLoading } = useGroup(groupId);
   const { members, loading: membersLoading, refresh } = useGroupMembers(groupId);
   const { changeRole, loading: roleLoading } = useChangeRole();

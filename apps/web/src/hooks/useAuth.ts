@@ -11,6 +11,8 @@ import {
 import {
   getUserProfile,
   createUserProfile,
+  getCachedUserProfile,
+  clearCachedUserProfile,
 } from '@/services/users.service';
 import type { User } from '@/types/user';
 
@@ -55,12 +57,22 @@ export function useAuth() {
       if (!isSubscribed) return;
 
       if (firebaseUser) {
+        // 1. キャッシュから即時表示（Firestoreを待たない）
+        const cached = getCachedUserProfile(firebaseUser.uid);
+        if (cached && isSubscribed) {
+          setState({
+            firebaseUser,
+            userProfile: cached,
+            loading: false,
+            error: null,
+          });
+        }
+
+        // 2. バックグラウンドで最新プロファイルを取得
         try {
-          // Get or create user profile
           let profile = await getUserProfile(firebaseUser.uid);
           if (!profile) {
-            await createUserProfile(firebaseUser.uid);
-            profile = await getUserProfile(firebaseUser.uid);
+            profile = await createUserProfile(firebaseUser.uid);
           }
           if (isSubscribed) {
             setState({
@@ -72,7 +84,7 @@ export function useAuth() {
           }
         } catch (err) {
           console.error('Failed to load user profile:', err);
-          if (isSubscribed) {
+          if (isSubscribed && !cached) {
             setState({
               firebaseUser,
               userProfile: null,
@@ -172,6 +184,10 @@ export function useAuth() {
   }, []);
 
   const logout = useCallback(async () => {
+    // ログアウト前にキャッシュをクリア
+    if (state.firebaseUser) {
+      clearCachedUserProfile(state.firebaseUser.uid);
+    }
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
       await signOut();
@@ -182,7 +198,7 @@ export function useAuth() {
         error: 'Logout failed',
       }));
     }
-  }, []);
+  }, [state.firebaseUser]);
 
   const refreshProfile = useCallback(async () => {
     if (!state.firebaseUser) return;

@@ -2,12 +2,12 @@
  * 103: 団体機能 - 団体一覧ページ
  */
 import { Link } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useMyGroups } from '@/hooks/useGroup';
 import { GroupCard } from '@/components/group/GroupCard';
 
 export function GroupListPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuthContext();
   const { groups, loading, error, refresh } = useMyGroups();
 
   if (authLoading || loading) {

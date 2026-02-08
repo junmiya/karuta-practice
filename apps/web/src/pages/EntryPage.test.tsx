@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { EntryPage } from './EntryPage';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import * as entryService from '@/services/entry.service';
 
 // Mock hook dependencies
@@ -10,8 +10,8 @@ vi.mock('react-router-dom', () => ({
     useNavigate: () => mockNavigate,
 }));
 
-vi.mock('@/hooks/useAuth', () => ({
-    useAuth: vi.fn(),
+vi.mock('@/contexts/AuthContext', () => ({
+    useAuthContext: vi.fn(),
 }));
 
 // Mock service dependencies
@@ -29,20 +29,20 @@ describe('EntryPage', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         // Default setup: Authenticated user, loading finished
-        (useAuth as any).mockReturnValue({ user: mockUser, loading: false });
+        (useAuthContext as any).mockReturnValue({ user: mockUser, loading: false });
         (entryService.getActiveSeason as any).mockResolvedValue(mockSeason);
         (entryService.getUserEntry as any).mockResolvedValue(null); // No entry yet
         (entryService.canEnterDanDivision as any).mockResolvedValue(false); // Only Kyu available
     });
 
     it('shows loading state initially', () => {
-        (useAuth as any).mockReturnValue({ user: null, loading: true });
+        (useAuthContext as any).mockReturnValue({ user: null, loading: true });
         render(<EntryPage />);
         expect(screen.getByText('読み込み中...')).toBeInTheDocument();
     });
 
     it('redirects to profile/login if not authenticated', () => {
-        (useAuth as any).mockReturnValue({ user: null, loading: false });
+        (useAuthContext as any).mockReturnValue({ user: null, loading: false });
         render(<EntryPage />);
 
         expect(screen.getByText('ログインが必要です')).toBeInTheDocument();

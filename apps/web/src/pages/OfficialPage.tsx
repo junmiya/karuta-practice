@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { KarutaGrid } from '@/components/KarutaGrid';
 import { useOfficialSession } from '@/hooks/useOfficialSession';
 import { getUserEntry } from '@/services/entry.service';
@@ -20,7 +20,7 @@ import type { SeasonStatus } from '@/types/entry';
 
 export function OfficialPage() {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuthContext();
 
   const [seasonId, setSeasonId] = useState<string | null>(null);
   const [seasonStatus, setSeasonStatus] = useState<SeasonStatus | null>(null);

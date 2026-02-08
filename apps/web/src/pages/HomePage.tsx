@@ -6,7 +6,7 @@ import { PoemDetailModal } from '@/components/PoemDetailModal';
 import { KimarijiSelector } from '@/components/KimarijiSelector';
 import { PoemRangeSelector, type PoemRange } from '@/components/PoemRangeSelector';
 import { DisplayOptionsToggle } from '@/components/DisplayOptionsToggle';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useLearned } from '@/hooks/useLearned';
 import { cn } from '@/lib/utils';
 import type { Poem } from '@/types/poem';
@@ -22,7 +22,7 @@ export function HomePage() {
   const [selectedPoem, setSelectedPoem] = useState<Poem | null>(null);
   const [shuffleSeed, setShuffleSeed] = useState(0);
 
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const {
     learnedPoemIds,
     learnedCount,

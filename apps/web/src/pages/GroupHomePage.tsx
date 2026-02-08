@@ -3,7 +3,7 @@
  */
 import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useGroup, useInviteCode } from '@/hooks/useGroup';
 import { useGroupMembers, useLeaveGroup } from '@/hooks/useGroupMembership';
 import { InviteCodeDisplay } from '@/components/group/InviteCodeDisplay';
@@ -44,7 +44,7 @@ function parseFirebaseDate(value: unknown): Date | undefined {
 export function GroupHomePage() {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const { group, loading, error, refresh: _refresh } = useGroup(groupId);
   const { members } = useGroupMembers(groupId);
   const { inviteCode, loading: inviteLoading, fetch: fetchInvite, regenerate, revoke } = useInviteCode(groupId);
