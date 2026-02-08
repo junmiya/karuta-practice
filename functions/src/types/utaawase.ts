@@ -34,7 +34,7 @@ export interface SeasonCalendar {
 // ルールセット (Ruleset)
 // =============================================================================
 
-export type KyuiLevel = 'beginner' | 'jyukkyu' | 'kyukyu' | 'hachikyu' | 'nanakyu' | 'rokkyu';
+export type KyuiLevel = 'minarai' | 'shokkyu' | 'nikyu' | 'sankyu' | 'yonkyu' | 'gokyu' | 'rokkyu';
 export type DanLevel = 'shodan' | 'nidan' | 'sandan' | 'yondan' | 'godan' | 'rokudan';
 export type DenLevel = 'shoden' | 'chuden' | 'okuden' | 'kaiden';
 export type UtakuraiLevel = 'meijin' | 'eisei_meijin';
@@ -247,7 +247,7 @@ export const UTAAWASE_COLLECTIONS = {
 // =============================================================================
 
 export const KYUI_LEVELS_ORDERED: KyuiLevel[] = [
-  'beginner', 'jyukkyu', 'kyukyu', 'hachikyu', 'nanakyu', 'rokkyu',
+  'minarai', 'shokkyu', 'nikyu', 'sankyu', 'yonkyu', 'gokyu', 'rokkyu',
 ];
 
 export const DAN_LEVELS_ORDERED: DanLevel[] = [

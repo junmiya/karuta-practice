@@ -20,12 +20,12 @@ export function GroupCreatePage() {
     setNameError('');
 
     if (!name.trim()) {
-      setNameError('団体名を入力してください');
+      setNameError('結びの名前を入力してください');
       return;
     }
 
     if (name.trim().length > 50) {
-      setNameError('団体名は50文字以内で入力してください');
+      setNameError('結びの名前は50文字以内で入力してください');
       return;
     }
 
@@ -52,10 +52,10 @@ export function GroupCreatePage() {
       <div className="max-w-md mx-auto px-4 py-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            団体を作成
+            結びを作る
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            団体を作成するにはログインが必要です
+            結びを作るにはログインが必要です
           </p>
           <Link
             to="/profile"
@@ -75,12 +75,12 @@ export function GroupCreatePage() {
           to="/groups"
           className="text-indigo-600 dark:text-indigo-400 hover:underline text-sm"
         >
-          &larr; 団体一覧に戻る
+          &larr; 結び一覧に戻る
         </Link>
       </div>
 
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-        団体を作成
+        結びを作る
       </h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -89,7 +89,7 @@ export function GroupCreatePage() {
             htmlFor="name"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
           >
-            団体名 <span className="text-red-500">*</span>
+            結びの名前 <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -122,7 +122,7 @@ export function GroupCreatePage() {
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
             className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            placeholder="団体の説明を入力してください"
+            placeholder="結びの説明を入力してください"
             maxLength={500}
             disabled={loading}
           />
@@ -142,12 +142,12 @@ export function GroupCreatePage() {
           disabled={loading}
           className="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? '作成中...' : '団体を作成'}
+          {loading ? '作成中...' : '結びを作る'}
         </button>
       </form>
 
       <p className="mt-6 text-sm text-gray-500 dark:text-gray-400 text-center">
-        団体を作成すると、あなたが団体管理者になります。
+        結びを作ると、あなたが主宰者になります。
         <br />
         招待コードを共有してメンバーを招待できます。
       </p>

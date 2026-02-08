@@ -12,8 +12,8 @@ import { createHash, randomBytes, timingSafeEqual } from 'crypto';
  * @returns code: 平文コード（API応答用）, hash: 保存用ハッシュ（salt:hash形式）
  */
 export function generateInviteCode(): { code: string; hash: string } {
-  // 8バイトのランダム値をbase64urlエンコード（11文字程度）
-  const code = randomBytes(8).toString('base64url');
+  // 12バイトのランダム値をbase64urlエンコード（16文字）
+  const code = randomBytes(12).toString('base64url');
   // 16バイトのソルト
   const salt = randomBytes(16).toString('hex');
   // SHA-256ハッシュ

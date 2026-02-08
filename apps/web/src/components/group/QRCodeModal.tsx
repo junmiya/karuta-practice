@@ -46,7 +46,7 @@ export function QRCodeModal({ isOpen, onClose, url, title = '招待QRコード' 
         </div>
 
         <p className="mt-4 text-sm text-gray-600 dark:text-gray-400 text-center">
-          このQRコードをスキャンして団体に参加できます
+          このQRコードをスキャンして結びに参加できます
         </p>
 
         <div className="mt-4 p-2 bg-gray-100 dark:bg-gray-700 rounded text-xs text-gray-500 dark:text-gray-400 break-all">

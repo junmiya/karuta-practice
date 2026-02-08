@@ -46,6 +46,7 @@ const HttpsError = functions.https.HttpsError;
 const scoreCalculator_1 = require("./services/scoreCalculator");
 const sessionValidator_1 = require("./validators/sessionValidator");
 const rankingUpdater_1 = require("./services/rankingUpdater");
+const groupStatsService_1 = require("./services/groupStatsService");
 const db = admin.firestore();
 // Helper to get JST date key
 function getJstDateKey() {
@@ -141,8 +142,9 @@ exports.submitOfficialSession = functions
         // Calculate correctCount and totalElapsedMs from rounds
         const correctCount = (0, sessionValidator_1.calculateCorrectCount)(rounds);
         const totalElapsedMs = (0, sessionValidator_1.calculateTotalElapsedMs)(rounds);
+        const roundCount = sessionData.roundCount || 50;
         // 7. Anomaly detection
-        const validationResult = (0, sessionValidator_1.validateSession)({ correctCount, totalElapsedMs }, rounds);
+        const validationResult = (0, sessionValidator_1.validateSession)({ correctCount, totalElapsedMs, roundCount }, rounds);
         if (!validationResult.isValid) {
             // Mark session as invalid
             await sessionRef.update({
@@ -181,7 +183,7 @@ exports.submitOfficialSession = functions
             dayKeyJst: getJstDateKey(),
         });
         // 11. Update ranking and user stats (parallel)
-        await Promise.all([
+        const updatePromises = [
             (0, rankingUpdater_1.updateRanking)({
                 seasonId: sessionData.seasonId,
                 division,
@@ -190,7 +192,17 @@ exports.submitOfficialSession = functions
                 newScore: scoreResult.score,
             }),
             (0, rankingUpdater_1.updateUserStats)(uid, scoreResult.score),
-        ]);
+        ];
+        // 103: 団体戦対応 - 団体成績も更新
+        if (sessionData.affiliatedGroupId && sessionData.affiliatedGroupName) {
+            updatePromises.push((0, groupStatsService_1.updateGroupStats)({
+                groupId: sessionData.affiliatedGroupId,
+                groupName: sessionData.affiliatedGroupName,
+                seasonKey: sessionData.seasonId,
+                score: scoreResult.score,
+            }));
+        }
+        await Promise.all(updatePromises);
         console.log('=== submitOfficialSession SUCCESS ===', scoreResult.score);
         return {
             status: 'confirmed',

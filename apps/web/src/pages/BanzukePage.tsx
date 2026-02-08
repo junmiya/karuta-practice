@@ -9,7 +9,7 @@ import {
   getBanzukeAsRanking,
 } from '@/services/stage1.service';
 import { getLatestPublishedSnapshot, getUserProgress, getUtakuraiHolders, getDanHolders, getDenHolders } from '@/services/utaawase.service';
-import { KYUI_LEVEL_LABELS, DAN_LEVEL_LABELS, KYUI_PROMOTION_CONDITIONS, KyuiLevel, UserProgress, DanLevel } from '@/types/utaawase';
+import { KYUI_LEVEL_LABELS, DAN_LEVEL_LABELS, KYUI_PROMOTION_CONDITIONS, UserProgress, DanLevel, normalizeKyuiLevel } from '@/types/utaawase';
 import { useRanking } from '@/hooks/useRanking';
 import { RankingList } from '@/components/RankingList';
 import { useAuth } from '@/hooks/useAuth';
@@ -105,14 +105,14 @@ export function BanzukePage() {
               setUserLevelLabel(DAN_LEVEL_LABELS[progress.danLevel] || progress.danLevel);
               setPromotionCondition(null); // Dan has different promotion rules
             } else {
-              const kyuLevel = progress.kyuiLevel as KyuiLevel;
-              setUserLevelLabel(KYUI_LEVEL_LABELS[kyuLevel] || kyuLevel);
+              const kyuLevel = normalizeKyuiLevel(progress.kyuiLevel);
+              setUserLevelLabel(KYUI_LEVEL_LABELS[kyuLevel]);
               setPromotionCondition(KYUI_PROMOTION_CONDITIONS[kyuLevel]);
             }
           } else {
-            // No progress = beginner level
-            setUserLevelLabel('初級');
-            setPromotionCondition(KYUI_PROMOTION_CONDITIONS.beginner);
+            // No progress = minarai level
+            setUserLevelLabel('見習');
+            setPromotionCondition(KYUI_PROMOTION_CONDITIONS.minarai);
           }
         }
       } catch (err) {
@@ -325,7 +325,7 @@ export function BanzukePage() {
             <LoadingState message="歌位データを読み込み中..." />
           ) : (
             <div className="space-y-3">
-              {/* 歌位（名人・永世名人） */}
+              {/* 歌位（名歌位・永世名歌位） */}
               <Card>
                 <Text className="font-bold mb-3">歌位</Text>
                 {utakuraiHolders.length > 0 ? (
@@ -340,7 +340,7 @@ export function BanzukePage() {
                       >
                         <span className="font-medium">{holder.nickname}</span>
                         <Badge variant="warning" className="text-xs">
-                          {holder.utakuraiLevel === 'eisei_meijin' ? '永世名人' : '名人'}
+                          {holder.utakuraiLevel === 'eisei_meijin' ? '永世名歌位' : '名歌位'}
                         </Badge>
                       </div>
                     ))}

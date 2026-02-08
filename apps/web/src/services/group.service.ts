@@ -240,6 +240,17 @@ export async function closeEvent(eventId: string): Promise<void> {
 }
 
 /**
+ * 集いを却下（主宰者のみ）
+ */
+export async function rejectEvent(params: {
+  eventId: string;
+  groupId: string;
+}): Promise<void> {
+  const fn = httpsCallable<typeof params, { success: boolean }>(functions, 'rejectEvent');
+  await fn(params);
+}
+
+/**
  * 団体のイベント一覧を取得
  */
 export async function getGroupEvents(params: {

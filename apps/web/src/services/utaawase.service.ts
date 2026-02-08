@@ -57,7 +57,7 @@ export async function getCurrentSeasonSnapshot(seasonKey: string): Promise<Seaso
  * (user_progressコレクションから歌位を持つユーザーを取得)
  */
 export async function getUtakuraiHolders(): Promise<UserProgress[]> {
-  // 歌位（名人・永世名人）を持つユーザー
+  // 歌位（名歌位・永世名歌位）を持つユーザー
   const utakuraiQuery = query(
     collection(db, 'user_progress'),
     where('utakuraiLevel', '!=', null)

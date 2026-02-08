@@ -6,14 +6,14 @@
 export type GroupRole = 'owner' | 'organizer' | 'member';
 export type GroupStatus = 'active' | 'suspended' | 'deleted';
 export type MembershipStatus = 'active' | 'left';
-export type EventStatus = 'draft' | 'published' | 'closed';
+export type EventStatus = 'draft' | 'published' | 'rejected' | 'closed';
 export type EventVisibility = 'group_only' | 'public';
 
 // ロールラベル
 export const GROUP_ROLE_LABELS: Record<GroupRole, string> = {
-  owner: '団体管理者',
-  organizer: '団体運営',
-  member: '団体一般',
+  owner: '主宰者',
+  organizer: '世話役',
+  member: '一般',
 };
 
 // ステータスラベル
@@ -26,6 +26,7 @@ export const GROUP_STATUS_LABELS: Record<GroupStatus, string> = {
 export const EVENT_STATUS_LABELS: Record<EventStatus, string> = {
   draft: '下書き',
   published: '公開中',
+  rejected: '却下',
   closed: '終了',
 };
 

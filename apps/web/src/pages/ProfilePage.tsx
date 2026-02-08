@@ -332,15 +332,15 @@ function GroupSection() {
   const { groups, loading } = useMyGroups();
 
   const ROLE_LABELS: Record<string, string> = {
-    owner: '管理者',
-    organizer: '運営',
-    member: 'メンバー',
+    owner: '主宰者',
+    organizer: '世話役',
+    member: '一般',
   };
 
   if (loading) {
     return (
       <Card>
-        <Heading as="h3" size="h4" className="mb-4">団体</Heading>
+        <Heading as="h3" size="h4" className="mb-4">結び</Heading>
         <div className="animate-pulse flex space-x-4">
           <div className="h-4 bg-gray-200 rounded w-3/4"></div>
         </div>
@@ -351,7 +351,7 @@ function GroupSection() {
   return (
     <Card>
       <div className="flex items-center justify-between mb-4">
-        <Heading as="h3" size="h4">団体</Heading>
+        <Heading as="h3" size="h4">結び</Heading>
         <Link
           to="/groups"
           className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
@@ -363,17 +363,17 @@ function GroupSection() {
       {groups.length === 0 ? (
         <div className="text-center py-6">
           <Text color="muted" className="mb-4">
-            所属している団体はありません
+            所属している結びはありません
           </Text>
           <div className="flex justify-center gap-3">
             <Link
               to="/groups/create"
               className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm"
             >
-              団体を作成
+              結びを作る
             </Link>
             <Link
-              to="/join"
+              to="/musubi/join"
               className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm"
             >
               招待コードで参加
@@ -405,7 +405,7 @@ function GroupSection() {
           ))}
           {groups.length > 3 && (
             <Text color="muted" className="text-sm text-center">
-              他 {groups.length - 3} 団体
+              他 {groups.length - 3} 結び
             </Text>
           )}
         </div>

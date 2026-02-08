@@ -12,7 +12,6 @@ import {
   canEnterDanDivision,
 } from '@/services/entry.service';
 import { getCurrentSeason } from '@/services/stage1.service';
-import { initializeSeasons } from '@/services/admin.service';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Heading, Text } from '@/components/ui/Typography';
@@ -118,19 +117,6 @@ export function EntryPage() {
     );
   }
 
-  // Handle season initialization
-  const handleInitSeasons = async () => {
-    setSubmitting(true);
-    try {
-      await initializeSeasons();
-      // Reload the page to fetch new season data
-      window.location.reload();
-    } catch (err) {
-      setError('シーズン初期化に失敗しました');
-      setSubmitting(false);
-    }
-  };
-
   if (!season) {
     return (
       <div className="karuta-container space-y-2 py-2">
@@ -138,15 +124,8 @@ export function EntryPage() {
           <Heading as="h1" className="mb-4">シーズン情報なし</Heading>
           <Text color="muted" className="mb-6">
             現在アクティブなシーズンがありません。
+            管理者に節気カレンダーの設定を依頼してください。
           </Text>
-          {user && (
-            <Button
-              onClick={handleInitSeasons}
-              disabled={submitting}
-            >
-              {submitting ? '初期化中...' : 'シーズンを初期化する'}
-            </Button>
-          )}
         </Card>
       </div>
     );

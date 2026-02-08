@@ -1,7 +1,7 @@
 /**
  * 103: 団体機能 - 団体参加ページ
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useJoinGroup } from '@/hooks/useGroupMembership';
@@ -18,6 +18,10 @@ export function GroupJoinPage() {
   const [groupId, setGroupId] = useState(groupIdFromUrl);
   const [inviteCode, setInviteCode] = useState(codeFromUrl);
   const [successMessage, setSuccessMessage] = useState('');
+  const [joinedGroupId, setJoinedGroupId] = useState<string | null>(null);
+
+  // 自動参加が試行されたかどうかを追跡
+  const autoJoinAttempted = useRef(false);
 
   // URLパラメータが変わったら反映
   useEffect(() => {
@@ -25,14 +29,7 @@ export function GroupJoinPage() {
     if (codeFromUrl) setInviteCode(codeFromUrl);
   }, [groupIdFromUrl, codeFromUrl]);
 
-  // URLに両方のパラメータがある場合は自動で参加処理
-  useEffect(() => {
-    if (user && groupIdFromUrl && codeFromUrl && !loading && !error && !successMessage) {
-      handleSubmit();
-    }
-  }, [user, groupIdFromUrl, codeFromUrl]);
-
-  const handleSubmit = async (e?: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e?: React.FormEvent) => {
     e?.preventDefault();
     clearError();
     setSuccessMessage('');
@@ -48,11 +45,27 @@ export function GroupJoinPage() {
 
     if (result) {
       setSuccessMessage(`「${result.groupName}」に参加しました！`);
-      setTimeout(() => {
-        navigate(`/groups/${result.groupId}`);
-      }, 1500);
+      setJoinedGroupId(result.groupId);
     }
-  };
+  }, [groupId, inviteCode, joinGroup, clearError]);
+
+  // URLに両方のパラメータがある場合は自動で参加処理
+  useEffect(() => {
+    if (user && groupIdFromUrl && codeFromUrl && !loading && !autoJoinAttempted.current) {
+      autoJoinAttempted.current = true;
+      handleSubmit();
+    }
+  }, [user, groupIdFromUrl, codeFromUrl, loading, handleSubmit]);
+
+  // 参加成功後にリダイレクト
+  useEffect(() => {
+    if (joinedGroupId) {
+      const timer = setTimeout(() => {
+        navigate(`/groups/${joinedGroupId}`);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [joinedGroupId, navigate]);
 
   if (authLoading) {
     return (
@@ -72,10 +85,10 @@ export function GroupJoinPage() {
       <div className="max-w-md mx-auto px-4 py-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            団体に参加
+            結びに参加
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            団体に参加するにはログインが必要です
+            結びに参加するにはログインが必要です
           </p>
           <Link
             to={`/profile?returnUrl=${encodeURIComponent(returnUrl)}`}
@@ -95,12 +108,12 @@ export function GroupJoinPage() {
           to="/groups"
           className="text-indigo-600 dark:text-indigo-400 hover:underline text-sm"
         >
-          &larr; 団体一覧に戻る
+          &larr; 結び一覧に戻る
         </Link>
       </div>
 
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-        団体に参加
+        結びに参加
       </h1>
 
       {successMessage && (
@@ -115,7 +128,7 @@ export function GroupJoinPage() {
             htmlFor="groupId"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
           >
-            団体ID
+            結びID
           </label>
           <input
             type="text"
@@ -123,8 +136,8 @@ export function GroupJoinPage() {
             value={groupId}
             onChange={(e) => setGroupId(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            placeholder="団体IDを入力"
-            disabled={loading || !!successMessage}
+            placeholder="結びIDを入力"
+            disabled={loading || !!joinedGroupId}
           />
         </div>
 
@@ -142,7 +155,7 @@ export function GroupJoinPage() {
             onChange={(e) => setInviteCode(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             placeholder="招待コードを入力"
-            disabled={loading || !!successMessage}
+            disabled={loading || !!joinedGroupId}
           />
         </div>
 
@@ -154,7 +167,7 @@ export function GroupJoinPage() {
 
         <button
           type="submit"
-          disabled={loading || !!successMessage || !groupId.trim() || !inviteCode.trim()}
+          disabled={loading || !!joinedGroupId || !groupId.trim() || !inviteCode.trim()}
           className="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? '参加中...' : '参加する'}
@@ -166,7 +179,7 @@ export function GroupJoinPage() {
           招待コードの入手方法
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          団体の管理者からQRコードまたは招待リンクを受け取ってください。
+          結びの主宰者からQRコードまたは招待リンクを受け取ってください。
           QRコードをスキャンすると自動で入力されます。
         </p>
       </div>

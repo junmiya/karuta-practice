@@ -24,6 +24,7 @@ import { GroupHomePage } from './pages/GroupHomePage';
 import { GroupJoinPage } from './pages/GroupJoinPage';
 import { GroupMembersPage } from './pages/GroupMembersPage';
 import { GroupEventPage } from './pages/GroupEventPage';
+import { GroupEditPage } from './pages/GroupEditPage';
 
 export function App() {
   return (
@@ -68,9 +69,11 @@ export function App() {
             <Route path="/groups" element={<GroupListPage />} />
             <Route path="/groups/create" element={<GroupCreatePage />} />
             <Route path="/groups/:groupId" element={<GroupHomePage />} />
+            <Route path="/groups/:groupId/edit" element={<GroupEditPage />} />
             <Route path="/groups/:groupId/members" element={<GroupMembersPage />} />
             <Route path="/groups/:groupId/events" element={<GroupEventPage />} />
             <Route path="/join" element={<GroupJoinPage />} />
+            <Route path="/musubi/join" element={<GroupJoinPage />} />
           </Routes>
           </Layout>
         </BrowserRouter>

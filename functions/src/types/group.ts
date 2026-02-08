@@ -7,7 +7,7 @@ import { Timestamp } from 'firebase-admin/firestore';
 export type GroupRole = 'owner' | 'organizer' | 'member';
 export type GroupStatus = 'active' | 'suspended' | 'deleted';
 export type MembershipStatus = 'active' | 'left';
-export type EventStatus = 'draft' | 'published' | 'closed';
+export type EventStatus = 'draft' | 'published' | 'rejected' | 'closed';
 export type EventVisibility = 'group_only' | 'public';
 
 // コレクション名
@@ -116,6 +116,7 @@ export type GroupAuditEventType =
   | 'event_update'
   | 'event_publish'
   | 'event_close'
+  | 'event_reject'
   | 'event_join'
   | 'event_leave';
 

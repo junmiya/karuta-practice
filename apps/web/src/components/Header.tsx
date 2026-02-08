@@ -25,6 +25,9 @@ export function Header() {
     if (path === '/utaawase') {
       return location.pathname === '/utaawase' || location.pathname === '/entry' || location.pathname === '/official' || location.pathname === '/kyui-exam' || location.pathname === '/kyui-match';
     }
+    if (path === '/groups') {
+      return location.pathname.startsWith('/groups') || location.pathname.startsWith('/musubi');
+    }
     return location.pathname.startsWith(path);
   };
 
@@ -108,9 +111,8 @@ export function Header() {
         <nav className="flex items-center justify-center gap-1 h-8 border-t border-neutral-100">
           <TabButton path="/tenarai" label="手習" />
           <TabButton path="/keiko" label="稽古" required />
-          <TabButton path="/keikoroku" label="稽古録" required />
           <TabButton path="/utaawase" label="歌合" required />
-          <TabButton path="/utaawaseroku" label="歌合録" required />
+          <TabButton path="/groups" label="結び" required />
           <TabButton path="/utakurai" label="歌位" required />
         </nav>
       </Container>

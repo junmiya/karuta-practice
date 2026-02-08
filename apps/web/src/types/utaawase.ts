@@ -5,7 +5,7 @@ import { Timestamp } from 'firebase/firestore';
 
 export type SekkiMarker = 'risshun' | 'rikka' | 'risshuu' | 'rittou' | 'risshun_next';
 export type SeasonId = 'spring' | 'summer' | 'autumn' | 'winter';
-export type KyuiLevel = 'beginner' | 'jyukkyu' | 'kyukyu' | 'hachikyu' | 'nanakyu' | 'rokkyu';
+export type KyuiLevel = 'minarai' | 'shokkyu' | 'nikyu' | 'sankyu' | 'yonkyu' | 'gokyu' | 'rokkyu';
 export type DanLevel = 'shodan' | 'nidan' | 'sandan' | 'yondan' | 'godan' | 'rokudan';
 export type DenLevel = 'shoden' | 'chuden' | 'okuden' | 'kaiden';
 export type UtakuraiLevel = 'meijin' | 'eisei_meijin';
@@ -76,7 +76,7 @@ export interface SeasonSnapshot {
 }
 
 export const KYUI_LEVELS_ORDERED: KyuiLevel[] = [
-  'beginner', 'jyukkyu', 'kyukyu', 'hachikyu', 'nanakyu', 'rokkyu',
+  'minarai', 'shokkyu', 'nikyu', 'sankyu', 'yonkyu', 'gokyu', 'rokkyu',
 ];
 
 export const DAN_LEVELS_ORDERED: DanLevel[] = [
@@ -84,12 +84,13 @@ export const DAN_LEVELS_ORDERED: DanLevel[] = [
 ];
 
 export const KYUI_LEVEL_LABELS: Record<KyuiLevel, string> = {
-  beginner: '見習',
-  jyukkyu: '初級',
-  kyukyu: '二級',
-  hachikyu: '三級',
-  nanakyu: '四級',
-  rokkyu: '五級',
+  minarai: '見習',
+  shokkyu: '初級',
+  nikyu: '二級',
+  sankyu: '三級',
+  yonkyu: '四級',
+  gokyu: '五級',
+  rokkyu: '六級',
 };
 
 export const DAN_LEVEL_LABELS: Record<DanLevel, string> = {
@@ -104,12 +105,13 @@ export const DAN_LEVEL_LABELS: Record<DanLevel, string> = {
 // 次のレベルへの昇級条件（現在のレベルからの昇級条件）
 // 検定: 50問、制限時間600秒（10分）
 export const KYUI_PROMOTION_CONDITIONS: Record<KyuiLevel, string> = {
-  beginner: '初級へ: 1字決まり 80%正解',
-  jyukkyu: '二級へ: 2字決まり 80%正解',
-  kyukyu: '三級へ: 3字決まり 80%正解',
-  hachikyu: '四級へ: 4字決まり 80%正解',
-  nanakyu: '五級へ: 5字決まり 80%正解',
-  rokkyu: '段位資格取得済（全札90%正解で達成）',
+  minarai: '初級へ: 1字決まり 80%正解',
+  shokkyu: '二級へ: 2字決まり 80%正解',
+  nikyu: '三級へ: 3字決まり 80%正解',
+  sankyu: '四級へ: 4字決まり 80%正解',
+  yonkyu: '五級へ: 5字決まり 80%正解',
+  gokyu: '六級へ: 全札 90%正解',
+  rokkyu: '段位資格取得済（六級達成で段位の部に参加可能）',
 };
 
 export function seasonKey(year: number, seasonId: SeasonId): string {
@@ -128,21 +130,23 @@ export const KYUI_MATCH_CONFIG: Record<KyuiLevel, {
   maxKimariji: number;
   targetCardCount: number;
 }> = {
-  beginner: { cardCount: 7, questionCount: 7, maxKimariji: 1, targetCardCount: 7 },
-  jyukkyu: { cardCount: 9, questionCount: 20, maxKimariji: 2, targetCardCount: 42 },
-  kyukyu: { cardCount: 9, questionCount: 20, maxKimariji: 3, targetCardCount: 37 },
-  hachikyu: { cardCount: 9, questionCount: 20, maxKimariji: 4, targetCardCount: 6 },
-  nanakyu: { cardCount: 9, questionCount: 20, maxKimariji: 5, targetCardCount: 2 },
-  rokkyu: { cardCount: 9, questionCount: 30, maxKimariji: 6, targetCardCount: 6 },
+  minarai: { cardCount: 7, questionCount: 7, maxKimariji: 1, targetCardCount: 7 },
+  shokkyu: { cardCount: 9, questionCount: 20, maxKimariji: 2, targetCardCount: 42 },
+  nikyu: { cardCount: 9, questionCount: 20, maxKimariji: 3, targetCardCount: 37 },
+  sankyu: { cardCount: 9, questionCount: 20, maxKimariji: 4, targetCardCount: 6 },
+  yonkyu: { cardCount: 9, questionCount: 20, maxKimariji: 5, targetCardCount: 2 },
+  gokyu: { cardCount: 9, questionCount: 20, maxKimariji: 6, targetCardCount: 6 },
+  rokkyu: { cardCount: 12, questionCount: 50, maxKimariji: 100, targetCardCount: 100 },
 };
 
 export const KYUI_MATCH_LABELS: Record<KyuiLevel, string> = {
-  beginner: '見習の歌合',
-  jyukkyu: '初級の歌合',
-  kyukyu: '二級の歌合',
-  hachikyu: '三級の歌合',
-  nanakyu: '四級の歌合',
-  rokkyu: '五級の歌合',
+  minarai: '見習の歌合',
+  shokkyu: '初級の歌合',
+  nikyu: '二級の歌合',
+  sankyu: '三級の歌合',
+  yonkyu: '四級の歌合',
+  gokyu: '五級の歌合',
+  rokkyu: '六級の歌合',
 };
 
 /**
@@ -157,10 +161,45 @@ export const KYUI_EXAM_CONFIG: Record<KyuiLevel, {
   nextLevel: KyuiLevel | 'dan';
   examLabel: string;
 }> = {
-  beginner: { examKimariji: 1, passRate: 80, nextLevel: 'jyukkyu', examLabel: '初級検定（1字決まり）' },
-  jyukkyu: { examKimariji: 2, passRate: 80, nextLevel: 'kyukyu', examLabel: '二級検定（2字決まり）' },
-  kyukyu: { examKimariji: 3, passRate: 80, nextLevel: 'hachikyu', examLabel: '三級検定（3字決まり）' },
-  hachikyu: { examKimariji: 4, passRate: 80, nextLevel: 'nanakyu', examLabel: '四級検定（4字決まり）' },
-  nanakyu: { examKimariji: 5, passRate: 80, nextLevel: 'rokkyu', examLabel: '五級検定（5字決まり）' },
-  rokkyu: { examKimariji: null, passRate: 90, nextLevel: 'dan', examLabel: '段位資格検定（全札）' },
+  minarai: { examKimariji: 1, passRate: 80, nextLevel: 'shokkyu', examLabel: '初級検定（1字決まり）' },
+  shokkyu: { examKimariji: 2, passRate: 80, nextLevel: 'nikyu', examLabel: '二級検定（2字決まり）' },
+  nikyu: { examKimariji: 3, passRate: 80, nextLevel: 'sankyu', examLabel: '三級検定（3字決まり）' },
+  sankyu: { examKimariji: 4, passRate: 80, nextLevel: 'yonkyu', examLabel: '四級検定（4字決まり）' },
+  yonkyu: { examKimariji: 5, passRate: 80, nextLevel: 'gokyu', examLabel: '五級検定（5字決まり）' },
+  gokyu: { examKimariji: null, passRate: 90, nextLevel: 'rokkyu', examLabel: '六級検定（全札）' },
+  rokkyu: { examKimariji: null, passRate: 90, nextLevel: 'dan', examLabel: '段位資格取得済' },
 };
+
+/**
+ * 旧ID→新IDマッピング（Firestore既存データ対応）
+ */
+const LEGACY_KYUI_ID_MAP: Record<string, KyuiLevel> = {
+  beginner: 'minarai',
+  jyukkyu: 'shokkyu',
+  kyukyu: 'nikyu',
+  hachikyu: 'sankyu',
+  nanakyu: 'yonkyu',
+  // 旧rokkyu(五級)は新gokyu(五級)にマップ
+  // 注意: 旧システムでは rokkyu=五級、新システムでは rokkyu=六級
+};
+
+/**
+ * Firestoreから取得したkyuiLevelを正規化
+ * 旧IDの場合は新IDに変換、新IDはそのまま返す
+ */
+export function normalizeKyuiLevel(level: string | undefined | null): KyuiLevel {
+  if (!level) return 'minarai';
+
+  // 新IDならそのまま返す
+  if (KYUI_LEVELS_ORDERED.includes(level as KyuiLevel)) {
+    return level as KyuiLevel;
+  }
+
+  // 旧IDなら変換
+  if (level in LEGACY_KYUI_ID_MAP) {
+    return LEGACY_KYUI_ID_MAP[level];
+  }
+
+  // 不明な値はminaraiにフォールバック
+  return 'minarai';
+}

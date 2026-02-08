@@ -23,10 +23,10 @@ export function GroupListPage() {
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            団体
+            結び
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            団体機能を使用するにはログインが必要です
+            結びを使用するにはログインが必要です
           </p>
           <Link
             to="/profile"
@@ -43,13 +43,13 @@ export function GroupListPage() {
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          団体
+          結び
         </h1>
         <Link
           to="/groups/create"
           className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm"
         >
-          団体を作成
+          結びを作る
         </Link>
       </div>
 
@@ -78,17 +78,17 @@ export function GroupListPage() {
             />
           </svg>
           <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-            所属団体がありません
+            所属する結びがありません
           </h3>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            団体を作成するか、招待コードで参加しましょう
+            結びを作るするか、招待コードで参加しましょう
           </p>
           <div className="mt-6 flex justify-center gap-4">
             <Link
               to="/groups/create"
               className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm"
             >
-              団体を作成
+              結びを作る
             </Link>
             <Link
               to="/join"

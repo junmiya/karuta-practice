@@ -86,6 +86,7 @@ export {
   publishEvent,
   unpublishEvent,
   closeEvent,
+  rejectEvent,
   getGroupEvents,
   joinEvent,
   leaveEvent,

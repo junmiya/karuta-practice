@@ -9,9 +9,9 @@ import { useGroupMembers, useChangeRole, useRemoveMember } from '@/hooks/useGrou
 import type { GroupRole } from '@/types/group';
 
 const ROLE_LABELS: Record<GroupRole, string> = {
-  owner: '管理者',
-  organizer: '運営',
-  member: 'メンバー',
+  owner: '主宰者',
+  organizer: '世話役',
+  member: '一般',
 };
 
 const ROLE_COLORS: Record<GroupRole, string> = {
@@ -83,13 +83,13 @@ export function GroupMembersPage() {
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="text-center">
           <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-            団体が見つかりません
+            結びが見つかりません
           </h1>
           <Link
             to="/groups"
             className="inline-block px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
           >
-            団体一覧へ
+            結び一覧へ
           </Link>
         </div>
       </div>
@@ -189,9 +189,9 @@ export function GroupMembersPage() {
                 disabled={roleLoading || selectedMemberData.role === 'organizer'}
                 className="w-full px-4 py-2 text-left bg-gray-100 dark:bg-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50"
               >
-                <span className="font-medium">運営</span>
+                <span className="font-medium">世話役</span>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  イベント管理、招待の閲覧ができます
+                  集いの管理、招待の閲覧ができます
                 </p>
               </button>
               <button
@@ -199,9 +199,9 @@ export function GroupMembersPage() {
                 disabled={roleLoading || selectedMemberData.role === 'member'}
                 className="w-full px-4 py-2 text-left bg-gray-100 dark:bg-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50"
               >
-                <span className="font-medium">メンバー</span>
+                <span className="font-medium">一般</span>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  イベント参加、閲覧ができます
+                  集いの参加、閲覧ができます
                 </p>
               </button>
               <button
@@ -209,9 +209,9 @@ export function GroupMembersPage() {
                 disabled={roleLoading}
                 className="w-full px-4 py-2 text-left bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded hover:bg-purple-200 dark:hover:bg-purple-800"
               >
-                <span className="font-medium">管理者に譲渡</span>
+                <span className="font-medium">主宰者に譲渡</span>
                 <p className="text-xs">
-                  あなたは運営になります
+                  あなたは世話役になります
                 </p>
               </button>
             </div>
@@ -240,7 +240,7 @@ export function GroupMembersPage() {
               メンバーを除名
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              {selectedMemberData.nickname}を団体から除名しますか？
+              {selectedMemberData.nickname}をこの結びから除名しますか？
               この操作は取り消せません。
             </p>
 

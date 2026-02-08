@@ -64,7 +64,7 @@ async function getUserProgress(uid) {
     const initial = {
         uid,
         nickname,
-        kyuiLevel: 'beginner',
+        kyuiLevel: 'minarai',
         danLevel: null,
         danEligible: false,
         denLevel: null,

@@ -33,7 +33,7 @@ export async function getUserProgress(uid: string): Promise<UserProgress> {
   const initial: UserProgress = {
     uid,
     nickname,
-    kyuiLevel: 'beginner',
+    kyuiLevel: 'minarai',
     danLevel: null,
     danEligible: false,
     denLevel: null,

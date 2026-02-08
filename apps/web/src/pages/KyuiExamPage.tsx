@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Heading, Text } from '@/components/ui/Typography';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { AuthRequiredState, LoadingState } from '@/components/ui/PageStates';
-import { KYUI_LEVEL_LABELS, KYUI_EXAM_CONFIG, type KyuiLevel } from '@/types/utaawase';
+import { KYUI_LEVEL_LABELS, KYUI_EXAM_CONFIG, normalizeKyuiLevel, type KyuiLevel } from '@/types/utaawase';
 
 export function KyuiExamPage() {
   const navigate = useNavigate();
@@ -41,10 +41,10 @@ export function KyuiExamPage() {
       }
       try {
         const progress = await getUserProgress(user.uid);
-        setKyuiLevel(progress?.kyuiLevel || 'beginner');
+        setKyuiLevel(normalizeKyuiLevel(progress?.kyuiLevel));
       } catch (err) {
         console.error('Failed to fetch user progress:', err);
-        setKyuiLevel('beginner');
+        setKyuiLevel('minarai');
       } finally {
         setLoadingLevel(false);
       }

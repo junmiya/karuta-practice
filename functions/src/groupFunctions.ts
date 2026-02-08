@@ -60,6 +60,7 @@ import {
   logEventUpdate,
   logEventPublish,
   logEventClose,
+  logEventReject,
   logEventJoin,
   logEventLeave,
 } from './services/groupAuditService';
@@ -949,6 +950,52 @@ export const closeEvent = functions
     });
 
     await logEventClose(uid, event.groupId, eventId);
+
+    return { success: true };
+  });
+
+/**
+ * 104: 集いを却下（主宰者のみ、draft→rejected）
+ */
+export const rejectEvent = functions
+  .region('asia-northeast1')
+  .https.onCall(async (data: { eventId: string; groupId: string }, context) => {
+    const uid = requireAuth(context);
+    const { eventId, groupId } = data;
+
+    if (!eventId || !groupId) {
+      throw new functions.https.HttpsError('invalid-argument', 'eventIdとgroupIdは必須です');
+    }
+
+    // 権限チェック（主宰者のみ）
+    const isOwner = await isGroupOwner(uid, groupId);
+    if (!isOwner) {
+      throw new functions.https.HttpsError('permission-denied', '集いの却下は主宰者のみが行えます');
+    }
+
+    const eventDoc = await db.collection(GROUP_COLLECTIONS.EVENTS).doc(eventId).get();
+    if (!eventDoc.exists) {
+      throw new functions.https.HttpsError('not-found', '集いが見つかりません');
+    }
+
+    const event = eventDoc.data() as GroupEventDoc;
+
+    // groupIdの一致チェック
+    if (event.groupId !== groupId) {
+      throw new functions.https.HttpsError('not-found', '集いが見つかりません');
+    }
+
+    // draft状態のみ却下可能
+    if (event.status !== 'draft') {
+      throw new functions.https.HttpsError('failed-precondition', '下書き状態の集いのみ却下できます');
+    }
+
+    await db.collection(GROUP_COLLECTIONS.EVENTS).doc(eventId).update({
+      status: 'rejected',
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    await logEventReject(uid, groupId, eventId);
 
     return { success: true };
   });

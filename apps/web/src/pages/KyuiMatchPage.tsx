@@ -18,7 +18,7 @@ import { ControlBar } from '@/components/ControlBar';
 import type { Poem } from '@/types/poem';
 import type { SeasonStatus } from '@/types/entry';
 import type { KyuiLevel } from '@/types/utaawase';
-import { KYUI_LEVEL_LABELS, KYUI_MATCH_CONFIG, KYUI_MATCH_LABELS } from '@/types/utaawase';
+import { KYUI_LEVEL_LABELS, KYUI_MATCH_CONFIG, KYUI_MATCH_LABELS, normalizeKyuiLevel } from '@/types/utaawase';
 
 export function KyuiMatchPage() {
   const navigate = useNavigate();
@@ -63,7 +63,7 @@ export function KyuiMatchPage() {
 
       // Get user's kyui level
       const progress = await getUserProgress(user.uid);
-      const userKyuiLevel = progress?.kyuiLevel || 'beginner';
+      const userKyuiLevel = normalizeKyuiLevel(progress?.kyuiLevel);
 
       // Use level from URL param if valid, otherwise use user's current level
       const targetLevel = levelParam && Object.keys(KYUI_MATCH_CONFIG).includes(levelParam)
@@ -87,7 +87,7 @@ export function KyuiMatchPage() {
     uid: user?.uid || '',
     seasonId: seasonId || '',
     entryId: entryId || '',
-    kyuiLevel: kyuiLevel || 'beginner',
+    kyuiLevel: kyuiLevel || 'minarai',
   });
 
   const {

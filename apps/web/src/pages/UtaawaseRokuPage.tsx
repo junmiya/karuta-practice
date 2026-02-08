@@ -16,6 +16,7 @@ import {
   KYUI_LEVEL_LABELS,
   DAN_LEVEL_LABELS,
   KYUI_PROMOTION_CONDITIONS,
+  normalizeKyuiLevel,
   type DenLevel,
   type UtakuraiLevel,
   type UserProgress,
@@ -42,8 +43,8 @@ const DEN_LEVEL_LABELS: Record<DenLevel, string> = {
 };
 
 const UTAKURAI_LEVEL_LABELS: Record<UtakuraiLevel, string> = {
-  meijin: '名人',
-  eisei_meijin: '永世名人',
+  meijin: '名歌位',
+  eisei_meijin: '永世名歌位',
 };
 
 const DEN_LEVELS_ORDERED: DenLevel[] = ['shoden', 'chuden', 'okuden', 'kaiden'];
@@ -117,11 +118,11 @@ export function UtaawaseRokuPage() {
         dan: null,
         den: null,
         utakurai: null,
-        nextCondition: KYUI_PROMOTION_CONDITIONS.beginner,
+        nextCondition: KYUI_PROMOTION_CONDITIONS.minarai,
       };
     }
 
-    const kyui = progress.kyuiLevel;
+    const kyui = normalizeKyuiLevel(progress.kyuiLevel);
     const dan = progress.danLevel;
     const den = progress.denLevel;
     const utakurai = progress.utakuraiLevel;
@@ -588,7 +589,7 @@ export function UtaawaseRokuPage() {
                 <div>
                   <span className="font-medium">級位</span>
                   <span className="text-gray-500 ml-2">
-                    見習 → 初級 → 二級 → 三級 → 四級 → 五級
+                    見習 → 初級 → 二級 → 三級 → 四級 → 五級 → 六級
                   </span>
                 </div>
               </div>
@@ -618,7 +619,7 @@ export function UtaawaseRokuPage() {
                   <span className="font-medium">歌位</span>
                   <span className="text-gray-400 ml-2">（皆伝達成後）</span>
                   <span className="text-gray-500 ml-1">
-                    名人 → 永世名人
+                    名歌位 → 永世名歌位
                   </span>
                 </div>
               </div>

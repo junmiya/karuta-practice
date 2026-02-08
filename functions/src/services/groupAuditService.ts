@@ -286,6 +286,22 @@ export async function logEventPublish(
 }
 
 /**
+ * イベント却下ログ
+ */
+export async function logEventReject(
+  actorId: string,
+  groupId: string,
+  eventId: string
+): Promise<void> {
+  await writeGroupAuditLog({
+    eventType: 'event_reject',
+    actorId,
+    groupId,
+    details: { eventId },
+  });
+}
+
+/**
  * イベント終了ログ
  */
 export async function logEventClose(

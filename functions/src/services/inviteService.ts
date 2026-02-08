@@ -228,7 +228,7 @@ export async function revokeAllInvites(groupId: string): Promise<void> {
 export function generateInviteUrl(groupId: string, inviteCode: string): string {
   // 本番環境のURL
   const baseUrl = process.env.HOSTING_URL || 'https://karuta-banzuke.web.app';
-  return `${baseUrl}/join?groupId=${encodeURIComponent(groupId)}&code=${encodeURIComponent(inviteCode)}`;
+  return `${baseUrl}/musubi/join?groupId=${encodeURIComponent(groupId)}&code=${encodeURIComponent(inviteCode)}`;
 }
 
 /**
