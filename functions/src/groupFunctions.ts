@@ -748,7 +748,7 @@ export const createEvent = functions
       eventId,
       groupId,
       title: title.trim(),
-      description: description?.trim(),
+      description: description?.trim() || '',
       startAt: Timestamp.fromDate(new Date(startAt)),
       endAt: Timestamp.fromDate(new Date(endAt)),
       isOfficial: false, // デフォルトは非公式

@@ -605,7 +605,7 @@ exports.createEvent = functions
         eventId,
         groupId,
         title: title.trim(),
-        description: description?.trim(),
+        description: description?.trim() || '',
         startAt: firestore_1.Timestamp.fromDate(new Date(startAt)),
         endAt: firestore_1.Timestamp.fromDate(new Date(endAt)),
         isOfficial: false, // デフォルトは非公式

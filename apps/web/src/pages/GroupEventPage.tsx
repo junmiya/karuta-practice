@@ -3,7 +3,7 @@
  */
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { useGroup } from '@/hooks/useGroup';
 import { useGroupMembers } from '@/hooks/useGroupMembership';
 import {
@@ -33,7 +33,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export function GroupEventPage() {
   const { groupId } = useParams<{ groupId: string }>();
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const { group, loading: groupLoading } = useGroup(groupId);
   const { members } = useGroupMembers(groupId);
 
@@ -82,7 +82,7 @@ export function GroupEventPage() {
       await createEvent({
         groupId,
         title: title.trim(),
-        description: description.trim() || undefined,
+        description: description.trim(),
         startAt: new Date(startAt),
         endAt: new Date(endAt),
       });

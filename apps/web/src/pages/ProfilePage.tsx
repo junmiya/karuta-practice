@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { updateUserProfile } from '@/services/users.service';
-import { useMyGroups } from '@/hooks/useGroup';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Heading, Text } from '@/components/ui/Typography';
@@ -310,9 +309,6 @@ export function ProfilePage() {
         </div>
       </Card>
 
-      {/* 団体セクション */}
-      <GroupSection />
-
       {/* Privacy Notice */}
       <InfoBox title="プライバシーについて" variant="warning">
         <ul className="space-y-1">
@@ -322,94 +318,5 @@ export function ProfilePage() {
         </ul>
       </InfoBox>
     </Container>
-  );
-}
-
-/**
- * 団体セクションコンポーネント
- */
-function GroupSection() {
-  const { groups, loading } = useMyGroups();
-
-  const ROLE_LABELS: Record<string, string> = {
-    owner: '主宰者',
-    organizer: '世話役',
-    member: '一般',
-  };
-
-  if (loading) {
-    return (
-      <Card>
-        <Heading as="h3" size="h4" className="mb-4">結び</Heading>
-        <div className="animate-pulse flex space-x-4">
-          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-        </div>
-      </Card>
-    );
-  }
-
-  return (
-    <Card>
-      <div className="flex items-center justify-between mb-4">
-        <Heading as="h3" size="h4">結び</Heading>
-        <Link
-          to="/groups"
-          className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
-        >
-          一覧を見る →
-        </Link>
-      </div>
-
-      {groups.length === 0 ? (
-        <div className="text-center py-6">
-          <Text color="muted" className="mb-4">
-            所属している結びはありません
-          </Text>
-          <div className="flex justify-center gap-3">
-            <Link
-              to="/groups/create"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm"
-            >
-              結びを作る
-            </Link>
-            <Link
-              to="/musubi/join"
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm"
-            >
-              招待コードで参加
-            </Link>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {groups.slice(0, 3).map((group) => (
-            <Link
-              key={group.groupId}
-              to={`/groups/${group.groupId}`}
-              className="block p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-white">
-                    {group.name}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {ROLE_LABELS[group.myRole] || group.myRole} • {group.memberCount}人
-                  </p>
-                </div>
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </Link>
-          ))}
-          {groups.length > 3 && (
-            <Text color="muted" className="text-sm text-center">
-              他 {groups.length - 3} 結び
-            </Text>
-          )}
-        </div>
-      )}
-    </Card>
   );
 }
