@@ -1,0 +1,141 @@
+# Invite API Contract: 105-tebiki-invite
+# Firebase Cloud Functions (Callable)
+# Region: asia-northeast1
+
+functions:
+  # ─────────────────────────────────────
+  # T105-01: createInvite
+  # ─────────────────────────────────────
+  createInvite:
+    description: 招待を作成し、リンクとコードを返す
+    auth: required (authenticated user)
+    input:
+      targetMode:
+        type: string
+        enum: [tenarai, keiko, utaawase]
+        required: true
+        description: 対象モード
+    output:
+      success:
+        type: boolean
+      inviteId:
+        type: string
+        description: 招待ID（UUID、リンク用）
+      inviteCode:
+        type: string
+        description: 招待コード（6文字英数字、手入力用）
+      inviteUrl:
+        type: string
+        description: 完全なURL（例: https://karuta-banzuke.web.app/invite/join?id=xxx）
+      expiresAt:
+        type: string (ISO 8601)
+        description: 有効期限
+      targetMode:
+        type: string
+        description: 対象モード名
+    errors:
+      - code: unauthenticated
+        message: ログインが必要です
+      - code: invalid-argument
+        message: 無効な対象モードです
+
+  # ─────────────────────────────────────
+  # T105-02: getInviteInfo
+  # ─────────────────────────────────────
+  getInviteInfo:
+    description: 招待情報を取得する（リンク経由 or コード経由）
+    auth: not required
+    input:
+      inviteId:
+        type: string
+        required: false
+        description: 招待ID（リンク経由の場合）
+      inviteCode:
+        type: string
+        required: false
+        description: 招待コード（コード入力の場合）
+      # inviteId または inviteCode のいずれか1つが必須
+    output:
+      found:
+        type: boolean
+      status:
+        type: string
+        enum: [active, expired, not_found]
+        description: 招待の状態
+      targetMode:
+        type: string
+        description: 対象モード（active時のみ）
+      targetModeLabel:
+        type: string
+        description: 日本語ラベル（例: 手習、稽古、歌合）
+      requiresAuth:
+        type: boolean
+        description: 対象モードがログイン必須かどうか
+      settings:
+        type: object
+        description: 設定オブジェクト（active時のみ）
+        properties:
+          yomiKana: { type: boolean }
+          toriKana: { type: boolean }
+          kimarijiShow: { type: boolean }
+          kimarijiFilter: { type: array, items: number }
+          poemRange: { type: string }
+    errors:
+      - code: invalid-argument
+        message: inviteId または inviteCode が必要です
+      - code: not-found
+        message: 招待が見つかりません
+
+  # ─────────────────────────────────────
+  # T105-03: joinInvite
+  # ─────────────────────────────────────
+  joinInvite:
+    description: 招待に参加し、リダイレクト先URLを返す
+    auth: optional (tenarai は不要、keiko/utaawase は必須)
+    input:
+      inviteId:
+        type: string
+        required: false
+        description: 招待ID（リンク経由の場合）
+      inviteCode:
+        type: string
+        required: false
+        description: 招待コード（コード入力の場合）
+      # inviteId または inviteCode のいずれか1つが必須
+    output:
+      success:
+        type: boolean
+      redirectUrl:
+        type: string
+        description: 設定パラメータ付きの開始URL（例: /practice12?yomiKana=1）
+      targetMode:
+        type: string
+      targetModeLabel:
+        type: string
+    errors:
+      - code: not-found
+        message: 招待が見つかりません
+      - code: failed-precondition
+        condition: expired
+        message: 期限切れです
+      - code: unauthenticated
+        condition: target requires auth
+        message: このモードにはログインが必要です
+
+# ─────────────────────────────────────
+# URL Routes (Frontend)
+# ─────────────────────────────────────
+routes:
+  tebiki:
+    path: /tebiki
+    component: TebikiPage
+    auth: not required
+    description: 手引ページ（5セクション + 招待コード入力）
+
+  invite_join:
+    path: /invite/join
+    params:
+      id: inviteId (query parameter)
+    component: InviteJoinPage
+    auth: not required (page itself), varies by targetMode
+    description: 招待参加ページ（リンク経由）

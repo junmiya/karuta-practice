@@ -1,15 +1,33 @@
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Container } from '@/components/ui/Container';
 import { cn } from '@/lib/utils';
 import { JapaneseLock } from './icons/JapaneseLock';
 
+const TEBIKI_BANNER_KEY = 'tebiki_banner_dismissed';
+
 export function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, isProfileComplete, profile, logout } = useAuthContext();
 
+  // 手引バナー状態
+  const [bannerDismissed, setBannerDismissed] = useState(() => {
+    return localStorage.getItem(TEBIKI_BANNER_KEY) === '1';
+  });
+
+  const showBanner = !bannerDismissed && location.pathname !== '/tebiki';
+
+  const dismissBanner = () => {
+    localStorage.setItem(TEBIKI_BANNER_KEY, '1');
+    setBannerDismissed(true);
+  };
+
   const isActive = (path: string) => {
+    if (path === '/tebiki') {
+      return location.pathname === '/tebiki';
+    }
     if (path === '/tenarai') {
       return location.pathname === '/' || location.pathname === '/cards';
     }
@@ -65,6 +83,29 @@ export function Header() {
 
   return (
     <header className="bg-white border-b border-neutral-200">
+      {/* 手引バナー（初回訪問者向け） */}
+      {showBanner && (
+        <div className="bg-karuta-tansei/5 border-b border-karuta-tansei/20">
+          <Container className="py-1.5 flex items-center justify-between" size="full">
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-karuta-tansei font-medium">手引：百首のこと／遊びの手順／友を誘う</span>
+              <button
+                onClick={() => navigate('/tebiki')}
+                className="text-karuta-tansei font-bold underline hover:no-underline"
+              >
+                手引を見る
+              </button>
+            </div>
+            <button
+              onClick={dismissBanner}
+              className="text-neutral-400 hover:text-neutral-600 text-xs px-1"
+              aria-label="閉じる"
+            >
+              ✕
+            </button>
+          </Container>
+        </div>
+      )}
       <Container className="py-0" size="full">
         {/* Row 1: Title + User */}
         <div className="flex items-center justify-between h-8">
@@ -109,6 +150,7 @@ export function Header() {
 
         {/* Row 2: Navigation Tabs */}
         <nav className="flex items-center justify-center gap-1 h-8 border-t border-neutral-100">
+          <TabButton path="/tebiki" label="手引" />
           <TabButton path="/tenarai" label="手習" />
           <TabButton path="/keiko" label="稽古" required />
           <TabButton path="/utaawase" label="歌合" required />

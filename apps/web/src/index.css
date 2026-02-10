@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* ダークモード無効化: dark: バリアントを .dark クラスベースに変更（適用しない） */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* クリーンでシンプルなデザイン（東京大学風・淡青） */
 
 body {
@@ -156,6 +159,7 @@ body {
 
 /* CSS Custom Properties for dynamic card sizing (ビューポートベース) */
 :root {
+  color-scheme: light;
   --karuta-grid-max-width: 600px;
   --karuta-card-width: auto;
   --karuta-card-height: auto;

@@ -136,5 +136,17 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
+
+    // === 105: 手引招待機能 新コレクション ===
+
+    // 招待（サーバのみ — Cloud Functions経由でアクセス）
+    match /invites/{inviteId} {
+      allow read, write: if false;
+    }
+
+    // 招待参加者（サーバのみ — Phase2）
+    match /invite_participants/{participantId} {
+      allow read, write: if false;
+    }
   }
 }

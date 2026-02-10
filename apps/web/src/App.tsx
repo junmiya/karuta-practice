@@ -25,6 +25,8 @@ import { GroupJoinPage } from './pages/GroupJoinPage';
 import { GroupMembersPage } from './pages/GroupMembersPage';
 import { GroupEventPage } from './pages/GroupEventPage';
 import { GroupEditPage } from './pages/GroupEditPage';
+import { TebikiPage } from './pages/TebikiPage';
+import { InviteJoinPage } from './pages/InviteJoinPage';
 
 export function App() {
   return (
@@ -33,6 +35,12 @@ export function App() {
         <BrowserRouter>
           <Layout>
           <Routes>
+            {/* 手引タブ（無料） */}
+            <Route path="/tebiki" element={<TebikiPage />} />
+
+            {/* 招待参加 */}
+            <Route path="/invite/join" element={<InviteJoinPage />} />
+
             {/* 手習タブ（無料） */}
             <Route path="/" element={<HomePage />} />
             <Route path="/cards" element={<CardsListPage />} />
