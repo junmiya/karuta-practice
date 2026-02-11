@@ -11,7 +11,7 @@
 
 - Q: システム全体の管理権限は自分だけでよいか？ → A: はい。`admin` はオーナー1名のみ。
 - Q: `moderator` ロールは必要か？ → A: 現時点では不要。需要が出た段階で追加可能。
-- Q: テスター権限の管理方法は？ → A: 管理者ダッシュボードの「ユーザー管理」タブで付与・剥奪。
+- Q: 内弟子権限の管理方法は？ → A: 管理者ダッシュボードの「ユーザー管理」タブで付与・剥奪。
 - Q: 結びの管理者ロール（owner/organizer/member）との関係は？ → A: 独立した2層モデル。siteRoleはグローバル、結びロールは団体スコープ。
 
 ## User Scenarios & Testing *(mandatory)*
@@ -28,40 +28,40 @@
 
 1. **Given** `siteRole: 'admin'` のユーザーがログイン済み, **When** `/admin` にアクセス, **Then** 管理ダッシュボードが表示される
 2. **Given** `siteRole` 未設定（一般ユーザー）がログイン済み, **When** `/admin` にアクセス, **Then** ホーム（`/`）にリダイレクトされる
-3. **Given** `siteRole: 'tester'` のユーザーがログイン済み, **When** `/admin` にアクセス, **Then** ホーム（`/`）にリダイレクトされる
+3. **Given** `siteRole: 'uchideshi'` のユーザーがログイン済み, **When** `/admin` にアクセス, **Then** ホーム（`/`）にリダイレクトされる
 4. **Given** 未ログインユーザー, **When** `/admin` にアクセス, **Then** ホーム（`/`）にリダイレクトされる
 
 ---
 
-### User Story 2 - テスターが未公開機能にアクセスする (Priority: P2)
+### User Story 2 - 内弟子が未公開機能にアクセスする (Priority: P2)
 
-テスター（`siteRole: 'tester'`）がログイン後、ベータ機能（Feature Flagで制御）にアクセスできる。一般ユーザーにはベータ機能が表示されない。
+内弟子（`siteRole: 'uchideshi'`）がログイン後、ベータ機能（Feature Flagで制御）にアクセスできる。一般ユーザーにはベータ機能が表示されない。
 
 **Why this priority**: 新機能のテスト運用に必要だが、adminガード追加の方が先。
 
-**Independent Test**: tester ロールのユーザーでログインし、ベータ機能が表示されることを確認。一般ユーザーでは非表示。
+**Independent Test**: uchideshi ロールのユーザーでログインし、ベータ機能が表示されることを確認。一般ユーザーでは非表示。
 
 **Acceptance Scenarios**:
 
-1. **Given** `siteRole: 'tester'` のユーザーがログイン済み, **When** ベータ機能のあるページにアクセス, **Then** ベータ機能が表示される
-2. **Given** `siteRole: 'admin'` のユーザーがログイン済み, **When** 同ページにアクセス, **Then** ベータ機能が表示される（adminはtester権限を包含）
+1. **Given** `siteRole: 'uchideshi'` のユーザーがログイン済み, **When** ベータ機能のあるページにアクセス, **Then** ベータ機能が表示される
+2. **Given** `siteRole: 'admin'` のユーザーがログイン済み, **When** 同ページにアクセス, **Then** ベータ機能が表示される（adminは内弟子権限を包含）
 3. **Given** 一般ユーザーがログイン済み, **When** 同ページにアクセス, **Then** ベータ機能は表示されない
 
 ---
 
 ### User Story 3 - 管理者がユーザーの権限を変更する (Priority: P2)
 
-管理者がダッシュボードの「ユーザー管理」タブで、対象ユーザーを検索し、`siteRole` を `tester` に変更する。変更は即時反映され、監査ログに記録される。
+管理者がダッシュボードの「ユーザー管理」タブで、対象ユーザーを検索し、`siteRole` を `uchideshi` に変更する。変更は即時反映され、監査ログに記録される。
 
-**Why this priority**: テスター権限のライフサイクル管理に必要。
+**Why this priority**: 内弟子権限のライフサイクル管理に必要。
 
 **Independent Test**: 管理者でログイン → ユーザー管理タブ → 対象ユーザーを検索 → siteRoleを変更 → 対象ユーザーで再ログインして権限反映を確認。
 
 **Acceptance Scenarios**:
 
 1. **Given** 管理者がユーザー管理タブを表示, **When** ニックネームで検索, **Then** 該当ユーザーの一覧が表示される
-2. **Given** 管理者がユーザー管理タブを表示, **When** siteRoleフィルタで「tester」を選択, **Then** testerロールのユーザーのみ表示される
-3. **Given** ユーザー一覧で対象ユーザーを特定, **When** siteRoleドロップダウンで「tester」を選択して確定, **Then** `siteRole` が更新され成功通知が表示される
+2. **Given** 管理者がユーザー管理タブを表示, **When** siteRoleフィルタで「内弟子」を選択, **Then** 内弟子ロールのユーザーのみ表示される
+3. **Given** ユーザー一覧で対象ユーザーを特定, **When** siteRoleドロップダウンで「内弟子」を選択して確定, **Then** `siteRole` が更新され成功通知が表示される
 4. **Given** 非管理者ユーザー, **When** `adminSetUserRole` Cloud Functionを直接呼び出し, **Then** `permission-denied` エラーが返される
 
 ---
@@ -79,7 +79,7 @@
 
 **権限データモデル**
 
-- **FR-001**: `User` 型に `siteRole` フィールド（`'admin' | 'tester' | 'user' | 'banned'`）を追加する。未設定は `'user'` 扱い
+- **FR-001**: `User` 型に `siteRole` フィールド（`'admin' | 'uchideshi' | 'user' | 'banned'`）を追加する。未設定は `'user'` 扱い
 - **FR-002**: `siteRole` の変更はバックエンド（Admin SDK）のみ許可。Firestoreセキュリティルールでクライアント側からの `siteRole` 書き込みを禁止する
 
 **バックエンド権限チェック**
@@ -90,7 +90,7 @@
 
 **フロントエンドガード**
 
-- **FR-006**: `AuthContext` に `siteRole` / `isAdmin` / `isTester` を追加する
+- **FR-006**: `AuthContext` に `siteRole` / `isAdmin` / `isUchideshi` を追加する
 - **FR-007**: `AdminRoute` ガードコンポーネントを作成し、`/admin` を保護する
 - **FR-008**: 非管理者が `/admin` にアクセスした場合、ホーム（`/`）にリダイレクトする
 
@@ -106,7 +106,7 @@
 
 ### Key Entities
 
-- **SiteRole**: ユーザーのグローバル権限レベル。`'admin'`（システム管理者）、`'tester'`（ベータ機能アクセス）、`'user'`（一般、デフォルト）、`'banned'`（制限、将来用）
+- **SiteRole**: ユーザーのグローバル権限レベル。`'admin'`（システム管理者）、`'uchideshi'`（内弟子・ベータ機能アクセス）、`'user'`（一般、デフォルト）、`'banned'`（制限、将来用）
 - **GroupRole**: 団体内ロール。`'owner'`、`'organizer'`、`'member'`。SiteRoleとは独立
 
 ## Scope *(mandatory)*
@@ -126,7 +126,7 @@
 ### Out of Scope
 
 - `banned` ユーザーのログインブロック（将来対応）
-- `moderator` ロールの追加（需要発生時に対応）
+- 追加ロールの新設（需要発生時に対応）
 - Firebase Custom Claims への移行（中期的検討事項）
 - `ADMIN_UIDS` 環境変数の完全廃止（siteRole安定稼働後に実施）
 - 結びロール（owner/organizer/member）の変更
@@ -153,6 +153,6 @@
 
 - **SC-001**: 非管理者が `/admin` にアクセスした場合、100%の確率でホームにリダイレクトされる
 - **SC-002**: `siteRole: 'admin'` のユーザーのみが管理ダッシュボードにアクセスできる
-- **SC-003**: 管理者がユーザー管理タブで siteRole を変更でき、次回ログイン時に反映される
+- **SC-003**: 管理者がユーザー管理タブで siteRole を変更でき（例: 内弟子への昇格）、次回ログイン時に反映される
 - **SC-004**: `adminFunctions.ts`（V1）が完全に削除され、ビルドエラーなし
 - **SC-005**: エミュレータ環境での開発フローが維持される（全ユーザーadmin扱い）

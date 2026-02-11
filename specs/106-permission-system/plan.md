@@ -5,7 +5,7 @@
 
 ## Summary
 
-管理者権限を環境変数（`ADMIN_UIDS`）ベースから Firestore `siteRole` ベースに移行し、テスター権限の管理を可能にする。フロントエンドに admin ガードを追加し、管理ダッシュボードに「ユーザー管理」タブを新設する。
+管理者権限を環境変数（`ADMIN_UIDS`）ベースから Firestore `siteRole` ベースに移行し、内弟子権限の管理を可能にする。フロントエンドに admin ガードを追加し、管理ダッシュボードに「ユーザー管理」タブを新設する。
 
 既存の `adminFunctionsV2.ts` のローカル `isAdmin` / `requireAdmin` を共通ユーティリティに集約。V1（`adminFunctions.ts`）は未使用のため削除。
 
@@ -25,7 +25,7 @@
 | ---- | ---- | ---- |
 | 原則08: Cloud Functions方針 | PASS | 権限変更はCallable Function経由 |
 | 原則13: コスト方針 | PASS | 追加Firestore読取は `getSiteRole` のみ（管理操作時） |
-| 原則21: アクセス方針 | PASS | 管理ダッシュボードはadminのみ、ベータ機能はtester+admin |
+| 原則21: アクセス方針 | PASS | 管理ダッシュボードはadminのみ、ベータ機能は内弟子+admin |
 
 ## Project Structure
 
@@ -50,7 +50,7 @@ apps/web/src/
 ├── contexts/
 │   └── AuthContext.tsx          # siteRole 追加（既存修正）
 ├── hooks/
-│   └── useAuth.ts              # siteRole / isAdmin / isTester 追加（既存修正）
+│   └── useAuth.ts              # siteRole / isAdmin / isUchideshi 追加（既存修正）
 ├── pages/
 │   └── AdminPage.tsx           # ユーザー管理タブ追加（既存修正）
 ├── services/

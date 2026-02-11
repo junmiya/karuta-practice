@@ -11,12 +11,12 @@ User ドキュメントに `siteRole` フィールドを追加。
 | `uid` | string | Yes | ドキュメントID（Firebase Auth UID） |
 | `nickname` | string | Yes | 表示名 |
 | `banzukeConsent` | boolean | Yes | 番付表示の同意 |
-| **`siteRole`** | **string** | **No** | **`"admin"` / `"tester"` / `"user"` / `"banned"`。未設定は `"user"` 扱い** |
+| **`siteRole`** | **string** | **No** | **`"admin"` / `"uchideshi"` / `"user"` / `"banned"`。未設定は `"user"` 扱い** |
 | `createdAt` | Timestamp | Yes | 作成日時 |
 | `updatedAt` | Timestamp | Yes | 更新日時 |
 
 **バリデーション**:
-- `siteRole`: `"admin"` / `"tester"` / `"user"` / `"banned"` のいずれか、または未設定
+- `siteRole`: `"admin"` / `"uchideshi"` / `"user"` / `"banned"` のいずれか、または未設定
 
 **書き込み権限**:
 - `siteRole` の変更は**サーバサイド（Admin SDK）のみ**許可
@@ -39,7 +39,7 @@ User ドキュメントに `siteRole` フィールドを追加。
 | SiteRole | 説明 | 管理ダッシュボード | ベータ機能 | 通常機能 |
 | -------- | ---- | :----------------: | :--------: | :------: |
 | `admin` | システム管理者 | ✅ | ✅ | ✅ |
-| `tester` | テスター | ❌ | ✅ | ✅ |
+| `uchideshi` | 内弟子 | ❌ | ✅ | ✅ |
 | `user` | 一般（デフォルト） | ❌ | ❌ | ✅ |
 | `banned` | 禁止（将来用） | ❌ | ❌ | ❌ |
 
@@ -79,7 +79,7 @@ User ドキュメントに `siteRole` フィールドを追加。
 ### フロントエンド（apps/web/src/types/user.ts）
 
 ```typescript
-export type SiteRole = 'admin' | 'tester' | 'user' | 'banned';
+export type SiteRole = 'admin' | 'uchideshi' | 'user' | 'banned';
 
 export interface User {
   uid: string;
@@ -94,7 +94,7 @@ export interface User {
 ### バックエンド（functions/src/lib/adminAuth.ts）
 
 ```typescript
-export type SiteRole = 'admin' | 'tester' | 'user' | 'banned';
+export type SiteRole = 'admin' | 'uchideshi' | 'user' | 'banned';
 
 export async function getSiteRole(uid: string): Promise<SiteRole>;
 export async function isAdmin(uid: string): Promise<boolean>;

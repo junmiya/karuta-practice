@@ -8,7 +8,7 @@
 
 **Alternatives considered**:
 - **Firebase Custom Claims**: トークンに埋め込むため読み取りコスト0だが、変更後にユーザーが再ログイン必要。Admin SDK の `setCustomUserClaims()` 呼び出しが必要。中期的には検討対象だが、MVPでは Firestore ベースの方がシンプル
-- **環境変数 `ADMIN_UIDS`（現行）**: 再デプロイが必要でスケールしない。テスター等の追加ロールに対応不可
+- **環境変数 `ADMIN_UIDS`（現行）**: 再デプロイが必要でスケールしない。内弟子等の追加ロールに対応不可
 - **専用 `roles` コレクション**: `users` に追加フィールドで十分な現在の規模では過剰
 
 ---

@@ -18,7 +18,7 @@
 
 **Purpose**: SiteRole 型と権限チェックの共通基盤を構築
 
-- [ ] T001 [P] Add `SiteRole` type (`'admin' | 'tester' | 'user' | 'banned'`) and `siteRole?: SiteRole` field to `User` interface in apps/web/src/types/user.ts
+- [ ] T001 [P] Add `SiteRole` type (`'admin' | 'uchideshi' | 'user' | 'banned'`) and `siteRole?: SiteRole` field to `User` interface in apps/web/src/types/user.ts
 - [ ] T002 [P] Create `lib/adminAuth.ts` in functions/src/lib/adminAuth.ts: export `SiteRole` type, `getSiteRole(uid)` (Firestore lookup, default 'user'), `isAdmin(uid)` (FUNCTIONS_EMULATOR bypass + ADMIN_UIDS fallback + Firestore check), `requireAuth(context)` (auth check, return uid), `requireAdmin(context)` (auth + admin check, return uid)
 
 **Checkpoint**: 型定義と共通ユーティリティが存在する。ビルドが通る。
@@ -42,8 +42,8 @@
 **Purpose**: フロントエンドで siteRole を認識し、管理ダッシュボードを admin のみに制限
 
 - [ ] T006 Update `getUserProfile()` in apps/web/src/services/users.service.ts to read `siteRole` field from Firestore document and include it in returned `User` object. Also update `getCachedUserProfile` deserialization to include `siteRole`.
-- [ ] T007 Add `siteRole`, `isAdmin`, `isTester` to return value in apps/web/src/hooks/useAuth.ts: derive `siteRole` from `state.userProfile?.siteRole || 'user'`, `isAdmin` from `siteRole === 'admin'`, `isTester` from `siteRole === 'admin' || siteRole === 'tester'`
-- [ ] T008 Add `siteRole: SiteRole`, `isAdmin: boolean`, `isTester: boolean` to `AuthContextValue` interface in apps/web/src/contexts/AuthContext.tsx
+- [ ] T007 Add `siteRole`, `isAdmin`, `isUchideshi` to return value in apps/web/src/hooks/useAuth.ts: derive `siteRole` from `state.userProfile?.siteRole || 'user'`, `isAdmin` from `siteRole === 'admin'`, `isUchideshi` from `siteRole === 'admin' || siteRole === 'uchideshi'`
+- [ ] T008 Add `siteRole: SiteRole`, `isAdmin: boolean`, `isUchideshi: boolean` to `AuthContextValue` interface in apps/web/src/contexts/AuthContext.tsx
 - [ ] T009 Create `AdminRoute` component in apps/web/src/components/AdminRoute.tsx: use `useAuthContext()`, show loading spinner while loading, redirect to `/` if not authenticated or not admin, render children if admin. Follow `ProtectedRoute.tsx` pattern.
 - [ ] T010 Wrap `/admin` route with `AdminRoute` guard in apps/web/src/App.tsx: `<Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />`
 
@@ -68,7 +68,7 @@
 
 **Purpose**: 管理者がダッシュボードからユーザーの siteRole を管理するUI
 
-- [ ] T015 Add 5th tab「ユーザー」to AdminPage in apps/web/src/pages/AdminPage.tsx: tab button with `activeTab === 'users'`, tab content section with user management UI. Include: (1) nickname search input, (2) siteRole filter dropdown (all/admin/tester/user/banned), (3) user list table (nickname, uid, siteRole, createdAt), (4) siteRole change dropdown per user row with confirm dialog, (5) success/error message display. Use existing `adminGetUsers`/`adminSetUserRole` from admin-v2.service.ts. Follow existing tab pattern in AdminPage.
+- [ ] T015 Add 5th tab「ユーザー」to AdminPage in apps/web/src/pages/AdminPage.tsx: tab button with `activeTab === 'users'`, tab content section with user management UI. Include: (1) nickname search input, (2) siteRole filter dropdown (all/admin/uchideshi/user/banned), (3) user list table (nickname, uid, siteRole, createdAt), (4) siteRole change dropdown per user row with confirm dialog, (5) success/error message display. Use existing `adminGetUsers`/`adminSetUserRole` from admin-v2.service.ts. Follow existing tab pattern in AdminPage.
 
 **Checkpoint**: 管理者がユーザー管理タブでユーザー一覧表示、siteRole変更ができる。
 
@@ -82,7 +82,7 @@
 - [ ] T017 [P] Run Vite production build: `cd apps/web && npm run build`
 - [ ] T018 [P] Run Functions build: `cd functions && npm run build`
 - [ ] T019 Create backend unit test in functions/src/__tests__/adminAuth.test.ts: test `getSiteRole` returns 'user' for missing siteRole, `isAdmin` returns true for admin siteRole, `isAdmin` returns true for ADMIN_UIDS match, `requireAdmin` throws for non-admin
-- [ ] T020 Run manual end-to-end testing: (1) Firebase Console で siteRole: "admin" 設定, (2) admin ログイン → /admin アクセス → ダッシュボード表示, (3) 別ユーザーログイン → /admin → リダイレクト確認, (4) ユーザー管理タブで tester ロール付与, (5) tester ユーザーでログイン → 管理画面アクセス不可を確認
+- [ ] T020 Run manual end-to-end testing: (1) Firebase Console で siteRole: "admin" 設定, (2) admin ログイン → /admin アクセス → ダッシュボード表示, (3) 別ユーザーログイン → /admin → リダイレクト確認, (4) ユーザー管理タブで内弟子ロール付与, (5) 内弟子ユーザーでログイン → 管理画面アクセス不可を確認
 
 ---
 

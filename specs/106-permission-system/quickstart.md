@@ -37,8 +37,8 @@ cd functions && npm run serve
 | ---- | ------ |
 | `types/user.ts` | `SiteRole` 型 + `siteRole` フィールド追加 |
 | `services/users.service.ts` | `getUserProfile()` で `siteRole` を読み取り |
-| `hooks/useAuth.ts` | `siteRole` / `isAdmin` / `isTester` を返却値に追加 |
-| `contexts/AuthContext.tsx` | `siteRole` / `isAdmin` / `isTester` をContext値に追加 |
+| `hooks/useAuth.ts` | `siteRole` / `isAdmin` / `isUchideshi` を返却値に追加 |
+| `contexts/AuthContext.tsx` | `siteRole` / `isAdmin` / `isUchideshi` をContext値に追加 |
 | `App.tsx` | `/admin` を `AdminRoute` で囲む |
 | `services/admin-v2.service.ts` | `adminGetUsers` / `adminSetUserRole` ラッパー追加 |
 | `pages/AdminPage.tsx` | 「ユーザー管理」タブ追加 |
@@ -99,8 +99,8 @@ cd functions && npm test -- --testPathPattern=adminAuth
 # 1. Firebase Console で自分の users doc に siteRole: "admin" を設定
 # 2. admin でログイン → /admin アクセス → ダッシュボード表示
 # 3. 別ユーザーでログイン → /admin アクセス → ホームにリダイレクト
-# 4. 管理者としてユーザー管理タブでtesterロール付与
-# 5. testerユーザーでログイン → ベータ機能表示確認
+# 4. 管理者としてユーザー管理タブで内弟子ロール付与
+# 5. 内弟子ユーザーでログイン → ベータ機能表示確認
 ```
 
 ## Patterns to Follow

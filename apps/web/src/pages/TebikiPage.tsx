@@ -11,6 +11,7 @@ import { Container } from '@/components/ui/Container';
 import * as inviteService from '@/services/invite.service';
 import type { TargetMode, CreateInviteOutput } from '@/types/invite';
 import { TARGET_MODE_LABELS } from '@/types/invite';
+import { QRCodeSVG } from 'qrcode.react';
 
 export function TebikiPage() {
   const navigate = useNavigate();
@@ -269,6 +270,11 @@ function InviteCreateSection() {
                 {copied === 'code' ? 'コピーしました' : 'コピー'}
               </Button>
             </div>
+          </div>
+
+          {/* QRコード */}
+          <div className="flex justify-center py-2">
+            <QRCodeSVG value={inviteResult.inviteUrl} size={160} level="M" includeMargin />
           </div>
 
           <Text size="xs" color="muted">
