@@ -1,0 +1,261 @@
+# 団体管理 API Contract
+# Firebase Callable Functions
+
+openapi: 3.0.3
+info:
+  title: Group Management API
+  version: 1.0.0
+  description: 団体機能のCallable Functions API
+
+paths:
+  /createGroup:
+    post:
+      summary: 団体を作成
+      description: |
+        新しい団体を作成し、作成者を団体管理者として登録。
+        招待コード（7日有効/100名上限）を自動生成。
+      operationId: createGroup
+      tags: [Group]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 50
+                  description: 団体名
+                description:
+                  type: string
+                  maxLength: 500
+                  description: 団体説明
+      responses:
+        '200':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  groupId: { type: string }
+                  inviteCode: { type: string, description: 平文招待コード（この応答のみ） }
+        '401':
+          description: 未認証
+        '400':
+          description: バリデーションエラー
+
+  /updateGroup:
+    post:
+      summary: 団体情報を更新
+      description: 団体管理者のみ実行可能
+      operationId: updateGroup
+      tags: [Group]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [groupId]
+              properties:
+                groupId: { type: string }
+                name: { type: string, maxLength: 50 }
+                description: { type: string, maxLength: 500 }
+      responses:
+        '200':
+          description: 更新成功
+        '403':
+          description: 権限不足（団体管理者以外）
+
+  /deleteGroup:
+    post:
+      summary: 団体を削除
+      description: 団体管理者のみ実行可能。ステータスをdeletedに変更。
+      operationId: deleteGroup
+      tags: [Group]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [groupId]
+              properties:
+                groupId: { type: string }
+      responses:
+        '200':
+          description: 削除成功
+        '403':
+          description: 権限不足
+
+  /getGroup:
+    post:
+      summary: 団体情報を取得
+      operationId: getGroup
+      tags: [Group]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [groupId]
+              properties:
+                groupId: { type: string }
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+
+  /getMyGroups:
+    post:
+      summary: 自分の所属団体一覧を取得
+      operationId: getMyGroups
+      tags: [Group]
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  groups:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GroupWithMembership'
+
+  /getGroupMembers:
+    post:
+      summary: 団体メンバー一覧を取得
+      description: 団体メンバーのみ実行可能
+      operationId: getGroupMembers
+      tags: [Group]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [groupId]
+              properties:
+                groupId: { type: string }
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  members:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Member'
+
+  /changeRole:
+    post:
+      summary: メンバーのロールを変更
+      description: 団体管理者のみ実行可能
+      operationId: changeRole
+      tags: [Group]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [groupId, targetUserId, newRole]
+              properties:
+                groupId: { type: string }
+                targetUserId: { type: string }
+                newRole:
+                  type: string
+                  enum: [owner, organizer, member]
+      responses:
+        '200':
+          description: 変更成功
+        '403':
+          description: 権限不足
+
+  /removeMember:
+    post:
+      summary: メンバーを除名
+      description: 団体管理者のみ実行可能。自分自身は除名不可。
+      operationId: removeMember
+      tags: [Group]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [groupId, targetUserId]
+              properties:
+                groupId: { type: string }
+                targetUserId: { type: string }
+      responses:
+        '200':
+          description: 除名成功
+        '403':
+          description: 権限不足
+        '400':
+          description: 自分自身は除名不可
+
+  /leaveGroup:
+    post:
+      summary: 団体から退会
+      description: 団体管理者は退会不可（先に管理者権限を移譲する必要あり）
+      operationId: leaveGroup
+      tags: [Group]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [groupId]
+              properties:
+                groupId: { type: string }
+      responses:
+        '200':
+          description: 退会成功
+        '400':
+          description: 団体管理者は退会不可
+
+components:
+  schemas:
+    Group:
+      type: object
+      properties:
+        groupId: { type: string }
+        name: { type: string }
+        description: { type: string }
+        iconUrl: { type: string }
+        status: { type: string, enum: [active, suspended, deleted] }
+        memberCount: { type: integer }
+        createdAt: { type: string, format: date-time }
+
+    GroupWithMembership:
+      allOf:
+        - $ref: '#/components/schemas/Group'
+        - type: object
+          properties:
+            myRole: { type: string, enum: [owner, organizer, member] }
+            joinedAt: { type: string, format: date-time }
+
+    Member:
+      type: object
+      properties:
+        userId: { type: string }
+        nickname: { type: string }
+        role: { type: string, enum: [owner, organizer, member] }
+        joinedAt: { type: string, format: date-time }

@@ -11,7 +11,6 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   isProfileComplete: boolean;
   loginWithGoogle: () => Promise<void>;
-  loginAnonymously: () => Promise<void>;
   loginWithEmail: (email: string, password: string) => Promise<void>;
   registerWithEmail: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;

@@ -4,6 +4,7 @@ import { getRandomPoems, getAllPoemsSync } from './poems.service';
 
 export interface PracticeFilter {
   kimarijiCounts?: number[]; // e.g., [1, 2] for 1字決まり and 2字決まり
+  poemRanges?: { start: number; end: number }[]; // e.g., [{ start: 1, end: 20 }]
 }
 
 /**
@@ -57,11 +58,16 @@ export function createPracticeSession(
   questionCount: number = 10,
   filter?: PracticeFilter
 ): PracticeSession {
+  const allPoems = getAllPoemsSync();
   const selectedPoems = getRandomPoems(questionCount, filter);
-  const allPoems = getAllPoemsSync(); // Use all poems for decoys
+
+  // For decoys, use filtered poems if available, otherwise use all poems
+  const filteredPoems = filter ? getRandomPoems(100, filter) : allPoems;
+  // If filtered poems are too few for diverse choices, fall back to all poems
+  const decoyPool = filteredPoems.length >= 12 ? filteredPoems : allPoems;
 
   const questions: Question[] = selectedPoems.map(poem => {
-    const { choices, choiceKanas, choicePoems, correctIndex } = generateChoices(poem, allPoems);
+    const { choices, choiceKanas, choicePoems, correctIndex } = generateChoices(poem, decoyPool);
 
     return {
       poem,

@@ -15,6 +15,7 @@ export interface Round {
 export interface SessionData {
   correctCount?: number;
   totalElapsedMs?: number;
+  roundCount?: number;
 }
 
 export type InvalidReason =
@@ -28,7 +29,12 @@ export type InvalidReason =
 export interface ValidationResult {
   isValid: boolean;
   reasons: InvalidReason[];
+  reasonCodes: string[];
+  ruleVersion: string;
 }
+
+// Current rule version for audit tracking
+export const RULE_VERSION = '1.1.0';
 
 /**
  * Validate a session against 5 anomaly detection rules
@@ -41,15 +47,16 @@ export function validateSession(
   rounds: Round[]
 ): ValidationResult {
   const reasons: InvalidReason[] = [];
+  const expectedRoundCount = session.roundCount || 50;
 
-  // Rule 1: Round count must be exactly 50
-  if (rounds.length !== 50) {
+  // Rule 1: Round count must match expected
+  if (rounds.length !== expectedRoundCount) {
     reasons.push('ROUND_COUNT_MISMATCH');
   }
 
-  // Rule 2: Round indices must be unique (0-49)
+  // Rule 2: Round indices must be unique (0 to roundCount-1)
   const indices = new Set(rounds.map((r) => r.roundIndex));
-  if (indices.size !== 50) {
+  if (indices.size !== expectedRoundCount) {
     reasons.push('ROUND_INDEX_DUPLICATE');
   }
 
@@ -61,9 +68,10 @@ export function validateSession(
     }
   }
 
-  // Rule 4: Too fast - clientElapsedMs < 200ms for 5+ rounds
+  // Rule 4: Too fast - clientElapsedMs < 200ms for 5+ rounds (or 3+ for short sessions)
   const fastRounds = rounds.filter((r) => r.clientElapsedMs < 200);
-  if (fastRounds.length >= 5) {
+  const fastThreshold = expectedRoundCount <= 10 ? 3 : 5;
+  if (fastRounds.length >= fastThreshold) {
     reasons.push('TOO_FAST');
   }
 
@@ -73,10 +81,10 @@ export function validateSession(
     reasons.push('TOO_SLOW');
   }
 
-  // Rule 6: correctCount must be in valid range (0-50)
+  // Rule 6: correctCount must be in valid range (0-roundCount)
   if (
     session.correctCount !== undefined &&
-    (session.correctCount < 0 || session.correctCount > 50)
+    (session.correctCount < 0 || session.correctCount > expectedRoundCount)
   ) {
     reasons.push('INVALID_CORRECT_COUNT');
   }
@@ -84,6 +92,8 @@ export function validateSession(
   return {
     isValid: reasons.length === 0,
     reasons,
+    reasonCodes: reasons, // InvalidReason types are already code-like
+    ruleVersion: RULE_VERSION,
   };
 }
 

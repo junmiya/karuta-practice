@@ -1,8 +1,10 @@
 /**
  * Hook for managing official competition sessions
+ * Uses card replacement model: correct=1 card replaced, incorrect=2 cards replaced
+ * Remaining cards keep their positions
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import type { Poem } from '@/types/poem';
 import type { Round } from '@/types/session';
 import { getAllPoemsSync } from '@/services/poems.service';
@@ -10,7 +12,6 @@ import {
   createSession,
   saveRound,
   submitSession,
-  generateChoices,
   SubmitResponse,
 } from '@/services/session.service';
 
@@ -18,74 +19,104 @@ interface UseOfficialSessionOptions {
   uid: string;
   seasonId: string;
   entryId: string;
+  affiliatedGroupId?: string;
+  affiliatedGroupName?: string;
 }
 
 interface OfficialSessionState {
   sessionId: string | null;
   currentRoundIndex: number;
   rounds: Round[];
+  currentCards: Poem[];       // 12 cards on the grid
+  correctPoemId: string | null;  // current correct poem
+  usedCorrectIds: string[];   // already used as correct (won't be reused)
+  lastIsCorrect: boolean | null; // result of last answer (for replacement logic)
+  lastSelectedId: string | null; // last selected poem ID
   isLoading: boolean;
   isSubmitting: boolean;
   error: string | null;
   result: SubmitResponse | null;
 }
 
+function selectRandomPoems(poems: Poem[], count: number): Poem[] {
+  const shuffled = [...poems].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, Math.min(count, shuffled.length));
+}
+
 export function useOfficialSession(options: UseOfficialSessionOptions) {
-  const { uid, seasonId, entryId } = options;
+  const { uid, seasonId, entryId, affiliatedGroupId, affiliatedGroupName } = options;
   const allPoems = useMemo(() => getAllPoemsSync(), []);
-  const allPoemIds = useMemo(() => allPoems.map((p) => p.poemId), [allPoems]);
 
   const [state, setState] = useState<OfficialSessionState>({
     sessionId: null,
     currentRoundIndex: 0,
     rounds: [],
+    currentCards: [],
+    correctPoemId: null,
+    usedCorrectIds: [],
+    lastIsCorrect: null,
+    lastSelectedId: null,
     isLoading: false,
     isSubmitting: false,
     error: null,
     result: null,
   });
 
-  // Generate question order (50 random poems)
-  const [questionOrder, setQuestionOrder] = useState<Poem[]>([]);
+  const questionStartTimeRef = useRef<number>(0);
+  const isSavingRef = useRef(false);
+  const sessionIdRef = useRef<string | null>(null);
+  const processedRoundsRef = useRef<Set<number>>(new Set());
+  const lastRoundIndexRef = useRef<number>(-1);
 
   // Current question data
   const currentQuestion = useMemo(() => {
-    if (state.currentRoundIndex >= 50 || questionOrder.length === 0) {
+    if (state.currentRoundIndex >= 50 || state.currentCards.length === 0 || !state.correctPoemId) {
       return null;
     }
 
-    const poem = questionOrder[state.currentRoundIndex];
-    const choices = generateChoices(poem.poemId, allPoemIds);
-    const choicePoems = choices
-      .map((id) => allPoems.find((p) => p.poemId === id))
-      .filter((p): p is Poem => p !== undefined);
+    const poem = state.currentCards.find(p => p.poemId === state.correctPoemId);
+    if (!poem) return null;
 
     return {
       roundIndex: state.currentRoundIndex,
       poem,
-      choices,
-      choicePoems,
+      choices: state.currentCards.map(p => p.poemId),
+      choicePoems: state.currentCards,
     };
-  }, [state.currentRoundIndex, questionOrder, allPoemIds, allPoems]);
+  }, [state.currentRoundIndex, state.currentCards, state.correctPoemId]);
+
+  // Start timer when round changes
+  useEffect(() => {
+    if (currentQuestion && state.currentRoundIndex !== lastRoundIndexRef.current) {
+      questionStartTimeRef.current = performance.now();
+      lastRoundIndexRef.current = state.currentRoundIndex;
+    }
+  }, [currentQuestion, state.currentRoundIndex]);
 
   // Start a new session
   const startSession = useCallback(async () => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      // Create session in Firestore
-      const sessionId = await createSession(uid, seasonId, entryId);
+      const sessionId = await createSession(uid, seasonId, entryId, 50, affiliatedGroupId, affiliatedGroupName);
+      sessionIdRef.current = sessionId;
+      processedRoundsRef.current = new Set();
 
-      // Generate random question order (50 poems)
-      const shuffled = [...allPoems].sort(() => Math.random() - 0.5);
-      const questions = shuffled.slice(0, 50);
+      // Pick initial 12 cards
+      const initial12 = selectRandomPoems(allPoems, 12);
+      // Pick first correct from the 12
+      const correct = initial12[Math.floor(Math.random() * initial12.length)];
 
-      setQuestionOrder(questions);
       setState((prev) => ({
         ...prev,
         sessionId,
         currentRoundIndex: 0,
         rounds: [],
+        currentCards: initial12,
+        correctPoemId: correct.poemId,
+        usedCorrectIds: [correct.poemId],
+        lastIsCorrect: null,
+        lastSelectedId: null,
         isLoading: false,
       }));
 
@@ -98,37 +129,124 @@ export function useOfficialSession(options: UseOfficialSessionOptions) {
       }));
       return null;
     }
-  }, [uid, seasonId, entryId, allPoems]);
+  }, [uid, seasonId, entryId, allPoems, affiliatedGroupId, affiliatedGroupName]);
 
   // Answer current question
   const answerQuestion = useCallback(
-    async (selectedPoemId: string, elapsedMs: number) => {
-      if (!state.sessionId || !currentQuestion) return;
+    async (selectedPoemId: string) => {
+      if (!sessionIdRef.current || !currentQuestion || isSavingRef.current) return;
+
+      const roundIndex = currentQuestion.roundIndex;
+      if (processedRoundsRef.current.has(roundIndex)) return;
+
+      isSavingRef.current = true;
+      processedRoundsRef.current.add(roundIndex);
+
+      const elapsedMs = Math.max(200, Math.round(performance.now() - questionStartTimeRef.current));
+      const isCorrect = selectedPoemId === currentQuestion.poem.poemId;
 
       const round: Round = {
-        roundIndex: currentQuestion.roundIndex,
+        roundIndex,
         correctPoemId: currentQuestion.poem.poemId,
         choices: currentQuestion.choices,
         selectedPoemId,
-        isCorrect: selectedPoemId === currentQuestion.poem.poemId,
+        isCorrect,
         clientElapsedMs: elapsedMs,
       };
 
       // Save round to Firestore
       try {
-        await saveRound(state.sessionId, round);
+        await saveRound(sessionIdRef.current, round);
       } catch (error) {
         console.error('Failed to save round:', error);
-        // Continue anyway - the round data is stored locally
+        try {
+          await saveRound(sessionIdRef.current!, round);
+        } catch (retryError) {
+          console.error('Retry also failed:', retryError);
+        }
       }
 
-      setState((prev) => ({
-        ...prev,
-        rounds: [...prev.rounds, round],
-        currentRoundIndex: prev.currentRoundIndex + 1,
-      }));
+      // Advance state: replace cards and pick next correct
+      setState((prev) => {
+        const nextRoundIndex = prev.currentRoundIndex + 1;
+
+        if (nextRoundIndex >= 50) {
+          // Last question — just record the round
+          return {
+            ...prev,
+            rounds: [...prev.rounds, round],
+            currentRoundIndex: nextRoundIndex,
+          };
+        }
+
+        // Determine cards to replace
+        const poemsToReplace: string[] = [];
+        if (prev.correctPoemId) {
+          poemsToReplace.push(prev.correctPoemId);
+          if (!isCorrect && selectedPoemId !== prev.correctPoemId) {
+            poemsToReplace.push(selectedPoemId);
+          }
+        }
+
+        // Remaining cards (not replaced)
+        const remainingPoems = prev.currentCards.filter(
+          p => !poemsToReplace.includes(p.poemId)
+        );
+
+        // Pick new cards (not in remaining, not already used as correct)
+        const availableForNew = allPoems.filter(
+          p => !remainingPoems.some(r => r.poemId === p.poemId) &&
+               !poemsToReplace.includes(p.poemId)
+        );
+        const newPoems = selectRandomPoems(availableForNew, poemsToReplace.length);
+
+        // In-place replacement (preserve positions)
+        let newPoemIdx = 0;
+        const nextCards = prev.currentCards.map(p => {
+          if (poemsToReplace.includes(p.poemId) && newPoemIdx < newPoems.length) {
+            return newPoems[newPoemIdx++];
+          }
+          if (poemsToReplace.includes(p.poemId)) {
+            return p; // fallback
+          }
+          return p;
+        });
+
+        // Pick next correct from remaining cards (not the replaced ones),
+        // and not already used as correct
+        const replacedIds = new Set(newPoems.map(p => p.poemId));
+        const usedSet = new Set(prev.usedCorrectIds);
+        const candidates = nextCards.filter(
+          p => !replacedIds.has(p.poemId) && !usedSet.has(p.poemId)
+        );
+
+        // Fallback: if no unused remaining card, allow any remaining card
+        const fallbackCandidates = candidates.length > 0
+          ? candidates
+          : nextCards.filter(p => !replacedIds.has(p.poemId));
+
+        // Fallback 2: if still none, use any card
+        const finalCandidates = fallbackCandidates.length > 0
+          ? fallbackCandidates
+          : nextCards;
+
+        const nextCorrect = finalCandidates[Math.floor(Math.random() * finalCandidates.length)];
+
+        return {
+          ...prev,
+          rounds: [...prev.rounds, round],
+          currentRoundIndex: nextRoundIndex,
+          currentCards: nextCards,
+          correctPoemId: nextCorrect.poemId,
+          usedCorrectIds: [...prev.usedCorrectIds, nextCorrect.poemId],
+          lastIsCorrect: isCorrect,
+          lastSelectedId: selectedPoemId,
+        };
+      });
+
+      isSavingRef.current = false;
     },
-    [state.sessionId, currentQuestion]
+    [currentQuestion, allPoems]
   );
 
   // Submit session for confirmation
@@ -162,14 +280,13 @@ export function useOfficialSession(options: UseOfficialSessionOptions) {
       (sum, r) => sum + r.clientElapsedMs,
       0
     );
-    const averageMs =
-      state.rounds.length > 0 ? totalElapsedMs / state.rounds.length : 0;
 
     return {
       correctCount,
       totalCount: state.rounds.length,
       totalElapsedMs,
-      averageMs,
+      averageMs:
+        state.rounds.length > 0 ? totalElapsedMs / state.rounds.length : 0,
       accuracy:
         state.rounds.length > 0
           ? Math.round((correctCount / state.rounds.length) * 100)
@@ -177,11 +294,9 @@ export function useOfficialSession(options: UseOfficialSessionOptions) {
     };
   }, [state.rounds]);
 
-  // Check if session is complete
   const isComplete = state.currentRoundIndex >= 50;
 
   return {
-    // State
     sessionId: state.sessionId,
     currentRoundIndex: state.currentRoundIndex,
     currentQuestion,
@@ -193,7 +308,6 @@ export function useOfficialSession(options: UseOfficialSessionOptions) {
     isComplete,
     stats,
 
-    // Actions
     startSession,
     answerQuestion,
     submitForConfirmation,

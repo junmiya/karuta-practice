@@ -1,0 +1,152 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ユーザー
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // 覚えた札
+    match /userLearned/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // エントリー
+    match /entries/{entryId} {
+      // 認証済みユーザーは自分のエントリーIDパターン（uid_seasonId）で読み取り可能
+      allow read: if request.auth != null && entryId.matches(request.auth.uid + '_.*');
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+    }
+
+    // セッション
+    match /sessions/{sessionId} {
+      // 自分のセッションは読み取り可能、確定済みセッションは全員が読み取り可能（番付表示用）
+      allow read: if request.auth != null && (
+        resource.data.uid == request.auth.uid ||
+        resource.data.status == 'confirmed'
+      );
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow update: if request.auth != null && resource.data.uid == request.auth.uid;
+
+      match /rounds/{roundIndex} {
+        allow read, write: if request.auth != null
+                          && get(/databases/$(database)/documents/sessions/$(sessionId)).data.uid == request.auth.uid;
+      }
+    }
+
+    // シーズン・番付・殿堂（公開読み取り）
+    match /seasons/{seasonId} {
+      allow read: if true;
+    }
+    match /rankings/{id} {
+      allow read: if true;
+    }
+    match /hallOfFame/{id} {
+      allow read: if true;
+    }
+
+    // ユーザー統計
+    match /userStats/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // 練習結果
+    match /practiceResults/{resultId} {
+      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+    }
+
+    // 公式記録提出（公開読み取り）
+    match /submissions/{id} {
+      allow read: if true;
+      allow create: if request.auth != null;
+    }
+
+    // 番付スナップショット（公開読み取り）
+    match /banzukeSnapshots/{id} {
+      allow read: if true;
+    }
+
+    // === 102: 歌合・節気別歌位確定 新コレクション ===
+
+    // ルールセット（公開読み取り、サーバのみ書込）
+    match /rulesets/{docId} {
+      allow read: if true;
+    }
+
+    // 節気カレンダー（公開読み取り、サーバのみ書込）
+    match /season_calendars/{year} {
+      allow read: if true;
+    }
+
+    // 歌合イベント（本人のみ読み取り、サーバのみ書込）
+    match /events/{eventId} {
+      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+
+    // ユーザー進捗（本人のみ読み取り、サーバのみ書込）
+    match /user_progress/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // 季末スナップショット（公開読み取り、サーバのみ書込）
+    match /season_snapshots/{id} {
+      allow read: if true;
+    }
+
+    // ジョブ実行ログ（サーバのみ読み書き — クライアントアクセス不可）
+    match /job_runs/{runId} {
+      allow read, write: if false;
+    }
+
+    // === 103: 団体機能 新コレクション ===
+
+    // 団体（認証済みユーザーのみ読み取り、サーバのみ書込）
+    match /groups/{groupId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // 団体メンバーシップ（認証済みユーザーのみ読み取り、サーバのみ書込）
+    match /group_memberships/{membershipId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // 招待コード（サーバのみ — ハッシュ漏洩防止）
+    match /group_invites/{inviteId} {
+      allow read, write: if false;
+    }
+
+    // 団体内イベント（認証済みユーザーのみ読み取り、サーバのみ書込）
+    match /group_events/{eventId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // イベント参加者（認証済みユーザーのみ読み取り、サーバのみ書込）
+    match /group_event_participants/{participantId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // 団体成績（公開読み取り、サーバのみ書込）
+    match /group_stats/{statsId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // === 105: 手引招待機能 新コレクション ===
+
+    // 招待（サーバのみ — Cloud Functions経由でアクセス）
+    match /invites/{inviteId} {
+      allow read, write: if false;
+    }
+
+    // 招待参加者（サーバのみ — Phase2）
+    match /invite_participants/{participantId} {
+      allow read, write: if false;
+    }
+  }
+}

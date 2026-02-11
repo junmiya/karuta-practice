@@ -1,6 +1,6 @@
 import {
-  signInWithPopup,
-  signInAnonymously,
+  signInWithRedirect,
+  getRedirectResult,
   signOut as firebaseSignOut,
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
@@ -12,19 +12,24 @@ import { auth } from './firebase';
 const googleProvider = new GoogleAuthProvider();
 
 /**
- * Sign in with Google account
+ * Sign in with Google account using redirect
  */
-export async function signInWithGoogle(): Promise<User> {
-  const result = await signInWithPopup(auth, googleProvider);
-  return result.user;
+export async function signInWithGoogle(): Promise<void> {
+  await signInWithRedirect(auth, googleProvider);
 }
 
 /**
- * Sign in anonymously
+ * Handle redirect result after returning from Google login
+ * Call this on app initialization
  */
-export async function signInAnonymous(): Promise<User> {
-  const result = await signInAnonymously(auth);
-  return result.user;
+export async function handleRedirectResult(): Promise<User | null> {
+  try {
+    const result = await getRedirectResult(auth);
+    return result?.user || null;
+  } catch (error) {
+    console.error('Redirect result error:', error);
+    return null;
+  }
 }
 
 /**

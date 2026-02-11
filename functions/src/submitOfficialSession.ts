@@ -17,6 +17,7 @@ import {
   Round,
 } from './validators/sessionValidator';
 import { updateRanking, updateUserStats } from './services/rankingUpdater';
+import { updateGroupStats } from './services/groupStatsService';
 
 const db = admin.firestore();
 
@@ -53,6 +54,8 @@ function getJstDateKey(): string {
 export const submitOfficialSession = functions
   .region('asia-northeast1')
   .https.onCall(async (data: SubmitRequest, context): Promise<SubmitResponse> => {
+    console.log('=== submitOfficialSession CALLED ===');
+
     // 1. Authentication check
     if (!context.auth) {
       throw new HttpsError('unauthenticated', 'ログインが必要です');
@@ -114,27 +117,43 @@ export const submitOfficialSession = functions
         }
       }
 
-      // 6. Get all rounds
-      const roundsSnapshot = await sessionRef.collection('rounds').get();
-      const rounds: Round[] = roundsSnapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          roundIndex: data.roundIndex,
-          correctPoemId: data.correctPoemId,
-          choices: data.choices,
-          selectedPoemId: data.selectedPoemId,
-          isCorrect: data.isCorrect,
-          clientElapsedMs: data.clientElapsedMs,
-        };
-      });
+      // 6. Get rounds from session document (new format) or subcollection (legacy)
+      let rounds: Round[];
+
+      if (sessionData.rounds && Array.isArray(sessionData.rounds) && sessionData.rounds.length > 0) {
+        // New format: rounds stored as array in session document
+        rounds = sessionData.rounds.map((data: Record<string, unknown>) => ({
+          roundIndex: data.roundIndex as number,
+          correctPoemId: data.correctPoemId as string,
+          choices: data.choices as string[],
+          selectedPoemId: data.selectedPoemId as string,
+          isCorrect: data.isCorrect as boolean,
+          clientElapsedMs: data.clientElapsedMs as number,
+        }));
+      } else {
+        // Legacy format: rounds stored as subcollection (backward compatibility)
+        const roundsSnapshot = await sessionRef.collection('rounds').get();
+        rounds = roundsSnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            roundIndex: data.roundIndex,
+            correctPoemId: data.correctPoemId,
+            choices: data.choices,
+            selectedPoemId: data.selectedPoemId,
+            isCorrect: data.isCorrect,
+            clientElapsedMs: data.clientElapsedMs,
+          };
+        });
+      }
 
       // Calculate correctCount and totalElapsedMs from rounds
       const correctCount = calculateCorrectCount(rounds);
       const totalElapsedMs = calculateTotalElapsedMs(rounds);
+      const roundCount = sessionData.roundCount || 50;
 
       // 7. Anomaly detection
       const validationResult = validateSession(
-        { correctCount, totalElapsedMs },
+        { correctCount, totalElapsedMs, roundCount },
         rounds
       );
 
@@ -143,6 +162,7 @@ export const submitOfficialSession = functions
         await sessionRef.update({
           status: 'invalid',
           invalidReasons: validationResult.reasons,
+          invalidReasonCodes: validationResult.reasonCodes || [],
           correctCount,
           totalElapsedMs,
         });
@@ -156,40 +176,56 @@ export const submitOfficialSession = functions
       // 8. Calculate score
       const scoreResult = calculateScore({ correctCount, totalElapsedMs });
 
-      // 9. Confirm session
+      // 9. Get user's nickname and entry info for ranking (parallel fetch)
+      const [userDoc, entryDoc] = await Promise.all([
+        db.collection('users').doc(uid).get(),
+        db.collection('entries').doc(sessionData.entryId).get(),
+      ]);
+      const nickname = userDoc.exists
+        ? userDoc.data()?.nickname || 'Anonymous'
+        : 'Anonymous';
+      const division = entryDoc.exists
+        ? (entryDoc.data()?.division as 'kyu' | 'dan')
+        : 'kyu';
+
+      // 10. Confirm session (include nickname for faster banzuke queries)
       await sessionRef.update({
         status: 'confirmed',
         score: scoreResult.score,
         correctCount,
         totalElapsedMs,
+        nickname,
         confirmedAt: FieldValue.serverTimestamp(),
         dayKeyJst: getJstDateKey(),
       });
 
-      // 10. Get user's nickname and entry info for ranking
-      const userDoc = await db.collection('users').doc(uid).get();
-      const nickname = userDoc.exists
-        ? userDoc.data()?.nickname || 'Anonymous'
-        : 'Anonymous';
+      // 11. Update ranking and user stats (parallel)
+      const updatePromises: Promise<void>[] = [
+        updateRanking({
+          seasonId: sessionData.seasonId,
+          division,
+          uid,
+          nickname,
+          newScore: scoreResult.score,
+        }),
+        updateUserStats(uid, scoreResult.score),
+      ];
 
-      // Get entry to find division
-      const entryId = sessionData.entryId;
-      const entryDoc = await db.collection('entries').doc(entryId).get();
-      const division = entryDoc.exists
-        ? (entryDoc.data()?.division as 'kyu' | 'dan')
-        : 'kyu';
+      // 103: 団体戦対応 - 団体成績も更新
+      if (sessionData.affiliatedGroupId && sessionData.affiliatedGroupName) {
+        updatePromises.push(
+          updateGroupStats({
+            groupId: sessionData.affiliatedGroupId,
+            groupName: sessionData.affiliatedGroupName,
+            seasonKey: sessionData.seasonId,
+            score: scoreResult.score,
+          })
+        );
+      }
 
-      // 11. Update ranking
-      await updateRanking({
-        seasonId: sessionData.seasonId,
-        division,
-        uid,
-        nickname,
-        newScore: scoreResult.score,
-      });
+      await Promise.all(updatePromises);
 
-      // 12. Update user stats
-      await updateUserStats(uid, scoreResult.score);
+      console.log('=== submitOfficialSession SUCCESS ===', scoreResult.score);
 
       return {
         status: 'confirmed',
@@ -199,8 +235,10 @@ export const submitOfficialSession = functions
       if (error instanceof HttpsError) {
         throw error;
       }
-      console.error('submitOfficialSession error:', error);
-      throw new HttpsError('internal', 'エラーが発生しました');
+      const errMsg = error instanceof Error ? error.message : String(error);
+      const errStack = error instanceof Error ? error.stack : '';
+      console.error('submitOfficialSession error:', errMsg, errStack);
+      throw new HttpsError('internal', `エラーが発生しました: ${errMsg}`);
     }
   }
-);
+  );

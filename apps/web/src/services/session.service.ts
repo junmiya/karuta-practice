@@ -9,10 +9,10 @@ import {
   setDoc,
   updateDoc,
   serverTimestamp,
-  // Timestamp,
+  arrayUnion,
 } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
-import { db, functions } from './firebase';
+import { db, functions, auth } from './firebase';
 import type { Session, Round, SessionStatus } from '@/types/session';
 
 const SESSIONS_COLLECTION = 'sessions';
@@ -23,19 +23,28 @@ const SESSIONS_COLLECTION = 'sessions';
 export async function createSession(
   uid: string,
   seasonId: string,
-  entryId: string
+  entryId: string,
+  roundCount: number = 50,
+  affiliatedGroupId?: string,
+  affiliatedGroupName?: string
 ): Promise<string> {
   const sessionRef = doc(collection(db, SESSIONS_COLLECTION));
   const sessionId = sessionRef.id;
 
-  const session = {
+  const session: Record<string, unknown> = {
     uid,
     seasonId,
     entryId,
-    roundCount: 50,
+    roundCount,
     status: 'created' as SessionStatus,
     startedAt: serverTimestamp(),
   };
+
+  // 103: 団体戦対応 - affiliatedGroupIdが指定されている場合は追加
+  if (affiliatedGroupId && affiliatedGroupName) {
+    session.affiliatedGroupId = affiliatedGroupId;
+    session.affiliatedGroupName = affiliatedGroupName;
+  }
 
   await setDoc(sessionRef, session);
   return sessionId;
@@ -82,28 +91,26 @@ export async function updateSessionStatus(
 }
 
 /**
- * Save a round to the session
+ * Save a round to the session (as array element, not subcollection)
+ * This reduces reads from 50 to 1 when submitting for confirmation
  */
 export async function saveRound(
   sessionId: string,
   round: Round
 ): Promise<void> {
-  const roundId = round.roundIndex.toString().padStart(2, '0');
-  const roundRef = doc(
-    db,
-    SESSIONS_COLLECTION,
-    sessionId,
-    'rounds',
-    roundId
-  );
+  const sessionRef = doc(db, SESSIONS_COLLECTION, sessionId);
 
-  await setDoc(roundRef, {
+  const roundData = {
     roundIndex: round.roundIndex,
     correctPoemId: round.correctPoemId,
     choices: round.choices,
     selectedPoemId: round.selectedPoemId,
     isCorrect: round.isCorrect,
     clientElapsedMs: round.clientElapsedMs,
+  };
+
+  await updateDoc(sessionRef, {
+    rounds: arrayUnion(roundData),
   });
 }
 
@@ -120,17 +127,66 @@ export interface SubmitResponse {
 export async function submitSession(
   sessionId: string
 ): Promise<SubmitResponse> {
+  console.log('[submitSession] Starting submission for session:', sessionId);
+
+  // Verify user is authenticated before calling Cloud Function
+  const currentUser = auth.currentUser;
+  console.log('[submitSession] Current user:', currentUser?.uid || 'null');
+
+  if (!currentUser) {
+    throw new Error('認証が必要です。再ログインしてください。');
+  }
+
+  // Force token refresh to ensure we have a valid token
+  try {
+    const token = await currentUser.getIdToken(true);
+    console.log('[submitSession] Token refreshed, length:', token.length);
+  } catch (tokenError) {
+    console.error('[submitSession] Token refresh failed:', tokenError);
+    throw new Error('認証トークンの更新に失敗しました。再ログインしてください。');
+  }
+
   // First update local status to submitted
+  console.log('[submitSession] Updating session status to submitted');
   await updateSessionStatus(sessionId, 'submitted');
 
   // Call the Cloud Function
+  console.log('[submitSession] Calling Cloud Function...');
   const submitOfficialSession = httpsCallable<
     { sessionId: string },
     SubmitResponse
   >(functions, 'submitOfficialSession');
 
-  const result = await submitOfficialSession({ sessionId });
-  return result.data;
+  try {
+    const result = await submitOfficialSession({ sessionId });
+    console.log('[submitSession] Success:', result.data);
+    return result.data;
+  } catch (error: unknown) {
+    console.error('[submitSession] Cloud Function error:', error);
+    console.error('[submitSession] Error type:', typeof error);
+    console.error('[submitSession] Error keys:', error ? Object.keys(error as object) : 'null');
+
+    // Check for Firebase Functions error
+    const fbError = error as { code?: string; message?: string; details?: unknown };
+    console.error('[submitSession] Error code:', fbError.code);
+    console.error('[submitSession] Error message:', fbError.message);
+    console.error('[submitSession] Error details:', fbError.details);
+
+    if (fbError.code === 'functions/unauthenticated') {
+      throw new Error('認証が必要です。再ログインしてください。');
+    }
+    if (fbError.code === 'functions/permission-denied') {
+      throw new Error('権限がありません。');
+    }
+    if (fbError.code === 'functions/not-found') {
+      throw new Error('セッションが見つかりません。');
+    }
+
+    // Show more detailed error for debugging
+    const errorMsg = fbError.message || '不明なエラー';
+    const errorCode = fbError.code || 'unknown';
+    throw new Error(`提出エラー [${errorCode}]: ${errorMsg}`);
+  }
 }
 
 /**

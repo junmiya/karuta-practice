@@ -2,25 +2,47 @@ import { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { usePracticeSession } from '@/hooks/usePracticeSession';
 import { KarutaGrid } from '@/components/KarutaGrid';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { ControlBar } from '@/components/ControlBar';
+import { POEM_RANGES } from '@/components/PoemRangeSelector';
+import { cn } from '@/lib/utils';
 import type { Poem } from '@/types/poem';
 import type { PracticeFilter } from '@/services/practice.service';
 
 export function PracticePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [showKanaOnly, setShowKanaOnly] = useState(false);
+  const [showYomiKana, setShowYomiKana] = useState(false);
+  const [showToriKana, setShowToriKana] = useState(false);
   const [showKimariji, setShowKimariji] = useState(false);
 
   // Parse filter from URL params
   const filter: PracticeFilter | undefined = useMemo(() => {
+    const result: PracticeFilter = {};
+
+    // Parse kimariji filter
     const kimarijiParam = searchParams.get('kimariji');
     if (kimarijiParam) {
       const counts = kimarijiParam.split(',').map(Number).filter(n => !isNaN(n) && n >= 1 && n <= 6);
       if (counts.length > 0) {
-        return { kimarijiCounts: counts };
+        result.kimarijiCounts = counts;
       }
     }
-    return undefined;
+
+    // Parse poem range filter (format: range=1-20,21-40)
+    const rangeParam = searchParams.get('range');
+    if (rangeParam) {
+      const ranges = rangeParam.split(',').map(r => {
+        const [start, end] = r.split('-').map(Number);
+        return { start, end };
+      }).filter(r => !isNaN(r.start) && !isNaN(r.end) && r.start >= 1 && r.end <= 100);
+      if (ranges.length > 0) {
+        result.poemRanges = ranges;
+      }
+    }
+
+    return Object.keys(result).length > 0 ? result : undefined;
   }, [searchParams]);
 
   const {
@@ -47,8 +69,8 @@ export function PracticePage() {
 
   if (!currentQuestion) {
     return (
-      <div className="text-center">
-        <p>Loading...</p>
+      <div className="karuta-container space-y-2 py-2 text-center">
+        <p>読み込み中...</p>
       </div>
     );
   }
@@ -71,7 +93,7 @@ export function PracticePage() {
   const totalQuestions = session.questions.length;
 
   // ひらがな表示用の読み
-  const displayYomi = showKanaOnly ? currentQuestion.poem.yomiKana : currentQuestion.poem.yomi;
+  const displayYomi = showYomiKana ? currentQuestion.poem.yomiKana : currentQuestion.poem.yomi;
 
   // KarutaGrid用のpoemId
   const correctPoemId = currentQuestion.choicePoems[currentQuestion.correctIndex]?.poemId;
@@ -92,7 +114,7 @@ export function PracticePage() {
     const kimarijiLength = poem.kimarijiCount;
 
     // ひらがな表示の場合、yomiKanaの先頭から決まり字の文字数分を強調
-    const yomiText = showKanaOnly ? poem.yomiKana : poem.yomi;
+    const yomiText = showYomiKana ? poem.yomiKana : poem.yomi;
 
     // 決まり字部分を抽出（スペースを除いた文字数でカウント）
     let charCount = 0;
@@ -123,100 +145,91 @@ export function PracticePage() {
   };
 
   // フィルタ情報の表示
-  const filterLabel = filter?.kimarijiCounts
-    ? filter.kimarijiCounts.map(n => `${n}字`).join('・')
-    : '全て';
+  const filterLabels: string[] = [];
+  if (filter?.kimarijiCounts) {
+    filterLabels.push(filter.kimarijiCounts.map(n => `${n}字`).join('・'));
+  }
+  if (filter?.poemRanges) {
+    const rangeLabels = filter.poemRanges.map(r => {
+      const predefined = POEM_RANGES.find(pr => pr.start === r.start && pr.end === r.end);
+      return predefined ? predefined.label : `${r.start}-${r.end}`;
+    });
+    filterLabels.push(rangeLabels.join('・'));
+  }
+  const filterLabel = filterLabels.length > 0 ? filterLabels.join(' / ') : '全て';
 
   return (
-    <div className="max-w-4xl mx-auto py-8 text-neutral-800">
+    <div className="karuta-container space-y-2 py-2 text-foreground">
       {/* Progress & Controls */}
-      <div className="mb-8 bg-white p-4 rounded-xl shadow-sm border border-neutral-100">
-        <div className="flex items-center justify-between mb-4">
+      <Card className="p-2 bg-white">
+        <div className="flex items-center justify-between mb-1">
           <div>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold font-sans text-karuta-tansei">
-                {questionNumber} <span className="text-base font-medium text-neutral-400">/ {totalQuestions}</span>
+              <span className="text-lg font-bold font-sans text-karuta-tansei">
+                {questionNumber} <span className="text-xs font-medium text-neutral-400">/ {totalQuestions}</span>
               </span>
             </div>
             {filter && (
-              <p className="text-xs text-karuta-tansei font-bold bg-blue-50 px-2 py-0.5 rounded inline-block mt-1">
-                {filterLabel}決まり
-              </p>
+              <Badge variant="info" className="mt-0">
+                {filterLabel}
+              </Badge>
             )}
           </div>
 
-          {/* トグルボタン群 - Pill shaped */}
-          <div className="flex gap-2 bg-neutral-100 p-1 rounded-full">
-            {/* 決まり字トグル */}
-            <button
-              onClick={() => setShowKimariji(!showKimariji)}
-              className={`px-4 py-1.5 text-sm font-bold transition-all rounded-full ${showKimariji
-                ? 'bg-white text-karuta-accent shadow-sm'
-                : 'text-neutral-500 hover:text-neutral-700'
-                }`}
-            >
-              決まり字
-            </button>
-
-            {/* ひらがなトグル */}
-            <button
-              onClick={() => setShowKanaOnly(!showKanaOnly)}
-              className={`px-4 py-1.5 text-sm font-bold transition-all rounded-full ${showKanaOnly
-                ? 'bg-white text-karuta-tansei shadow-sm'
-                : 'text-neutral-500 hover:text-neutral-700'
-                }`}
-            >
-              {showKanaOnly ? 'かな' : '漢字'}
-            </button>
-          </div>
+          {/* コントロールバー */}
+          <ControlBar
+            showYomiKana={showYomiKana}
+            onToggleYomiKana={() => setShowYomiKana(!showYomiKana)}
+            showToriKana={showToriKana}
+            onToggleToriKana={() => setShowToriKana(!showToriKana)}
+            showKimariji={showKimariji}
+            onToggleKimariji={() => setShowKimariji(!showKimariji)}
+          />
         </div>
 
-        <div className="w-full bg-neutral-100 h-2 rounded-full overflow-hidden">
+        <div className="w-full bg-neutral-100 h-1 rounded-full overflow-hidden">
           <div
-            className="bg-karuta-tansei h-full transition-all duration-500 ease-out rounded-full shadow-[0_0_10px_rgba(11,139,219,0.5)]"
+            className="bg-karuta-tansei h-full transition-all duration-500 ease-out rounded-full shadow-[0_0_10px_rgba(25,106,171,0.5)]"
             style={{ width: `${(questionNumber / totalQuestions) * 100}%` }}
           />
         </div>
-      </div>
+      </Card>
 
-      {/* Yomi (上の句) - Clean & Focus */}
-      <div className="card bg-white mb-10 border-0 shadow-lg rounded-2xl relative overflow-hidden">
+      {/* Yomi (上の句) - Compact */}
+      <Card className="p-0 relative overflow-hidden text-center border-0 shadow-lg">
         <div className="absolute top-0 left-0 w-full h-1 bg-karuta-tansei"></div>
 
-        <div className="p-8 text-center">
-          <div className="mb-6 flex justify-center">
-            {showKimariji && (
-              <span className="text-xs px-3 py-1 bg-karuta-accent/10 text-karuta-accent rounded-full font-bold border border-karuta-accent/20">
+        <div className="px-2 py-2">
+          {showKimariji && (
+            <div className="mb-1 flex justify-center">
+              <span className="text-[10px] px-2 py-0.5 bg-yellow-50 text-karuta-accent rounded-full font-bold border border-yellow-200">
                 {currentQuestion.poem.kimarijiCount}字決まり「{currentQuestion.poem.kimariji}」
               </span>
-            )}
-          </div>
+            </div>
+          )}
 
-          <p className="text-3xl md:text-4xl font-bold text-neutral-800 leading-normal font-serif py-2">
+          <p className="text-lg md:text-xl font-bold text-neutral-800 leading-normal font-serif">
             {renderYomiWithKimariji()}
           </p>
         </div>
 
         {/* Result Feedback Overlay - Modern Toast style */}
         {currentQuestion.answered && (
-          <div className={`absolute bottom-0 left-0 w-full py-3 text-center font-bold animate-slide-up-fade ${currentQuestion.isCorrect
-            ? 'bg-green-500 text-white'
-            : 'bg-red-500 text-white'
-            }`}>
-            <span className="text-xl mr-3">{currentQuestion.isCorrect ? 'Excellent! ⭕' : 'Missed... ❌'}</span>
-            <span className="text-sm font-mono opacity-90">{currentQuestion.elapsedMs}ms</span>
+          <div className={cn(
+            "absolute bottom-0 left-0 w-full py-2 text-center font-bold animate-slide-up-fade",
+            currentQuestion.isCorrect ? "bg-green-500 text-white" : "bg-red-500 text-white"
+          )}>
+            <span className="text-base mr-2">{currentQuestion.isCorrect ? '正解 ⭕' : '不正解 ❌'}</span>
+            <span className="text-xs font-mono opacity-90">{currentQuestion.elapsedMs}ms</span>
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Tori choices (取札・下の句) - 12枚グリッド */}
       <div>
-        <h3 className="text-xs font-bold text-neutral-400 mb-6 text-center tracking-widest uppercase">
-          Select the correct card
-        </h3>
         <KarutaGrid
           poems={currentQuestion.choicePoems}
-          showKana={showKanaOnly}
+          showKana={showToriKana}
           selectedPoemId={selectedPoemId}
           correctPoemId={currentQuestion.answered ? correctPoemId : undefined}
           wrongPoemId={wrongPoemId}

@@ -4,9 +4,12 @@
  * Per constitution v7.0.0 and data-model.md
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.RULE_VERSION = void 0;
 exports.validateSession = validateSession;
 exports.calculateCorrectCount = calculateCorrectCount;
 exports.calculateTotalElapsedMs = calculateTotalElapsedMs;
+// Current rule version for audit tracking
+exports.RULE_VERSION = '1.1.0';
 /**
  * Validate a session against 5 anomaly detection rules
  * @param session - Session data
@@ -15,13 +18,14 @@ exports.calculateTotalElapsedMs = calculateTotalElapsedMs;
  */
 function validateSession(session, rounds) {
     const reasons = [];
-    // Rule 1: Round count must be exactly 50
-    if (rounds.length !== 50) {
+    const expectedRoundCount = session.roundCount || 50;
+    // Rule 1: Round count must match expected
+    if (rounds.length !== expectedRoundCount) {
         reasons.push('ROUND_COUNT_MISMATCH');
     }
-    // Rule 2: Round indices must be unique (0-49)
+    // Rule 2: Round indices must be unique (0 to roundCount-1)
     const indices = new Set(rounds.map((r) => r.roundIndex));
-    if (indices.size !== 50) {
+    if (indices.size !== expectedRoundCount) {
         reasons.push('ROUND_INDEX_DUPLICATE');
     }
     // Rule 3: Selected poem must be in choices
@@ -31,9 +35,10 @@ function validateSession(session, rounds) {
             break; // Only add once
         }
     }
-    // Rule 4: Too fast - clientElapsedMs < 200ms for 5+ rounds
+    // Rule 4: Too fast - clientElapsedMs < 200ms for 5+ rounds (or 3+ for short sessions)
     const fastRounds = rounds.filter((r) => r.clientElapsedMs < 200);
-    if (fastRounds.length >= 5) {
+    const fastThreshold = expectedRoundCount <= 10 ? 3 : 5;
+    if (fastRounds.length >= fastThreshold) {
         reasons.push('TOO_FAST');
     }
     // Rule 5: Too slow - clientElapsedMs > 60000ms for any round
@@ -41,14 +46,16 @@ function validateSession(session, rounds) {
     if (slowRounds.length >= 1) {
         reasons.push('TOO_SLOW');
     }
-    // Rule 6: correctCount must be in valid range (0-50)
+    // Rule 6: correctCount must be in valid range (0-roundCount)
     if (session.correctCount !== undefined &&
-        (session.correctCount < 0 || session.correctCount > 50)) {
+        (session.correctCount < 0 || session.correctCount > expectedRoundCount)) {
         reasons.push('INVALID_CORRECT_COUNT');
     }
     return {
         isValid: reasons.length === 0,
         reasons,
+        reasonCodes: reasons, // InvalidReason types are already code-like
+        ruleVersion: exports.RULE_VERSION,
     };
 }
 /**

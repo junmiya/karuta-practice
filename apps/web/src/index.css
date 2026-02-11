@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
-/* クリーンでシンプルなデザイン（熊本大学風） */
+/* ダークモード無効化: dark: バリアントを .dark クラスベースに変更（適用しない） */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* クリーンでシンプルなデザイン（東京大学風・淡青） */
 
 body {
   margin: 0;
@@ -89,36 +92,52 @@ body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-/* 取札コンテナ */
-.karuta-card-container {
+/* 取札コンテナ - 練習・札一覧共通 */
+.karuta-card-container,
+.karuta-card-container-grid {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
   height: 100%;
   width: 100%;
-  gap: 0.5rem;
-  padding: 1rem;
-  background: white;
+  padding: 0.5rem;
 }
 
-/* 札カード（実寸 縦73mm × 横52mm） */
-.karuta-card {
-  width: 52mm;
-  height: 73mm;
-  flex-shrink: 0;
+/* テキストラッパー: 行同士は上揃えにする */
+.karuta-text-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0.25rem;
+  height: auto;
 }
 
-/* 取札の縦書きテキスト */
-.karuta-line {
+/* 札カード - 練習・札一覧共通 */
+.karuta-card,
+.karuta-card-grid {
+  aspect-ratio: 52 / 73;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  container-type: inline-size;
+}
+
+/* 取札の縦書きテキスト - 練習・札一覧共通 */
+.karuta-line,
+.karuta-line-grid {
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  font-size: 1.125rem;
-  line-height: 2;
+  font-size: 2.4cqi;
+  line-height: 1.15;
   color: #212121;
   font-weight: 400;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
   font-family: 'Yu Mincho', 'YuMincho', 'Hiragino Mincho ProN', serif;
+  white-space: nowrap;
 }
 
 /* 3D Card Flip Animation */
@@ -138,65 +157,98 @@ body {
   transform: rotateY(180deg);
 }
 
-/* 4×3 Grid for 12-card practice (aspect-ratio: 52/73) */
+/* CSS Custom Properties for dynamic card sizing (ビューポートベース) */
+:root {
+  color-scheme: light;
+  --karuta-grid-max-width: 600px;
+  --karuta-card-width: auto;
+  --karuta-card-height: auto;
+  --karuta-columns: 4;
+  --karuta-rows: 3;
+  --karuta-content-width: 600px;
+}
+
+/* 札グリッドと同じ幅のコンテナ（スマホでは横幅いっぱい） */
+.karuta-container {
+  width: 100%;
+  max-width: var(--karuta-content-width);
+  margin: 0 auto;
+  padding: 0 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .karuta-container {
+    max-width: 100%;
+    padding: 0 0.25rem;
+  }
+}
+
+/* 12-card practice grid - ビューポートベースの動的サイズ
+   カードサイズはCardSizeProviderが計算してCSS変数に設定
+*/
 .karuta-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap: 0.5rem;
-  width: 100%;
-  max-width: 100%;
-  padding: 0.5rem;
-}
-
-/* Grid card (maintains 73:52 ratio) */
-.karuta-card-grid {
-  aspect-ratio: 52 / 73;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Grid card container for vertical text */
-.karuta-card-container-grid {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  width: 100%;
   gap: 0.25rem;
-  padding: 0.5rem;
+  width: 100%;
+  max-width: var(--karuta-grid-max-width);
+  margin: 0 auto;
+  padding: 0.25rem;
+  grid-template-columns: repeat(var(--karuta-columns), 1fr);
 }
 
-/* Grid card text (smaller than regular cards) */
-.karuta-line-grid {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  font-size: clamp(0.625rem, 2vw, 0.875rem);
-  line-height: 1.6;
-  color: #212121;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  font-family: 'Yu Mincho', 'YuMincho', 'Hiragino Mincho ProN', serif;
+/* Grid for all cards (100枚) - 同じCSS変数を使用 */
+.karuta-grid-all {
+  display: grid;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: min(var(--karuta-grid-max-width), 800px);
+  margin: 0 auto;
+  padding: 0.25rem;
+  grid-template-columns: repeat(var(--karuta-columns), 1fr);
 }
 
-/* Responsive adjustments for smaller screens */
+/* 7枚グリッド（級位別歌合・初級用）- 4+3配置 */
+.karuta-grid-7 {
+  display: grid;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: var(--karuta-grid-max-width);
+  margin: 0 auto;
+  padding: 0.25rem;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* 9枚グリッド（級位別歌合用）- 3x3配置 */
+.karuta-grid-9 {
+  display: grid;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: var(--karuta-grid-max-width);
+  margin: 0 auto;
+  padding: 0.25rem;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Smaller gap for narrow screens - 横幅いっぱいに表示 */
 @media (max-width: 640px) {
-  .karuta-grid {
-    gap: 0.25rem;
-    padding: 0.25rem;
+
+  .karuta-container {
+    max-width: 100%;
+    padding: 0 0.125rem;
   }
 
-  .karuta-card-container-grid {
+  .karuta-grid,
+  .karuta-grid-all,
+  .karuta-grid-7,
+  .karuta-grid-9 {
+    max-width: 100%;
     gap: 0.125rem;
-    padding: 0.25rem;
+    padding: 0.125rem;
   }
 
-  .karuta-line-grid {
-    font-size: clamp(0.5rem, 1.8vw, 0.75rem);
-    line-height: 1.4;
+  .karuta-card-container-grid,
+  .karuta-card-container {
+    gap: 0.125rem;
+    padding: 0.125rem;
   }
 }

@@ -4,6 +4,8 @@ import {
   where,
   orderBy,
   getDocs,
+  doc,
+  getDoc,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Submission } from '@/types/submission';
@@ -19,40 +21,65 @@ function getCurrentJstDate(): string {
 
 /**
  * Get today's official rankings from Firestore
- * Sorted by score (desc), then serverSubmittedAt (asc) for tiebreaker
+ * Queries confirmed sessions from the sessions collection
  */
 export async function getTodaysBanzuke(): Promise<Submission[]> {
   const dayKeyJst = getCurrentJstDate();
 
-  const submissionsRef = collection(db, 'submissions');
+  // Query sessions collection for confirmed sessions today
+  const sessionsRef = collection(db, 'sessions');
   const q = query(
-    submissionsRef,
+    sessionsRef,
+    where('status', '==', 'confirmed'),
     where('dayKeyJst', '==', dayKeyJst),
-    where('official', '==', true),
-    orderBy('score', 'desc'),
-    orderBy('serverSubmittedAt', 'asc')
+    orderBy('score', 'desc')
   );
 
   const snapshot = await getDocs(q);
 
-  return snapshot.docs.map((doc) => {
-    const data = doc.data();
-    return {
-      id: doc.id,
+  // Get user nicknames for display
+  const results: Submission[] = [];
+
+  for (const sessionDoc of snapshot.docs) {
+    const data = sessionDoc.data();
+
+    // Use nickname from session if available (new sessions save it),
+    // otherwise fallback to fetching from users collection (for legacy data)
+    let nickname = data.nickname || '';
+    if (!nickname) {
+      try {
+        const userDocRef = doc(db, 'users', data.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          nickname = userDocSnap.data()?.nickname || 'Anonymous';
+        }
+      } catch {
+        nickname = 'Anonymous';
+      }
+    }
+
+    const avgMs = data.correctCount > 0
+      ? Math.round(data.totalElapsedMs / 50)
+      : 0;
+
+    results.push({
+      id: sessionDoc.id,
       uid: data.uid,
-      nickname: data.nickname,
+      nickname,
       dayKeyJst: data.dayKeyJst,
-      questionCount: data.questionCount,
-      correctCount: data.correctCount,
-      totalElapsedMs: data.totalElapsedMs,
-      avgMs: data.avgMs,
-      score: data.score,
-      official: data.official,
-      invalidReasons: data.invalidReasons || [],
-      clientSubmittedAt: data.clientSubmittedAt?.toDate() || new Date(),
-      serverSubmittedAt: data.serverSubmittedAt?.toDate() || new Date(),
-    };
-  });
+      questionCount: 50,
+      correctCount: data.correctCount || 0,
+      totalElapsedMs: data.totalElapsedMs || 0,
+      avgMs,
+      score: data.score || 0,
+      official: true,
+      invalidReasons: [],
+      clientSubmittedAt: data.startedAt?.toDate() || new Date(),
+      serverSubmittedAt: data.confirmedAt?.toDate() || new Date(),
+    });
+  }
+
+  return results;
 }
 
 /**

@@ -14,6 +14,7 @@ export interface RankingEntry {
   score: number;
   rank: number;
   confirmedSessions: number;
+  sessionCount: number; // Alias for client compatibility
 }
 
 export interface RankingDocument {
@@ -59,11 +60,13 @@ export async function updateRanking(input: UpdateRankingInput): Promise<void> {
     if (existingIndex >= 0) {
       // Update existing entry
       const existing = entries[existingIndex];
+      const newSessionCount = existing.confirmedSessions + 1;
       entries[existingIndex] = {
         ...existing,
         nickname, // Update nickname in case it changed
         score: Math.max(existing.score, newScore), // Keep best score
-        confirmedSessions: existing.confirmedSessions + 1,
+        confirmedSessions: newSessionCount,
+        sessionCount: newSessionCount, // Client compatibility
         rank: 0, // Will be recalculated
       };
     } else {
@@ -73,6 +76,7 @@ export async function updateRanking(input: UpdateRankingInput): Promise<void> {
         nickname,
         score: newScore,
         confirmedSessions: 1,
+        sessionCount: 1, // Client compatibility
         rank: 0, // Will be recalculated
       });
     }

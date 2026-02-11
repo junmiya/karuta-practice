@@ -3,14 +3,16 @@ import { onAuthStateChanged, type User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/services/firebase';
 import {
   signInWithGoogle,
-  signInAnonymous,
   signUpWithEmail,
   signInWithEmail,
   signOut,
+  handleRedirectResult,
 } from '@/services/auth.service';
 import {
   getUserProfile,
   createUserProfile,
+  getCachedUserProfile,
+  clearCachedUserProfile,
 } from '@/services/users.service';
 import type { User } from '@/types/user';
 
@@ -31,65 +33,110 @@ export function useAuth() {
 
   // Listen to auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        try {
-          // Get or create user profile
-          let profile = await getUserProfile(firebaseUser.uid);
-          if (!profile) {
-            await createUserProfile(firebaseUser.uid);
-            profile = await getUserProfile(firebaseUser.uid);
+    let isSubscribed = true;
+
+    // Handle redirect result (for redirect-based auth)
+    handleRedirectResult().catch((error) => {
+      console.error('Failed to handle redirect result:', error);
+    });
+
+    // タイムアウト: 3秒経っても認証状態が確定しない場合はloading: falseに
+    const timeout = setTimeout(() => {
+      if (isSubscribed) {
+        setState((prev) => {
+          if (prev.loading) {
+            console.warn('Auth state timeout - setting loading to false');
+            return { ...prev, loading: false };
           }
+          return prev;
+        });
+      }
+    }, 3000);
+
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!isSubscribed) return;
+
+      if (firebaseUser) {
+        // 1. キャッシュから即時表示（Firestoreを待たない）
+        const cached = getCachedUserProfile(firebaseUser.uid);
+        if (cached && isSubscribed) {
           setState({
             firebaseUser,
-            userProfile: profile,
+            userProfile: cached,
             loading: false,
             error: null,
           });
+        }
+
+        // 2. バックグラウンドで最新プロファイルを取得
+        try {
+          let profile = await getUserProfile(firebaseUser.uid);
+          if (!profile) {
+            profile = await createUserProfile(firebaseUser.uid);
+          }
+          if (isSubscribed) {
+            setState({
+              firebaseUser,
+              userProfile: profile,
+              loading: false,
+              error: null,
+            });
+          }
         } catch (err) {
-          setState({
-            firebaseUser,
-            userProfile: null,
-            loading: false,
-            error: 'Failed to load user profile',
-          });
+          console.error('Failed to load user profile:', err);
+          if (isSubscribed && !cached) {
+            setState({
+              firebaseUser,
+              userProfile: null,
+              loading: false,
+              error: 'Failed to load user profile',
+            });
+          }
         }
       } else {
-        setState({
-          firebaseUser: null,
-          userProfile: null,
-          loading: false,
-          error: null,
-        });
+        if (isSubscribed) {
+          setState({
+            firebaseUser: null,
+            userProfile: null,
+            loading: false,
+            error: null,
+          });
+        }
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      isSubscribed = false;
+      clearTimeout(timeout);
+      unsubscribe();
+    };
   }, []);
 
   const loginWithGoogle = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
       await signInWithGoogle();
-    } catch (err) {
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        error: 'Google login failed',
-      }));
-    }
-  }, []);
+      // ポップアップの場合はここで認証完了、リダイレクトの場合はページ再読み込み後に処理
+    } catch (err: unknown) {
+      console.error('Google login error:', err);
+      const errorCode = (err as { code?: string })?.code;
+      const errorMessage = (err as { message?: string })?.message;
+      console.error('Error code:', errorCode, 'Message:', errorMessage);
 
-  const loginAnonymously = useCallback(async () => {
-    setState((prev) => ({ ...prev, loading: true, error: null }));
-    try {
-      await signInAnonymous();
-    } catch (err) {
-      console.error('Anonymous login error:', err);
+      let displayError = 'Googleログインに失敗しました';
+      if (errorCode === 'auth/popup-closed-by-user') {
+        displayError = 'ログインがキャンセルされました';
+      } else if (errorCode === 'auth/popup-blocked') {
+        displayError = 'ポップアップがブロックされました。ポップアップを許可してください';
+      } else if (errorCode === 'auth/network-request-failed') {
+        displayError = 'ネットワークエラーです。接続を確認してください';
+      } else if (errorCode === 'auth/unauthorized-domain') {
+        displayError = 'このドメインは認証が許可されていません';
+      }
       setState((prev) => ({
         ...prev,
         loading: false,
-        error: '匿名ログインに失敗しました',
+        error: displayError,
       }));
     }
   }, []);
@@ -137,6 +184,10 @@ export function useAuth() {
   }, []);
 
   const logout = useCallback(async () => {
+    // ログアウト前にキャッシュをクリア
+    if (state.firebaseUser) {
+      clearCachedUserProfile(state.firebaseUser.uid);
+    }
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
       await signOut();
@@ -147,7 +198,7 @@ export function useAuth() {
         error: 'Logout failed',
       }));
     }
-  }, []);
+  }, [state.firebaseUser]);
 
   const refreshProfile = useCallback(async () => {
     if (!state.firebaseUser) return;
@@ -168,7 +219,6 @@ export function useAuth() {
     isProfileComplete:
       !!state.userProfile?.nickname && state.userProfile?.banzukeConsent,
     loginWithGoogle,
-    loginAnonymously,
     loginWithEmail,
     registerWithEmail,
     logout,

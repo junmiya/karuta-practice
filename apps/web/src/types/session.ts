@@ -20,6 +20,9 @@ export interface Session {
   totalElapsedMs?: number;
   invalidReasons?: string[];
   dayKeyJst?: string;
+  // 103: 団体戦対応
+  affiliatedGroupId?: string;
+  affiliatedGroupName?: string;
 }
 
 export interface Round {
