@@ -60,6 +60,9 @@ export {
   adminDeleteGroup,
   adminGetGroupAuditLogs,
   adminGetAllGroups,
+  // 106: ユーザー管理
+  adminGetUsers,
+  adminSetUserRole,
 } from './adminFunctionsV2';
 
 // Export scheduled functions (102)

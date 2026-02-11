@@ -21,6 +21,7 @@ export function getCachedUserProfile(uid: string): User | null {
     const data = JSON.parse(raw);
     return {
       ...data,
+      siteRole: data.siteRole || undefined,
       createdAt: new Date(data.createdAt),
       updatedAt: new Date(data.updatedAt),
     };
@@ -64,6 +65,7 @@ export async function getUserProfile(uid: string): Promise<User | null> {
     uid,
     nickname: data.nickname || '',
     banzukeConsent: data.banzukeConsent || false,
+    siteRole: data.siteRole || undefined,
     createdAt: data.createdAt?.toDate() || new Date(),
     updatedAt: data.updatedAt?.toDate() || new Date(),
   };

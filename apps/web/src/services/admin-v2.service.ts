@@ -155,3 +155,28 @@ export async function adminGetGroupAuditLogs(groupId: string, limit?: number) {
   const result = await fn({ groupId, limit: limit || 50 });
   return result.data as { success: boolean; logs: AdminGroupAuditLog[] };
 }
+
+// =============================================================================
+// 106: ユーザー管理
+// =============================================================================
+
+export interface AdminUser {
+  uid: string;
+  nickname: string;
+  siteRole: string;
+  createdAt: string | null;
+}
+
+// ユーザー一覧取得
+export async function adminGetUsers(options?: { siteRole?: string; nickname?: string; limit?: number }) {
+  const fn = httpsCallable(functions, 'adminGetUsers');
+  const result = await fn(options || {});
+  return result.data as { success: boolean; users: AdminUser[] };
+}
+
+// ユーザーの siteRole を変更
+export async function adminSetUserRole(targetUid: string, newRole: string) {
+  const fn = httpsCallable(functions, 'adminSetUserRole');
+  const result = await fn({ targetUid, newRole });
+  return result.data as { success: boolean };
+}

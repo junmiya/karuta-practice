@@ -14,12 +14,13 @@ import {
   getCachedUserProfile,
   clearCachedUserProfile,
 } from '@/services/users.service';
-import type { User } from '@/types/user';
+import type { User, SiteRole } from '@/types/user';
 
 interface AuthState {
   firebaseUser: FirebaseUser | null;
   userProfile: User | null;
   loading: boolean;
+  profileVerified: boolean; // Firestore から最新プロファイル取得済みか
   error: string | null;
 }
 
@@ -28,6 +29,7 @@ export function useAuth() {
     firebaseUser: null,
     userProfile: null,
     loading: true,
+    profileVerified: false,
     error: null,
   });
 
@@ -64,6 +66,7 @@ export function useAuth() {
             firebaseUser,
             userProfile: cached,
             loading: false,
+            profileVerified: false,
             error: null,
           });
         }
@@ -79,18 +82,20 @@ export function useAuth() {
               firebaseUser,
               userProfile: profile,
               loading: false,
+              profileVerified: true,
               error: null,
             });
           }
         } catch (err) {
           console.error('Failed to load user profile:', err);
-          if (isSubscribed && !cached) {
-            setState({
+          if (isSubscribed) {
+            setState((prev) => ({
+              ...prev,
               firebaseUser,
-              userProfile: null,
               loading: false,
-              error: 'Failed to load user profile',
-            });
+              profileVerified: true,
+              error: !cached ? 'Failed to load user profile' : null,
+            }));
           }
         }
       } else {
@@ -99,6 +104,7 @@ export function useAuth() {
             firebaseUser: null,
             userProfile: null,
             loading: false,
+            profileVerified: true,
             error: null,
           });
         }
@@ -210,14 +216,22 @@ export function useAuth() {
     }
   }, [state.firebaseUser]);
 
+  const siteRole: SiteRole = state.userProfile?.siteRole || 'user';
+  const isAdmin = siteRole === 'admin';
+  const isTester = siteRole === 'admin' || siteRole === 'tester';
+
   return {
     user: state.firebaseUser,
     profile: state.userProfile,
     loading: state.loading,
+    profileVerified: state.profileVerified,
     error: state.error,
     isAuthenticated: !!state.firebaseUser,
     isProfileComplete:
       !!state.userProfile?.nickname && state.userProfile?.banzukeConsent,
+    siteRole,
+    isAdmin,
+    isTester,
     loginWithGoogle,
     loginWithEmail,
     registerWithEmail,
