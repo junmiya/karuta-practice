@@ -32,7 +32,9 @@ import {
   type AdminGroupAuditLog,
   adminGetUsers,
   adminSetUserRole,
+  adminGetUserBillingStatuses,
   type AdminUser,
+  type UserBillingStatus,
 } from '@/services/admin-v2.service';
 
 type TabType = 'calendar' | 'ruleset' | 'pipeline' | 'groups' | 'users';
@@ -102,6 +104,7 @@ export function AdminPage() {
   const [usersNicknameFilter, setUsersNicknameFilter] = useState('');
   const [usersRoleFilter, setUsersRoleFilter] = useState<string>('all');
   const [changingRole, setChangingRole] = useState<string | null>(null);
+  const [usersBilling, setUsersBilling] = useState<Record<string, UserBillingStatus>>({});
 
   // Load current season info when pipeline tab is opened
   useEffect(() => {
@@ -131,7 +134,19 @@ export function AdminPage() {
       if (usersRoleFilter !== 'all') filter.siteRole = usersRoleFilter;
       if (usersNicknameFilter.trim()) filter.nickname = usersNicknameFilter.trim();
       const res = await adminGetUsers(filter);
-      setUsersData(res.users || []);
+      const users = res.users || [];
+      setUsersData(users);
+
+      // 課金ステータスも取得
+      if (users.length > 0) {
+        const uids = users.map((u) => u.uid);
+        try {
+          const billingRes = await adminGetUserBillingStatuses(uids);
+          setUsersBilling(billingRes.statuses || {});
+        } catch {
+          setUsersBilling({});
+        }
+      }
     } catch (err: any) {
       setError(err.message || 'ユーザー一覧の取得に失敗しました');
     } finally {
@@ -889,6 +904,7 @@ export function AdminPage() {
                       <th className="text-left py-2 px-2">ニックネーム</th>
                       <th className="text-left py-2 px-2">UID</th>
                       <th className="text-left py-2 px-2">権限</th>
+                      <th className="text-left py-2 px-2">課金</th>
                       <th className="text-left py-2 px-2">作成日</th>
                       <th className="text-left py-2 px-2">操作</th>
                     </tr>
@@ -906,6 +922,25 @@ export function AdminPage() {
                           }>
                             {SITE_ROLE_OPTIONS.find((r) => r.value === u.siteRole)?.label || u.siteRole}
                           </Badge>
+                        </td>
+                        <td className="py-2 px-2">
+                          {(() => {
+                            const b = usersBilling[u.uid];
+                            if (!b) return <span className="text-xs text-gray-400">-</span>;
+                            const colors: Record<string, string> = {
+                              FREE: 'success', TRIAL: 'info', ACTIVE: 'success',
+                              CANCELED: 'warning', PAST_DUE: 'warning', NONE: 'secondary',
+                            };
+                            const labels: Record<string, string> = {
+                              FREE: '無料', TRIAL: '試用', ACTIVE: '有効',
+                              CANCELED: '解約', PAST_DUE: '未入門', NONE: '未設定',
+                            };
+                            return (
+                              <Badge variant={(colors[b.status] || 'secondary') as any}>
+                                {labels[b.status] || b.status}
+                              </Badge>
+                            );
+                          })()}
                         </td>
                         <td className="py-2 px-2 text-xs text-gray-500">
                           {u.createdAt ? new Date(u.createdAt).toLocaleDateString('ja-JP') : '-'}

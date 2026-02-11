@@ -27,7 +27,10 @@ import { GroupEventPage } from './pages/GroupEventPage';
 import { GroupEditPage } from './pages/GroupEditPage';
 import { TebikiPage } from './pages/TebikiPage';
 import { InviteJoinPage } from './pages/InviteJoinPage';
+import { EnrollmentPage } from './pages/EnrollmentPage';
+import { UchideshiJoinPage } from './pages/UchideshiJoinPage';
 import { AdminRoute } from './components/AdminRoute';
+import { BillingGuard } from './components/BillingGuard';
 
 export function App() {
   return (
@@ -46,27 +49,31 @@ export function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/cards" element={<CardsListPage />} />
 
-            {/* 稽古タブ */}
-            <Route path="/keiko" element={<KeikoPage />} />
+            {/* 稽古タブ（課金対象） */}
+            <Route path="/keiko" element={<BillingGuard><KeikoPage /></BillingGuard>} />
             <Route path="/practice" element={<PracticePage />} />
-            <Route path="/practice12" element={<Practice12Page />} />
+            <Route path="/practice12" element={<BillingGuard><Practice12Page /></BillingGuard>} />
             <Route path="/result" element={<ResultPage />} />
 
             {/* 稽古録タブ（要ログイン） */}
             <Route path="/keikoroku" element={<SeisekiPage />} />
 
-            {/* 歌合タブ（要ログイン） */}
-            <Route path="/utaawase" element={<KyogiPage />} />
-            <Route path="/entry" element={<EntryPage />} />
-            <Route path="/official" element={<OfficialPage />} />
-            <Route path="/kyui-exam" element={<KyuiExamPage />} />
-            <Route path="/kyui-match" element={<KyuiMatchPage />} />
+            {/* 歌合タブ（課金対象） */}
+            <Route path="/utaawase" element={<BillingGuard><KyogiPage /></BillingGuard>} />
+            <Route path="/entry" element={<BillingGuard><EntryPage /></BillingGuard>} />
+            <Route path="/official" element={<BillingGuard><OfficialPage /></BillingGuard>} />
+            <Route path="/kyui-exam" element={<BillingGuard><KyuiExamPage /></BillingGuard>} />
+            <Route path="/kyui-match" element={<BillingGuard><KyuiMatchPage /></BillingGuard>} />
 
             {/* 歌合録タブ（要ログイン） */}
             <Route path="/utaawaseroku" element={<UtaawaseRokuPage />} />
 
             {/* 歌位タブ（要ログイン） */}
             <Route path="/utakurai" element={<BanzukePage />} />
+
+            {/* 入門・内弟子 */}
+            <Route path="/enrollment" element={<EnrollmentPage />} />
+            <Route path="/join/uchideshi" element={<UchideshiJoinPage />} />
 
             {/* プロフィール */}
             <Route path="/profile" element={<ProfilePage />} />

@@ -102,3 +102,19 @@ export {
   getTebikiInviteInfo,
   joinTebikiInvite,
 } from './inviteFunctions';
+
+// Export billing functions (107: 課金MVP)
+export {
+  ensureBillingOnJoin,
+  createCheckoutSession,
+  createPortalSession,
+  setUchideshiFree,
+  adminSetMaxGroups,
+  adminGetUserBillingStatuses,
+} from './billingFunctions';
+
+// Export Stripe Webhook (107: HTTP Function)
+export { handleStripeWebhook } from './stripeWebhook';
+
+// Export join functions (107: 内弟子QR入口)
+export { joinAsUchideshi } from './joinFunctions';

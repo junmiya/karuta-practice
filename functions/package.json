@@ -16,8 +16,14 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
-    "testMatch": ["**/src/__tests__/**/*.test.ts"],
-    "moduleFileExtensions": ["ts", "js", "json"]
+    "testMatch": [
+      "**/src/__tests__/**/*.test.ts"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json"
+    ]
   },
   "engines": {
     "node": "20"
@@ -25,7 +31,8 @@
   "dependencies": {
     "firebase-admin": "^12.0.0",
     "firebase-functions": "^5.0.0",
-    "openai": "^6.16.0"
+    "openai": "^6.16.0",
+    "stripe": "^20.3.1"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",

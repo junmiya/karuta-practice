@@ -90,6 +90,23 @@ export const createGroup = functions
   .https.onCall(async (data: CreateGroupInput, context): Promise<CreateGroupResult> => {
     const uid = requireAuth(context);
 
+    // 107: 団体作成上限チェック
+    const limitsDoc = await db.collection('users').doc(uid)
+      .collection('limits').doc('groupCreation').get();
+    const maxGroups = limitsDoc.exists ? (limitsDoc.data()?.maxGroups ?? 2) : 2;
+
+    const ownedGroups = await db.collection(GROUP_COLLECTIONS.GROUPS)
+      .where('ownerUserId', '==', uid)
+      .where('status', '==', 'active')
+      .get();
+
+    if (ownedGroups.size >= maxGroups) {
+      throw new functions.https.HttpsError(
+        'resource-exhausted',
+        `団体は${maxGroups}つまで作成できます。それ以上の作成をご希望の場合はご連絡ください。`
+      );
+    }
+
     // バリデーション
     const nameValidation = validateGroupName(data.name);
     if (!nameValidation.valid) {

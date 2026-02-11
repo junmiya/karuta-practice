@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { updateUserProfile } from '@/services/users.service';
+import { getBillingStatus, startCheckout, openPortal, ensureBilling } from '@/services/billing.service';
+import type { BillingStatus, Subscription } from '@/types/billing';
+import { BILLING_STATUS_LABELS, PLAN_PRICE_YEN, trialDaysRemaining } from '@/types/billing';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Heading, Text } from '@/components/ui/Typography';
@@ -27,6 +30,14 @@ export function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  // Billing state
+  const [searchParams] = useSearchParams();
+  const [billingStatus, setBillingStatus] = useState<BillingStatus | null>(null);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [billingLoading, setBillingLoading] = useState(false);
+  const [billingAction, setBillingAction] = useState(false);
+  const billingSuccess = searchParams.get('billing') === 'success';
+
   // Email login state
   const [emailMode, setEmailMode] = useState<'login' | 'register' | null>(null);
   const [email, setEmail] = useState('');
@@ -39,6 +50,20 @@ export function ProfilePage() {
       setBanzukeConsent(profile.banzukeConsent || false);
     }
   }, [profile]);
+
+  // Load billing data
+  useEffect(() => {
+    if (!user?.uid) return;
+    setBillingLoading(true);
+    ensureBilling()
+      .then(() => getBillingStatus(user.uid))
+      .then(({ status, subscription: sub }) => {
+        setBillingStatus(status);
+        setSubscription(sub);
+      })
+      .catch(() => {})
+      .finally(() => setBillingLoading(false));
+  }, [user?.uid]);
 
   const handleSave = async () => {
     if (!user) return;
@@ -308,6 +333,80 @@ export function ProfilePage() {
           </div>
         </div>
       </Card>
+
+      {/* 107: 課金情報セクション */}
+      {isAuthenticated && (
+        <Card>
+          <Heading as="h3" size="h3" className="mb-4">課金情報</Heading>
+
+          {billingSuccess && (
+            <div className="mb-4 p-3 bg-green-100 text-green-700 rounded text-sm">
+              入門が完了しました。
+            </div>
+          )}
+
+          {billingLoading ? (
+            <div className="text-center py-4">
+              <Text color="muted" size="sm">読み込み中...</Text>
+            </div>
+          ) : billingStatus ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Text size="sm" color="muted">ステータス</Text>
+                <Text size="sm" weight="bold">
+                  {BILLING_STATUS_LABELS[billingStatus]}
+                </Text>
+              </div>
+
+              {billingStatus === 'TRIAL' && subscription?.trialEndsAt && (
+                <div className="flex items-center justify-between">
+                  <Text size="sm" color="muted">お試し残日数</Text>
+                  <Text size="sm" weight="bold">
+                    {trialDaysRemaining(subscription.trialEndsAt)}日
+                  </Text>
+                </div>
+              )}
+
+              {(billingStatus === 'ACTIVE' || billingStatus === 'TRIAL') && (
+                <div className="flex items-center justify-between">
+                  <Text size="sm" color="muted">月額</Text>
+                  <Text size="sm">{PLAN_PRICE_YEN.toLocaleString()}円</Text>
+                </div>
+              )}
+
+              {billingStatus === 'ACTIVE' && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={async () => {
+                    setBillingAction(true);
+                    try { await openPortal(); } catch {} finally { setBillingAction(false); }
+                  }}
+                  disabled={billingAction}
+                  className="w-full"
+                >
+                  {billingAction ? '処理中...' : 'カード管理・解約'}
+                </Button>
+              )}
+
+              {(billingStatus === 'PAST_DUE' || billingStatus === 'CANCELED') && (
+                <Button
+                  onClick={async () => {
+                    setBillingAction(true);
+                    try { await startCheckout(); } catch {} finally { setBillingAction(false); }
+                  }}
+                  disabled={billingAction}
+                  className="w-full"
+                >
+                  {billingAction ? '処理中...' : '入門する'}
+                </Button>
+              )}
+            </div>
+          ) : (
+            <Text size="sm" color="muted">課金情報がありません</Text>
+          )}
+        </Card>
+      )}
 
       {/* Privacy Notice */}
       <InfoBox title="プライバシーについて" variant="warning">

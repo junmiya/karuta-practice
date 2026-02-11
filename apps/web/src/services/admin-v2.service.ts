@@ -180,3 +180,17 @@ export async function adminSetUserRole(targetUid: string, newRole: string) {
   const result = await fn({ targetUid, newRole });
   return result.data as { success: boolean };
 }
+
+// 107: ユーザーの課金ステータスを一括取得
+export interface UserBillingStatus {
+  status: string;
+  trialEndsAt?: string;
+  isUchideshiFree: boolean;
+  stripeCustomerId?: string;
+}
+
+export async function adminGetUserBillingStatuses(uids: string[]) {
+  const fn = httpsCallable(functions, 'adminGetUserBillingStatuses');
+  const result = await fn({ uids });
+  return result.data as { statuses: Record<string, UserBillingStatus> };
+}

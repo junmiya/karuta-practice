@@ -140,6 +140,25 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // === 107: 課金MVP 新コレクション ===
+
+    // 課金データ（本人のみ読み取り、サーバのみ書込）
+    match /users/{uid}/billing/{docId} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // 利用上限（本人のみ読み取り、サーバのみ書込）
+    match /users/{uid}/limits/{docId} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // Stripe Webhook 冪等性チェック（サーバのみ）
+    match /stripe_events/{eventId} {
+      allow read, write: if false;
+    }
+
     // === 105: 手引招待機能 新コレクション ===
 
     // 招待（サーバのみ — Cloud Functions経由でアクセス）

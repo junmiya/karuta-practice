@@ -64,6 +64,17 @@ exports.createGroup = functions
     .region('asia-northeast1')
     .https.onCall(async (data, context) => {
     const uid = requireAuth(context);
+    // 107: 団体作成上限チェック
+    const limitsDoc = await db.collection('users').doc(uid)
+        .collection('limits').doc('groupCreation').get();
+    const maxGroups = limitsDoc.exists ? (limitsDoc.data()?.maxGroups ?? 2) : 2;
+    const ownedGroups = await db.collection(group_1.GROUP_COLLECTIONS.GROUPS)
+        .where('ownerUserId', '==', uid)
+        .where('status', '==', 'active')
+        .get();
+    if (ownedGroups.size >= maxGroups) {
+        throw new functions.https.HttpsError('resource-exhausted', `団体は${maxGroups}つまで作成できます。それ以上の作成をご希望の場合はご連絡ください。`);
+    }
     // バリデーション
     const nameValidation = (0, groupService_1.validateGroupName)(data.name);
     if (!nameValidation.valid) {

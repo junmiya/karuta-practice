@@ -34,7 +34,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateEvent = exports.createEvent = exports.leaveGroup = exports.removeMember = exports.changeRole = exports.getGroupMembers = exports.getInviteInfo = exports.joinGroup = exports.getInviteCode = exports.revokeInviteCode = exports.regenerateInviteCode = exports.deleteGroup = exports.updateGroup = exports.getMyGroups = exports.getGroup = exports.createGroup = exports.aggregateGroupStats = exports.checkSeasonBoundary = exports.adminSetUserRole = exports.adminGetUsers = exports.adminGetAllGroups = exports.adminGetGroupAuditLogs = exports.adminDeleteGroup = exports.adminResumeGroup = exports.adminSuspendGroup = exports.adminGetSnapshotStatus = exports.adminGetCurrentSeasonInfo = exports.adminGetJobRuns = exports.adminPublishSeasonV2 = exports.adminFinalizeSeasonV2 = exports.adminFreezeSeasonV2 = exports.adminSeedDefaultCalendar = exports.adminSaveSeasonCalendar = exports.adminGetSeasonCalendar = exports.adminSeedDefaultRuleset = exports.adminSaveRuleset = exports.adminGetRuleset = exports.submitKyuiExam = exports.analyzeStats = exports.getPoemExplanation = exports.costGuardCleanup = exports.updateTitles = exports.checkSeasonTransition = exports.generateDailyReflections = exports.expireStaleSession = exports.updateSeasonStatus = exports.dailyRankingSnapshot = exports.submitOfficialRecord = exports.submitOfficialSession = exports.db = void 0;
-exports.joinTebikiInvite = exports.getTebikiInviteInfo = exports.createTebikiInvite = exports.getEventParticipants = exports.leaveEvent = exports.joinEvent = exports.getGroupEvents = exports.rejectEvent = exports.closeEvent = exports.unpublishEvent = exports.publishEvent = void 0;
+exports.joinAsUchideshi = exports.handleStripeWebhook = exports.adminGetUserBillingStatuses = exports.adminSetMaxGroups = exports.setUchideshiFree = exports.createPortalSession = exports.createCheckoutSession = exports.ensureBillingOnJoin = exports.joinTebikiInvite = exports.getTebikiInviteInfo = exports.createTebikiInvite = exports.getEventParticipants = exports.leaveEvent = exports.joinEvent = exports.getGroupEvents = exports.rejectEvent = exports.closeEvent = exports.unpublishEvent = exports.publishEvent = void 0;
 const admin = __importStar(require("firebase-admin"));
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -128,4 +128,18 @@ var inviteFunctions_1 = require("./inviteFunctions");
 Object.defineProperty(exports, "createTebikiInvite", { enumerable: true, get: function () { return inviteFunctions_1.createTebikiInvite; } });
 Object.defineProperty(exports, "getTebikiInviteInfo", { enumerable: true, get: function () { return inviteFunctions_1.getTebikiInviteInfo; } });
 Object.defineProperty(exports, "joinTebikiInvite", { enumerable: true, get: function () { return inviteFunctions_1.joinTebikiInvite; } });
+// Export billing functions (107: 課金MVP)
+var billingFunctions_1 = require("./billingFunctions");
+Object.defineProperty(exports, "ensureBillingOnJoin", { enumerable: true, get: function () { return billingFunctions_1.ensureBillingOnJoin; } });
+Object.defineProperty(exports, "createCheckoutSession", { enumerable: true, get: function () { return billingFunctions_1.createCheckoutSession; } });
+Object.defineProperty(exports, "createPortalSession", { enumerable: true, get: function () { return billingFunctions_1.createPortalSession; } });
+Object.defineProperty(exports, "setUchideshiFree", { enumerable: true, get: function () { return billingFunctions_1.setUchideshiFree; } });
+Object.defineProperty(exports, "adminSetMaxGroups", { enumerable: true, get: function () { return billingFunctions_1.adminSetMaxGroups; } });
+Object.defineProperty(exports, "adminGetUserBillingStatuses", { enumerable: true, get: function () { return billingFunctions_1.adminGetUserBillingStatuses; } });
+// Export Stripe Webhook (107: HTTP Function)
+var stripeWebhook_1 = require("./stripeWebhook");
+Object.defineProperty(exports, "handleStripeWebhook", { enumerable: true, get: function () { return stripeWebhook_1.handleStripeWebhook; } });
+// Export join functions (107: 内弟子QR入口)
+var joinFunctions_1 = require("./joinFunctions");
+Object.defineProperty(exports, "joinAsUchideshi", { enumerable: true, get: function () { return joinFunctions_1.joinAsUchideshi; } });
 //# sourceMappingURL=index.js.map
