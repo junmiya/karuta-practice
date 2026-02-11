@@ -16,11 +16,18 @@ interface BillingGuardProps {
 }
 
 export function BillingGuard({ children }: BillingGuardProps) {
+  const billingEnabled = import.meta.env.VITE_BILLING_ENABLED === 'true';
   const { isAuthenticated, user, loading: authLoading } = useAuthContext();
   const [billingStatus, setBillingStatus] = useState<BillingStatus | null>(null);
   const [billingLoading, setBillingLoading] = useState(true);
 
   useEffect(() => {
+    // 課金機能OFF時はチェックスキップ（全員通す）
+    if (!billingEnabled) {
+      setBillingLoading(false);
+      return;
+    }
+
     if (!user?.uid) {
       setBillingLoading(false);
       return;
@@ -30,7 +37,7 @@ export function BillingGuard({ children }: BillingGuardProps) {
       .then(({ status }) => setBillingStatus(status))
       .catch(() => setBillingStatus(null))
       .finally(() => setBillingLoading(false));
-  }, [user?.uid]);
+  }, [billingEnabled, user?.uid]);
 
   if (authLoading || billingLoading) {
     return (

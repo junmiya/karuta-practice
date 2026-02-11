@@ -51,9 +51,10 @@ export function ProfilePage() {
     }
   }, [profile]);
 
-  // Load billing data
+  // Load billing data (only when billing feature is enabled)
+  const billingEnabled = import.meta.env.VITE_BILLING_ENABLED === 'true';
   useEffect(() => {
-    if (!user?.uid) return;
+    if (!billingEnabled || !user?.uid) return;
     setBillingLoading(true);
     ensureBilling()
       .then(() => getBillingStatus(user.uid))
@@ -63,7 +64,7 @@ export function ProfilePage() {
       })
       .catch(() => {})
       .finally(() => setBillingLoading(false));
-  }, [user?.uid]);
+  }, [billingEnabled, user?.uid]);
 
   const handleSave = async () => {
     if (!user) return;
@@ -334,8 +335,8 @@ export function ProfilePage() {
         </div>
       </Card>
 
-      {/* 107: 課金情報セクション */}
-      {isAuthenticated && (
+      {/* 107: 課金情報セクション（VITE_BILLING_ENABLED=true 時のみ表示） */}
+      {isAuthenticated && billingEnabled && (
         <Card>
           <Heading as="h3" size="h3" className="mb-4">課金情報</Heading>
 
