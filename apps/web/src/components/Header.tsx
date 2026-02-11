@@ -46,6 +46,9 @@ export function Header() {
     if (path === '/groups') {
       return location.pathname.startsWith('/groups') || location.pathname.startsWith('/musubi');
     }
+    if (path === '/bulletin') {
+      return location.pathname.startsWith('/bulletin');
+    }
     return location.pathname.startsWith(path);
   };
 
@@ -156,6 +159,7 @@ export function Header() {
           <TabButton path="/utaawase" label="歌合" required />
           <TabButton path="/groups" label="結び" required />
           <TabButton path="/utakurai" label="歌位" required />
+          <TabButton path="/bulletin" label="便り" required />
         </nav>
       </Container>
     </header>

@@ -151,5 +151,51 @@ service cloud.firestore {
     match /invite_participants/{participantId} {
       allow read, write: if false;
     }
+
+    // === 108: 便り（掲示板）機能 ===
+
+    // 掲示板投稿
+    match /board_posts/{postId} {
+      // 読み取り: 認証済み全員（瓦版）、内弟子/admin（不具合）
+      allow read: if request.auth != null;
+
+      // 作成: 瓦版はadminのみ、不具合はuchideshi/admin
+      allow create: if request.auth != null
+        && request.resource.data.createdByUserId == request.auth.uid
+        && (
+          // 瓦版: adminのみ（system_news, external_news）
+          (request.resource.data.category == 'kawaraban'
+            && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.siteRole == 'admin')
+          ||
+          // 不具合: uchideshi or admin
+          (request.resource.data.category == 'bugroom'
+            && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.siteRole in ['admin', 'tester'])
+        );
+
+      // 更新: admin のみ（ステータス変更等）
+      allow update: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.siteRole == 'admin';
+
+      // 削除: admin or 本人
+      allow delete: if request.auth != null
+        && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.siteRole == 'admin'
+            || resource.data.createdByUserId == request.auth.uid);
+    }
+
+    // 掲示板コメント
+    match /board_comments/{commentId} {
+      // 読み取り: 認証済み全員
+      allow read: if request.auth != null;
+
+      // 作成: uchideshi or admin
+      allow create: if request.auth != null
+        && request.resource.data.createdByUserId == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.siteRole in ['admin', 'tester'];
+
+      // 削除: admin or 本人
+      allow delete: if request.auth != null
+        && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.siteRole == 'admin'
+            || resource.data.createdByUserId == request.auth.uid);
+    }
   }
 }
