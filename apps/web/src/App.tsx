@@ -27,6 +27,8 @@ import { GroupEventPage } from './pages/GroupEventPage';
 import { GroupEditPage } from './pages/GroupEditPage';
 import { TebikiPage } from './pages/TebikiPage';
 import { InviteJoinPage } from './pages/InviteJoinPage';
+import { BulletinBoardPage } from './pages/BulletinBoardPage';
+import { BugDetailPage } from './pages/BugDetailPage';
 import { AdminRoute } from './components/AdminRoute';
 
 export function App() {
@@ -73,6 +75,10 @@ export function App() {
 
             {/* 管理者ページ（admin のみ） */}
             <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
+
+            {/* 便りタブ（108: 掲示板） */}
+            <Route path="/bulletin" element={<BulletinBoardPage />} />
+            <Route path="/bulletin/bug/:postId" element={<BugDetailPage />} />
 
             {/* 団体機能 */}
             <Route path="/groups" element={<GroupListPage />} />
