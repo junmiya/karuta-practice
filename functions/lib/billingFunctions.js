@@ -59,7 +59,7 @@ function getStripe() {
     }
     return _stripe;
 }
-const PLAN_PRICE_YEN = 300;
+const PLAN_PRICE_YEN = 330;
 const TRIAL_DAYS = 30;
 /**
  * 課金レコード初期化（冪等）

@@ -33,6 +33,7 @@ import {
   adminGetUsers,
   adminSetUserRole,
   adminGetUserBillingStatuses,
+  adminSetUchideshiFree,
   type AdminUser,
   type UserBillingStatus,
 } from '@/services/admin-v2.service';
@@ -166,6 +167,23 @@ export function AdminPage() {
       setError(err.message || '権限の変更に失敗しました');
     } finally {
       setChangingRole(null);
+    }
+  };
+
+  const [changingBilling, setChangingBilling] = useState<string | null>(null);
+
+  const handleToggleUchideshiFree = async (targetUid: string, currentlyFree: boolean) => {
+    const action = currentlyFree ? '内弟子割を解除' : '内弟子割を適用';
+    if (!confirm(`${action}しますか？`)) return;
+    setChangingBilling(targetUid);
+    try {
+      await adminSetUchideshiFree(targetUid, !currentlyFree);
+      setMessage(`${action}しました`);
+      await loadUsers();
+    } catch (err: any) {
+      setError(err.message || '課金ステータスの変更に失敗しました');
+    } finally {
+      setChangingBilling(null);
     }
   };
 
@@ -936,9 +954,23 @@ export function AdminPage() {
                               CANCELED: '解約', PAST_DUE: '未入門', NONE: '未設定',
                             };
                             return (
-                              <Badge variant={(colors[b.status] || 'secondary') as any}>
-                                {labels[b.status] || b.status}
-                              </Badge>
+                              <div className="flex items-center gap-1">
+                                <Badge variant={(colors[b.status] || 'secondary') as any}>
+                                  {labels[b.status] || b.status}
+                                </Badge>
+                                <button
+                                  onClick={() => handleToggleUchideshiFree(u.uid, b.isUchideshiFree)}
+                                  disabled={changingBilling === u.uid}
+                                  className={`text-xs px-1.5 py-0.5 rounded border ${
+                                    b.isUchideshiFree
+                                      ? 'border-red-300 text-red-600 hover:bg-red-50'
+                                      : 'border-green-300 text-green-600 hover:bg-green-50'
+                                  } disabled:opacity-50`}
+                                  title={b.isUchideshiFree ? '内弟子割を解除' : '内弟子割を適用'}
+                                >
+                                  {changingBilling === u.uid ? '...' : b.isUchideshiFree ? '解除' : '内弟子'}
+                                </button>
+                              </div>
                             );
                           })()}
                         </td>

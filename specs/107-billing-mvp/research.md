@@ -4,7 +4,7 @@
 
 **Decision**: Stripe を採用。
 
-**Rationale**: Web アプリのため Apple/Google IAP は不要。Stripe は Firebase 公式 Extension（`firestore-stripe-payments`）があり、Checkout Session + Webhook でほぼノーコード連携。手数料 3.6%（日本）は IAP の 15〜30% と比較して圧倒的に安い。日本のクレカ・コンビニ払いにも対応可能（将来拡張）。
+**Rationale**: Web アプリのため Apple/Google IAP は不要。Cloud Functions で Stripe SDK を直接利用し、Checkout Session + Webhook で完全制御可能な連携を実現。手数料 3.6%（日本）は IAP の 15〜30% と比較して圧倒的に安い。日本のクレカ・コンビニ払いにも対応可能（将来拡張）。Firebase Extension（`firestore-stripe-payments`）は不使用（カスタム状態遷移に非対応のため）。
 
 **Alternatives considered**:
 - **RevenueCat**: モバイルアプリ向け。Web サポートは新しく制限あり
@@ -95,3 +95,27 @@ Stripe → Webhook → handleStripeWebhook (CF) → Firestore更新
 - `stripe.webhooks.constructEvent(body, sig, endpointSecret)` で署名検証
 - 処理済みイベントID を Firestore に記録し、重複処理を防止
 - 関心のあるイベント: `invoice.paid`, `invoice.payment_failed`, `customer.subscription.deleted`, `customer.subscription.updated`
+
+---
+
+## R-009: Stripe SDK v20 互換性
+
+**Decision**: Stripe SDK v20.3.1 を使用。`new Stripe(key)` でデフォルト API バージョン利用（apiVersion 指定なし）。
+
+**Rationale**: v20 で破壊的変更あり。`Invoice.subscription` → `invoice.parent?.subscription_details?.subscription`、`Subscription.current_period_end` が型から削除（`(sub as any).current_period_end` で回避）。apiVersion を明示すると SDK バージョンと不整合になるリスクあり。
+
+**Alternatives considered**:
+- Stripe SDK v17（旧安定版）: 型は安定しているが、新しい Stripe API 機能が使えない
+- apiVersion 固定: SDK 内部バージョンと不整合でランタイムエラーのリスク
+
+---
+
+## R-010: 管理者課金操作
+
+**Decision**: AdminPage のユーザータブに内弟子割の適用/解除ボタン + maxGroups 変更を追加。
+
+**Rationale**: 管理者が個別ユーザーの課金ステータスを直接操作できる最小機能。内弟子割はワンクリックトグル、maxGroups は数値設定。全ステータスの直接変更（TRIAL→ACTIVE等）は Stripe 連動が必要なため MVP では対象外。
+
+**Alternatives considered**:
+- 全ステータス直接変更: Stripe 側の状態と不整合になるリスク
+- Firestore コンソールで直接編集: 操作ミスのリスクが高い

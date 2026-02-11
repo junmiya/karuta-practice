@@ -15,7 +15,7 @@ brew install stripe/stripe-cli/stripe
 
 # 2. Stripe ダッシュボードで以下を作成
 #    - Product: 「入門（月額）」
-#    - Price: ¥300/月 (recurring)
+#    - Price: ¥330/月 (recurring, tax_inclusive)
 #    → Price ID をメモ（例: price_xxx）
 
 # 3. Stripe Webhook の設定（ローカル開発）
@@ -66,10 +66,11 @@ stripe listen --forward-to localhost:5001/<project-id>/us-central1/handleStripeW
 
 | File | Change |
 | ---- | ------ |
-| `functions/src/services/groupService.ts` | 団体上限チェック追加 |
+| `functions/src/groupFunctions.ts` | 団体上限チェック追加（createGroup内） |
 | `functions/src/index.ts` | 新CF export |
 | `apps/web/src/pages/ProfilePage.tsx` | 課金情報セクション |
-| `apps/web/src/pages/AdminPage.tsx` | ユーザータブに課金ステータス列追加 |
+| `apps/web/src/pages/AdminPage.tsx` | ユーザータブに課金ステータス列・内弟子割トグル追加 |
+| `apps/web/src/services/admin-v2.service.ts` | adminSetUchideshiFree, adminSetMaxGroups, adminGetUserBillingStatuses 追加 |
 | `apps/web/src/App.tsx` | ルート追加 + BillingGuard |
 | `firestore.rules` | billing/limits ルール |
 

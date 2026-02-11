@@ -21,7 +21,7 @@ function getStripe(): Stripe {
   return _stripe;
 }
 
-const PLAN_PRICE_YEN = 300;
+const PLAN_PRICE_YEN = 330;
 const TRIAL_DAYS = 30;
 
 /**

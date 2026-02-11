@@ -8,7 +8,7 @@
 
 | Field | Type | Required | Description |
 | ----- | ---- | -------- | ----------- |
-| `planPriceYen` | int | Yes | 300固定（将来変更に備え保持） |
+| `planPriceYen` | int | Yes | 330固定（税込）。将来変更に備え保持 |
 | `status` | string | Yes | `"FREE"` / `"TRIAL"` / `"ACTIVE"` / `"CANCELED"` / `"PAST_DUE"` |
 | `joinedAt` | Timestamp | Yes | サーバ付与。入会日時 |
 | `trialEndsAt` | Timestamp | Yes | `joinedAt` + 30日（サーバ付与） |
@@ -132,4 +132,4 @@ match /users/{uid}/limits/{docId} {
 
 - **一般ユーザー**: `ensureBillingOnJoin` で自動作成
 - **内弟子**: QRリンク経由で `siteRole: 'tester'` + `isUchideshiFree: true` + `status: 'FREE'` を同時設定
-- **Stripe**: テスト環境で Product（月額300円）と Price を事前作成
+- **Stripe**: テスト環境で Product（月額330円税込）と Price を事前作成。Cloud Functions で Stripe SDK を直接利用（Firebase Extension 不使用）

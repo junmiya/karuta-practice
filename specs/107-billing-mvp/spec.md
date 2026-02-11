@@ -3,7 +3,7 @@
 **Feature Branch**: `107-billing-mvp`
 **Created**: 2026-02-11
 **Status**: Draft
-**Input**: 個人課金の状態管理、Stripe月額決済、30日無料トライアル、内弟子割（永年無料）、団体作成上限制御、内弟子QR入口
+**Input**: 個人課金の状態管理、Stripe月額決済（月額330円税込）、30日無料トライアル、内弟子割（永年無料）、団体作成上限制御、内弟子QR入口
 
 ## Clarifications
 
@@ -16,6 +16,9 @@
 - Q: 内弟子の入会方法は？ → A: 専用QRリンク（トークン付き）から課金なし入会。MVPに含める
 - Q: 決済事業者は？ → A: Stripe。Web アプリのためIAP不要、Firebase公式Extension あり、手数料3.6%
 - Q: 3団体目以降の案内文は？ → A: 「ご連絡ください」のみ
+- Q: Stripe連携方式は？ → A: Cloud Functions で Stripe SDK を直接利用（Firebase Extension不使用）
+- Q: ユーザー向け金額表記は？ → A: 「月額330円（税込）」に統一
+- Q: 管理者の課金操作権限は？ → A: 内弟子割の適用/解除 + maxGroups変更（実装済み範囲）
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -26,7 +29,7 @@
 **Acceptance Scenarios**:
 
 1. **Given** 初回ログインのユーザー, **When** Google認証を完了, **Then** `billing/subscription` が作成され `status: TRIAL`, `joinedAt`, `trialEndsAt`（+30日）がサーバ付与される
-2. **Given** TRIALのユーザー, **When** マイページを表示, **Then** 「お試し期間：残りN日」「月額300円」表示
+2. **Given** TRIALのユーザー, **When** マイページを表示, **Then** 「お試し期間：残りN日」「月額330円（税込）」表示
 3. **Given** TRIALのユーザー, **When** 稽古・歌合にアクセス, **Then** 通常通り利用できる
 
 ---
@@ -73,9 +76,9 @@ ACTIVEユーザーが Stripe Customer Portal から解約、またはカード�
 
 **Acceptance Scenarios**:
 
-1. **Given** TRIALのユーザー, **When** マイページ, **Then** 「お試し期間：残りN日」表示
+1. **Given** TRIALのユーザー, **When** マイページ, **Then** 「お試し期間：残りN日」「月額330円（税込）」表示
 2. **Given** FREEのユーザー, **When** マイページ, **Then** 「内弟子割（永年無料）」表示
-3. **Given** ACTIVEのユーザー, **When** マイページ, **Then** 「入門済み」「月額300円」「カード管理」リンク（Customer Portal）
+3. **Given** ACTIVEのユーザー, **When** マイページ, **Then** 「入門済み」「月額330円（税込）」「カード管理」リンク（Customer Portal）
 4. **Given** PAST_DUEのユーザー, **When** マイページ, **Then** 「入門して続ける」CTA
 
 ---
@@ -109,7 +112,7 @@ ACTIVEユーザーが Stripe Customer Portal から解約、またはカード�
 
 **Stripe 連携**
 
-- **FR-003**: 入門時に Stripe Checkout Session を生成し、決済ページに遷移する
+- **FR-003**: 入門時に Stripe Checkout Session を生成し、決済ページに遷移する（月額330円税込）
 - **FR-004**: Stripe Webhook で `invoice.paid` → ACTIVE、`invoice.payment_failed` → PAST_DUE、`customer.subscription.deleted` → CANCELED を自動反映
 - **FR-005**: Stripe Customer Portal へのリンクを提供（カード変更・解約）
 - **FR-006**: Stripe Customer は Firebase UID と紐付け（`stripeCustomerId`）
@@ -128,7 +131,7 @@ ACTIVEユーザーが Stripe Customer Portal から解約、またはカード�
 
 **マイページ課金表示**
 
-- **FR-013**: ステータス別の課金情報表示（残日数/内弟子割/入門済み/CTA）
+- **FR-013**: ステータス別の課金情報表示（残日数/内弟子割/入門済み/CTA）。価格は総額表示（330円税込）
 - **FR-014**: ACTIVE ユーザーに Stripe Customer Portal リンク
 
 **団体作成上限**
@@ -145,6 +148,8 @@ ACTIVEユーザーが Stripe Customer Portal から解約、またはカード�
 **管理者課金ビュー**
 
 - **FR-020**: 管理者（AdminPage.tsx のユーザータブ）がユーザー一覧で課金ステータス（FREE/TRIAL/ACTIVE/CANCELED/PAST_DUE）、trialEndsAt、isUchideshiFree を確認できる
+- **FR-021**: 管理者がユーザーの内弟子割（`isUchideshiFree`）を適用/解除できる。適用時は `status: FREE` に自動変更
+- **FR-022**: 管理者がユーザーの団体作成上限（`maxGroups`）を変更できる
 
 ### Key Entities
 
@@ -156,14 +161,14 @@ ACTIVEユーザーが Stripe Customer Portal から解約、またはカード�
 
 ### In Scope
 
-- Stripe Checkout による月額300円サブスクリプション
+- Stripe Checkout による月額330円（税込）サブスクリプション
 - Stripe Webhook による自動ステータス更新
 - Stripe Customer Portal リンク（カード管理・解約）
 - 30日無料トライアル + PAST_DUE ソフトロック（成績保持）
 - 内弟子専用QR入口（固定トークン方式）
 - マイページ課金情報表示
 - 団体作成上限（maxGroups = 2）+ 「ご連絡ください」
-- 管理者向け課金ステータスビュー（AdminPage ユーザータブ拡張）
+- 管理者向け課金ステータスビュー・操作（AdminPage ユーザータブ拡張：閲覧・内弟子割切替・maxGroups変更）
 - Firestore Security Rules
 
 ### Out of Scope
@@ -179,16 +184,16 @@ ACTIVEユーザーが Stripe Customer Portal から解約、またはカード�
 ## Assumptions
 
 - Stripe アカウントが作成済み（テスト環境利用可能）
-- Stripe Firebase Extension（`firestore-stripe-payments`）を使用
-- 基本料金は月額300円（Stripe Price ID として事前設定）
+- Cloud Functions で Stripe SDK を直接利用（Firebase Extension `firestore-stripe-payments` は不使用）
+- 基本料金は月額330円税込（Stripe Price ID として事前設定）
 - Stripe Checkout はホスト型（自前フォーム不要）
-- Webhook エンドポイントは Cloud Functions で受信
+- 価格は月額330円（税込）。Stripe Price に税込価格として設定
+- Webhook エンドポイントは Cloud Functions（HTTP Function）で受信
 
 ## Dependencies
 
 - 106-permission-system（`siteRole` 基盤）
-- Stripe アカウント + API キー
-- Firebase Extensions（`firestore-stripe-payments`）
+- Stripe アカウント + API キー（`STRIPE_SECRET_KEY`, `STRIPE_PRICE_ID`, `STRIPE_WEBHOOK_SECRET`）
 - 既存の認証基盤（Firebase Auth + `useAuth` + `AuthContext`）
 - 既存の団体作成フロー（`groupService.ts`）
 
@@ -200,4 +205,4 @@ ACTIVEユーザーが Stripe Customer Portal から解約、またはカード�
 - **SC-004**: PAST_DUEユーザーの過去成績が100%保持される
 - **SC-005**: Stripe Webhook でステータスが自動更新される
 - **SC-006**: 1人2団体まで作成でき、3つ目は拒否される
-- **SC-007**: 管理者がAdminPageのユーザータブで全ユーザーの課金ステータスを確認できる
+- **SC-007**: 管理者がAdminPageのユーザータブで全ユーザーの課金ステータスを確認・変更できる（内弟子割の適用/解除、maxGroups変更）

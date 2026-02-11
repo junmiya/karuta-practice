@@ -15,7 +15,7 @@ export const BILLING_STATUS_LABELS: Record<BillingStatus, string> = {
 };
 
 // 課金プラン定数
-export const PLAN_PRICE_YEN = 300;
+export const PLAN_PRICE_YEN = 330;
 export const TRIAL_DAYS = 30;
 
 // Subscription ドキュメント (users/{uid}/billing/subscription)

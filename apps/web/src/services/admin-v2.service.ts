@@ -194,3 +194,17 @@ export async function adminGetUserBillingStatuses(uids: string[]) {
   const result = await fn({ uids });
   return result.data as { statuses: Record<string, UserBillingStatus> };
 }
+
+// 内弟子割の設定
+export async function adminSetUchideshiFree(uid: string, isUchideshiFree: boolean) {
+  const fn = httpsCallable(functions, 'setUchideshiFree');
+  const result = await fn({ uid, isUchideshiFree });
+  return result.data as { success: boolean };
+}
+
+// 団体作成上限の設定
+export async function adminSetMaxGroups(uid: string, maxGroups: number) {
+  const fn = httpsCallable(functions, 'adminSetMaxGroups');
+  const result = await fn({ uid, maxGroups });
+  return result.data as { success: boolean };
+}
