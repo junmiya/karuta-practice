@@ -33,39 +33,25 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.adminGetAllGroups = exports.adminGetGroupAuditLogs = exports.adminDeleteGroup = exports.adminResumeGroup = exports.adminSuspendGroup = exports.adminGetSnapshotStatus = exports.adminGetCurrentSeasonInfo = exports.adminGetJobRuns = exports.adminPublishSeasonV2 = exports.adminFinalizeSeasonV2 = exports.adminFreezeSeasonV2 = exports.adminSeedDefaultCalendar = exports.adminSaveSeasonCalendar = exports.adminGetSeasonCalendar = exports.adminSeedDefaultRuleset = exports.adminSaveRuleset = exports.adminGetRuleset = void 0;
+exports.adminSetUserRole = exports.adminGetUsers = exports.adminGetAllGroups = exports.adminGetGroupAuditLogs = exports.adminDeleteGroup = exports.adminResumeGroup = exports.adminSuspendGroup = exports.adminGetSnapshotStatus = exports.adminGetCurrentSeasonInfo = exports.adminGetJobRuns = exports.adminPublishSeasonV2 = exports.adminFinalizeSeasonV2 = exports.adminFreezeSeasonV2 = exports.adminSeedDefaultCalendar = exports.adminSaveSeasonCalendar = exports.adminGetSeasonCalendar = exports.adminSeedDefaultRuleset = exports.adminSaveRuleset = exports.adminGetRuleset = void 0;
 /**
  * 102: 歌合・節気別歌位確定 - 管理者用Cloud Functions V2
  */
 const functions = __importStar(require("firebase-functions"));
+const admin = __importStar(require("firebase-admin"));
+const adminAuth_1 = require("./lib/adminAuth");
 const rulesetService_1 = require("./services/rulesetService");
 const seasonCalendarService_1 = require("./services/seasonCalendarService");
 const auditService_1 = require("./services/auditService");
 const pipelineService_1 = require("./services/pipelineService");
-const ADMIN_UIDS = process.env.ADMIN_UIDS?.split(',') || [];
-function isAdmin(uid) {
-    if (process.env.NODE_ENV === 'development' || process.env.FUNCTIONS_EMULATOR) {
-        return true;
-    }
-    return ADMIN_UIDS.includes(uid);
-}
-function requireAdmin(context) {
-    if (!context.auth) {
-        throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
-    }
-    const uid = context.auth.uid;
-    if (!isAdmin(uid)) {
-        throw new functions.https.HttpsError('permission-denied', 'Admin access required');
-    }
-    return uid;
-}
+const db = admin.firestore();
 // =============================================================================
 // ルールセット管理
 // =============================================================================
 exports.adminGetRuleset = functions
     .region('asia-northeast1')
     .https.onCall(async (_data, context) => {
-    requireAdmin(context);
+    await (0, adminAuth_1.requireAdmin)(context);
     try {
         const ruleset = await (0, rulesetService_1.getRuleset)();
         return { success: true, ruleset };
@@ -78,7 +64,7 @@ exports.adminGetRuleset = functions
 exports.adminSaveRuleset = functions
     .region('asia-northeast1')
     .https.onCall(async (data, context) => {
-    const uid = requireAdmin(context);
+    const uid = await (0, adminAuth_1.requireAdmin)(context);
     try {
         const saved = await (0, rulesetService_1.saveRuleset)(data.ruleset);
         await (0, auditService_1.writeAuditLog)({
@@ -96,7 +82,7 @@ exports.adminSaveRuleset = functions
 exports.adminSeedDefaultRuleset = functions
     .region('asia-northeast1')
     .https.onCall(async (_data, context) => {
-    const uid = requireAdmin(context);
+    const uid = await (0, adminAuth_1.requireAdmin)(context);
     try {
         const defaultRuleset = {
             version: '1.0.0',
@@ -150,7 +136,7 @@ exports.adminSeedDefaultRuleset = functions
 exports.adminGetSeasonCalendar = functions
     .region('asia-northeast1')
     .https.onCall(async (data, context) => {
-    requireAdmin(context);
+    await (0, adminAuth_1.requireAdmin)(context);
     const { year } = data;
     if (!year || typeof year !== 'number') {
         throw new functions.https.HttpsError('invalid-argument', 'year is required (number)');
@@ -167,7 +153,7 @@ exports.adminGetSeasonCalendar = functions
 exports.adminSaveSeasonCalendar = functions
     .region('asia-northeast1')
     .https.onCall(async (data, context) => {
-    const uid = requireAdmin(context);
+    const uid = await (0, adminAuth_1.requireAdmin)(context);
     try {
         const saved = await (0, seasonCalendarService_1.saveSeasonCalendar)(data.calendar);
         await (0, auditService_1.writeAuditLog)({
@@ -185,7 +171,7 @@ exports.adminSaveSeasonCalendar = functions
 exports.adminSeedDefaultCalendar = functions
     .region('asia-northeast1')
     .https.onCall(async (_data, context) => {
-    const uid = requireAdmin(context);
+    const uid = await (0, adminAuth_1.requireAdmin)(context);
     try {
         const defaultCalendar = (0, seasonCalendarService_1.generate2026DefaultCalendar)();
         const saved = await (0, seasonCalendarService_1.saveSeasonCalendar)(defaultCalendar);
@@ -207,7 +193,7 @@ exports.adminSeedDefaultCalendar = functions
 exports.adminFreezeSeasonV2 = functions
     .region('asia-northeast1')
     .https.onCall(async (data, context) => {
-    const uid = requireAdmin(context);
+    const uid = await (0, adminAuth_1.requireAdmin)(context);
     const { seasonKey } = data;
     if (!seasonKey || typeof seasonKey !== 'string') {
         throw new functions.https.HttpsError('invalid-argument', 'seasonKey is required');
@@ -224,7 +210,7 @@ exports.adminFreezeSeasonV2 = functions
 exports.adminFinalizeSeasonV2 = functions
     .region('asia-northeast1')
     .https.onCall(async (data, context) => {
-    const uid = requireAdmin(context);
+    const uid = await (0, adminAuth_1.requireAdmin)(context);
     const { seasonKey } = data;
     if (!seasonKey || typeof seasonKey !== 'string') {
         throw new functions.https.HttpsError('invalid-argument', 'seasonKey is required');
@@ -241,7 +227,7 @@ exports.adminFinalizeSeasonV2 = functions
 exports.adminPublishSeasonV2 = functions
     .region('asia-northeast1')
     .https.onCall(async (data, context) => {
-    const uid = requireAdmin(context);
+    const uid = await (0, adminAuth_1.requireAdmin)(context);
     const { seasonKey } = data;
     if (!seasonKey || typeof seasonKey !== 'string') {
         throw new functions.https.HttpsError('invalid-argument', 'seasonKey is required');
@@ -258,7 +244,7 @@ exports.adminPublishSeasonV2 = functions
 exports.adminGetJobRuns = functions
     .region('asia-northeast1')
     .https.onCall(async (data, context) => {
-    requireAdmin(context);
+    await (0, adminAuth_1.requireAdmin)(context);
     const { seasonKey } = data;
     if (!seasonKey || typeof seasonKey !== 'string') {
         throw new functions.https.HttpsError('invalid-argument', 'seasonKey is required');
@@ -276,19 +262,17 @@ exports.adminGetJobRuns = functions
 // 現在シーズン情報・スナップショット状態
 // =============================================================================
 const seasonCalendarService_2 = require("./services/seasonCalendarService");
-const admin = __importStar(require("firebase-admin"));
 const firestore_1 = require("firebase-admin/firestore");
 const utaawase_1 = require("./types/utaawase");
 const group_1 = require("./types/group");
 const groupAuditService_1 = require("./services/groupAuditService");
-const db = admin.firestore();
 /**
  * 現在のシーズン情報を取得
  */
 exports.adminGetCurrentSeasonInfo = functions
     .region('asia-northeast1')
     .https.onCall(async (_data, context) => {
-    requireAdmin(context);
+    await (0, adminAuth_1.requireAdmin)(context);
     try {
         const now = new Date();
         const info = await (0, seasonCalendarService_2.getCurrentSeasonInfo)(now);
@@ -330,7 +314,7 @@ exports.adminGetCurrentSeasonInfo = functions
 exports.adminGetSnapshotStatus = functions
     .region('asia-northeast1')
     .https.onCall(async (data, context) => {
-    requireAdmin(context);
+    await (0, adminAuth_1.requireAdmin)(context);
     const { seasonKey } = data;
     if (!seasonKey || typeof seasonKey !== 'string') {
         throw new functions.https.HttpsError('invalid-argument', 'seasonKey is required');
@@ -366,7 +350,7 @@ exports.adminGetSnapshotStatus = functions
 exports.adminSuspendGroup = functions
     .region('asia-northeast1')
     .https.onCall(async (data, context) => {
-    const uid = requireAdmin(context);
+    const uid = await (0, adminAuth_1.requireAdmin)(context);
     const { groupId, reason } = data;
     if (!groupId || typeof groupId !== 'string') {
         throw new functions.https.HttpsError('invalid-argument', 'groupIdは必須です');
@@ -407,7 +391,7 @@ exports.adminSuspendGroup = functions
 exports.adminResumeGroup = functions
     .region('asia-northeast1')
     .https.onCall(async (data, context) => {
-    const uid = requireAdmin(context);
+    const uid = await (0, adminAuth_1.requireAdmin)(context);
     const { groupId } = data;
     if (!groupId || typeof groupId !== 'string') {
         throw new functions.https.HttpsError('invalid-argument', 'groupIdは必須です');
@@ -445,7 +429,7 @@ exports.adminResumeGroup = functions
 exports.adminDeleteGroup = functions
     .region('asia-northeast1')
     .https.onCall(async (data, context) => {
-    const uid = requireAdmin(context);
+    const uid = await (0, adminAuth_1.requireAdmin)(context);
     const { groupId, reason } = data;
     if (!groupId || typeof groupId !== 'string') {
         throw new functions.https.HttpsError('invalid-argument', 'groupIdは必須です');
@@ -490,7 +474,7 @@ exports.adminDeleteGroup = functions
 exports.adminGetGroupAuditLogs = functions
     .region('asia-northeast1')
     .https.onCall(async (data, context) => {
-    requireAdmin(context);
+    await (0, adminAuth_1.requireAdmin)(context);
     const { groupId, limit } = data;
     if (!groupId || typeof groupId !== 'string') {
         throw new functions.https.HttpsError('invalid-argument', 'groupIdは必須です');
@@ -520,7 +504,7 @@ exports.adminGetGroupAuditLogs = functions
 exports.adminGetAllGroups = functions
     .region('asia-northeast1')
     .https.onCall(async (data, context) => {
-    requireAdmin(context);
+    await (0, adminAuth_1.requireAdmin)(context);
     const { status, limit: limitParam } = data;
     try {
         let query = db.collection(group_1.GROUP_COLLECTIONS.GROUPS).orderBy('createdAt', 'desc');
@@ -549,6 +533,92 @@ exports.adminGetAllGroups = functions
     catch (error) {
         console.error('Error getting all groups:', error);
         throw new functions.https.HttpsError('internal', error.message || 'Failed to get groups');
+    }
+});
+// =============================================================================
+// 106: ユーザー管理
+// =============================================================================
+/**
+ * ユーザー一覧取得（siteRole・ニックネームでフィルタ可）
+ */
+exports.adminGetUsers = functions
+    .region('asia-northeast1')
+    .https.onCall(async (data, context) => {
+    await (0, adminAuth_1.requireAdmin)(context);
+    const { siteRole, nickname, limit: limitParam } = data || {};
+    try {
+        let query = db.collection('users').orderBy('createdAt', 'desc');
+        if (siteRole && typeof siteRole === 'string' && (0, adminAuth_1.isValidSiteRole)(siteRole)) {
+            query = query.where('siteRole', '==', siteRole);
+        }
+        const snap = await query.limit(limitParam || 50).get();
+        let users = snap.docs.map((doc) => {
+            const d = doc.data();
+            return {
+                uid: doc.id,
+                nickname: d.nickname || '',
+                siteRole: d.siteRole || 'user',
+                createdAt: d.createdAt?.toDate?.()?.toISOString() || null,
+            };
+        });
+        // ニックネーム検索（クライアント側フィルタ）
+        if (nickname && typeof nickname === 'string') {
+            const lower = nickname.toLowerCase();
+            users = users.filter((u) => u.nickname.toLowerCase().includes(lower));
+        }
+        return { success: true, users };
+    }
+    catch (error) {
+        console.error('Error getting users:', error);
+        throw new functions.https.HttpsError('internal', error.message || 'Failed to get users');
+    }
+});
+/**
+ * ユーザーの siteRole を変更（自己変更禁止、監査ログ記録）
+ */
+exports.adminSetUserRole = functions
+    .region('asia-northeast1')
+    .https.onCall(async (data, context) => {
+    const adminUid = await (0, adminAuth_1.requireAdmin)(context);
+    const { targetUid, newRole } = data || {};
+    if (!targetUid || typeof targetUid !== 'string') {
+        throw new functions.https.HttpsError('invalid-argument', 'targetUid は必須です');
+    }
+    if (!newRole || !(0, adminAuth_1.isValidSiteRole)(newRole)) {
+        throw new functions.https.HttpsError('invalid-argument', '無効な siteRole です');
+    }
+    if (targetUid === adminUid) {
+        throw new functions.https.HttpsError('failed-precondition', '自分自身の権限は変更できません');
+    }
+    try {
+        const userRef = db.collection('users').doc(targetUid);
+        const userDoc = await userRef.get();
+        if (!userDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'ユーザーが見つかりません');
+        }
+        const oldRole = userDoc.data()?.siteRole || 'user';
+        await userRef.update({
+            siteRole: newRole,
+            updatedAt: firestore_1.FieldValue.serverTimestamp(),
+        });
+        // 監査ログ
+        await (0, auditService_1.writeAuditLog)({
+            eventType: 'ranking_recalculated',
+            uid: adminUid,
+            details: {
+                action: 'set_user_role',
+                targetUid,
+                oldRole,
+                newRole,
+            },
+        });
+        return { success: true };
+    }
+    catch (error) {
+        if (error instanceof functions.https.HttpsError)
+            throw error;
+        console.error('Error setting user role:', error);
+        throw new functions.https.HttpsError('internal', error.message || 'Failed to set user role');
     }
 });
 //# sourceMappingURL=adminFunctionsV2.js.map

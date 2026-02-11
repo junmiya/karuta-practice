@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Heading, Text } from '@/components/ui/Typography';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { LoadingState, AuthRequiredState, InfoBox } from '@/components/ui/PageStates';
+import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import {
   adminGetRuleset,
   adminSeedDefaultRuleset,
@@ -29,9 +30,19 @@ import {
   adminGetGroupAuditLogs,
   type AdminGroup,
   type AdminGroupAuditLog,
+  adminGetUsers,
+  adminSetUserRole,
+  type AdminUser,
 } from '@/services/admin-v2.service';
 
-type TabType = 'calendar' | 'ruleset' | 'pipeline' | 'groups';
+type TabType = 'calendar' | 'ruleset' | 'pipeline' | 'groups' | 'users';
+
+const SITE_ROLE_OPTIONS = [
+  { value: 'user', label: '一般' },
+  { value: 'tester', label: 'テスター' },
+  { value: 'admin', label: '管理者' },
+  { value: 'banned', label: '禁止' },
+];
 
 // Pipeline status labels
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
@@ -85,6 +96,13 @@ export function AdminPage() {
   const [suspendReason, setSuspendReason] = useState('');
   const [showSuspendDialog, setShowSuspendDialog] = useState<string | null>(null);
 
+  // Users tab state
+  const [usersData, setUsersData] = useState<AdminUser[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [usersNicknameFilter, setUsersNicknameFilter] = useState('');
+  const [usersRoleFilter, setUsersRoleFilter] = useState<string>('all');
+  const [changingRole, setChangingRole] = useState<string | null>(null);
+
   // Load current season info when pipeline tab is opened
   useEffect(() => {
     if (activeTab === 'pipeline' && user && !seasonInfo) {
@@ -98,6 +116,43 @@ export function AdminPage() {
       loadGroups();
     }
   }, [activeTab, user, groupsFilter]);
+
+  // Load users when users tab is opened
+  useEffect(() => {
+    if (activeTab === 'users' && user) {
+      loadUsers();
+    }
+  }, [activeTab, user]);
+
+  const loadUsers = async () => {
+    setUsersLoading(true);
+    try {
+      const filter: { siteRole?: string; nickname?: string } = {};
+      if (usersRoleFilter !== 'all') filter.siteRole = usersRoleFilter;
+      if (usersNicknameFilter.trim()) filter.nickname = usersNicknameFilter.trim();
+      const res = await adminGetUsers(filter);
+      setUsersData(res.users || []);
+    } catch (err: any) {
+      setError(err.message || 'ユーザー一覧の取得に失敗しました');
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
+  const handleSetUserRole = async (targetUid: string, newRole: string) => {
+    const roleLabel = SITE_ROLE_OPTIONS.find((r) => r.value === newRole)?.label || newRole;
+    if (!confirm(`このユーザーの権限を「${roleLabel}」に変更しますか？`)) return;
+    setChangingRole(targetUid);
+    try {
+      await adminSetUserRole(targetUid, newRole);
+      setMessage(`権限を「${roleLabel}」に変更しました`);
+      await loadUsers();
+    } catch (err: any) {
+      setError(err.message || '権限の変更に失敗しました');
+    } finally {
+      setChangingRole(null);
+    }
+  };
 
   const loadGroups = async () => {
     setGroupsLoading(true);
@@ -226,44 +281,19 @@ export function AdminPage() {
       <PageHeader title="管理者ダッシュボード" subtitle="節気カレンダー・ルールセット・確定パイプライン" />
 
       {/* Tab Navigation */}
-      <div className="flex gap-2 border-b border-gray-200 pb-2">
-        <button
-          onClick={() => setActiveTab('calendar')}
-          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeTab === 'calendar'
-            ? 'bg-karuta-red text-white'
-            : 'text-gray-600 hover:bg-gray-100'
-            }`}
-        >
-          節気カレンダー
-        </button>
-        <button
-          onClick={() => setActiveTab('ruleset')}
-          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeTab === 'ruleset'
-            ? 'bg-karuta-red text-white'
-            : 'text-gray-600 hover:bg-gray-100'
-            }`}
-        >
-          ルールセット
-        </button>
-        <button
-          onClick={() => setActiveTab('pipeline')}
-          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeTab === 'pipeline'
-            ? 'bg-karuta-red text-white'
-            : 'text-gray-600 hover:bg-gray-100'
-            }`}
-        >
-          確定パイプライン
-        </button>
-        <button
-          onClick={() => setActiveTab('groups')}
-          className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${activeTab === 'groups'
-            ? 'bg-karuta-red text-white'
-            : 'text-gray-600 hover:bg-gray-100'
-            }`}
-        >
-          団体管理
-        </button>
-      </div>
+      <SegmentedControl
+        options={[
+          { value: 'calendar' as TabType, label: '節気カレンダー' },
+          { value: 'ruleset' as TabType, label: 'ルールセット' },
+          { value: 'pipeline' as TabType, label: '確定パイプライン' },
+          { value: 'groups' as TabType, label: '団体管理' },
+          { value: 'users' as TabType, label: 'ユーザー' },
+        ]}
+        value={activeTab}
+        onChange={setActiveTab}
+        size="md"
+        className="w-full flex-wrap"
+      />
 
       {/* Messages */}
       {message && (
@@ -807,6 +837,105 @@ export function AdminPage() {
         </Card>
       )}
 
+      {/* Users Tab */}
+      {activeTab === 'users' && (
+        <Card>
+          <Heading as="h3" size="h3" className="mb-4">ユーザー管理</Heading>
+          <div className="space-y-4">
+            {/* Search & Filter */}
+            <div className="flex flex-wrap gap-2 items-end">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">ニックネーム検索</label>
+                <input
+                  type="text"
+                  value={usersNicknameFilter}
+                  onChange={(e) => setUsersNicknameFilter(e.target.value)}
+                  placeholder="検索..."
+                  className="w-40 px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">権限フィルタ</label>
+                <select
+                  value={usersRoleFilter}
+                  onChange={(e) => setUsersRoleFilter(e.target.value)}
+                  className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
+                >
+                  <option value="all">すべて</option>
+                  {SITE_ROLE_OPTIONS.map((r) => (
+                    <option key={r.value} value={r.value}>{r.label}</option>
+                  ))}
+                </select>
+              </div>
+              <Button onClick={loadUsers} disabled={usersLoading} size="sm">
+                {usersLoading ? '検索中...' : '検索'}
+              </Button>
+            </div>
+
+            {/* Users List */}
+            {usersLoading ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-karuta-red"></div>
+              </div>
+            ) : usersData.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                ユーザーが見つかりません
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-2 px-2">ニックネーム</th>
+                      <th className="text-left py-2 px-2">UID</th>
+                      <th className="text-left py-2 px-2">権限</th>
+                      <th className="text-left py-2 px-2">作成日</th>
+                      <th className="text-left py-2 px-2">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {usersData.map((u) => (
+                      <tr key={u.uid} className="border-b border-gray-100">
+                        <td className="py-2 px-2 font-medium">{u.nickname || '(未設定)'}</td>
+                        <td className="py-2 px-2 font-mono text-xs text-gray-500">{u.uid.slice(0, 12)}...</td>
+                        <td className="py-2 px-2">
+                          <Badge variant={
+                            u.siteRole === 'admin' ? 'info' :
+                            u.siteRole === 'tester' ? 'success' :
+                            u.siteRole === 'banned' ? 'warning' : 'secondary'
+                          }>
+                            {SITE_ROLE_OPTIONS.find((r) => r.value === u.siteRole)?.label || u.siteRole}
+                          </Badge>
+                        </td>
+                        <td className="py-2 px-2 text-xs text-gray-500">
+                          {u.createdAt ? new Date(u.createdAt).toLocaleDateString('ja-JP') : '-'}
+                        </td>
+                        <td className="py-2 px-2">
+                          <select
+                            value={u.siteRole}
+                            onChange={(e) => handleSetUserRole(u.uid, e.target.value)}
+                            disabled={changingRole === u.uid}
+                            className="px-2 py-1 border border-gray-300 rounded text-xs"
+                          >
+                            {SITE_ROLE_OPTIONS.map((r) => (
+                              <option key={r.value} value={r.value}>{r.label}</option>
+                            ))}
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <Text size="xs" color="muted">
+              {usersData.length}件のユーザーを表示中（最大50件）
+            </Text>
+          </div>
+        </Card>
+      )}
+
       {/* Info */}
       <InfoBox title="操作について" variant="info">
         <ul className="space-y-1">
@@ -814,6 +943,7 @@ export function AdminPage() {
           <li>• <strong>ルールセット</strong>: 級位・段位・伝位の昇格条件を管理します。</li>
           <li>• <strong>確定パイプライン</strong>: シーズン終了時の凍結→確定→公開を実行します。</li>
           <li>• <strong>団体管理</strong>: 団体の停止・再開・削除、監査ログの確認を行います。</li>
+          <li>• <strong>ユーザー</strong>: ユーザーの権限（admin/tester/user/banned）を管理します。</li>
         </ul>
       </InfoBox>
     </div>

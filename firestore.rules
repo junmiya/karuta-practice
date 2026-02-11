@@ -2,9 +2,12 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ユーザー
+    // ユーザー（siteRole の変更はサーバのみ許可）
     match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null && request.auth.uid == uid
+        && !('siteRole' in request.resource.data
+             && request.resource.data.siteRole != resource.data.siteRole);
     }
 
     // 覚えた札

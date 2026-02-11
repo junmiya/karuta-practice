@@ -33,8 +33,8 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.unpublishEvent = exports.publishEvent = exports.updateEvent = exports.createEvent = exports.leaveGroup = exports.removeMember = exports.changeRole = exports.getGroupMembers = exports.getInviteInfo = exports.joinGroup = exports.getInviteCode = exports.revokeInviteCode = exports.regenerateInviteCode = exports.deleteGroup = exports.updateGroup = exports.getMyGroups = exports.getGroup = exports.createGroup = exports.aggregateGroupStats = exports.checkSeasonBoundary = exports.adminGetAllGroups = exports.adminGetGroupAuditLogs = exports.adminDeleteGroup = exports.adminResumeGroup = exports.adminSuspendGroup = exports.adminGetSnapshotStatus = exports.adminGetCurrentSeasonInfo = exports.adminGetJobRuns = exports.adminPublishSeasonV2 = exports.adminFinalizeSeasonV2 = exports.adminFreezeSeasonV2 = exports.adminSeedDefaultCalendar = exports.adminSaveSeasonCalendar = exports.adminGetSeasonCalendar = exports.adminSeedDefaultRuleset = exports.adminSaveRuleset = exports.adminGetRuleset = exports.submitKyuiExam = exports.analyzeStats = exports.getPoemExplanation = exports.costGuardCleanup = exports.updateTitles = exports.checkSeasonTransition = exports.generateDailyReflections = exports.expireStaleSession = exports.updateSeasonStatus = exports.dailyRankingSnapshot = exports.submitOfficialRecord = exports.submitOfficialSession = exports.db = void 0;
-exports.getEventParticipants = exports.leaveEvent = exports.joinEvent = exports.getGroupEvents = exports.rejectEvent = exports.closeEvent = void 0;
+exports.updateEvent = exports.createEvent = exports.leaveGroup = exports.removeMember = exports.changeRole = exports.getGroupMembers = exports.getInviteInfo = exports.joinGroup = exports.getInviteCode = exports.revokeInviteCode = exports.regenerateInviteCode = exports.deleteGroup = exports.updateGroup = exports.getMyGroups = exports.getGroup = exports.createGroup = exports.aggregateGroupStats = exports.checkSeasonBoundary = exports.adminSetUserRole = exports.adminGetUsers = exports.adminGetAllGroups = exports.adminGetGroupAuditLogs = exports.adminDeleteGroup = exports.adminResumeGroup = exports.adminSuspendGroup = exports.adminGetSnapshotStatus = exports.adminGetCurrentSeasonInfo = exports.adminGetJobRuns = exports.adminPublishSeasonV2 = exports.adminFinalizeSeasonV2 = exports.adminFreezeSeasonV2 = exports.adminSeedDefaultCalendar = exports.adminSaveSeasonCalendar = exports.adminGetSeasonCalendar = exports.adminSeedDefaultRuleset = exports.adminSaveRuleset = exports.adminGetRuleset = exports.submitKyuiExam = exports.analyzeStats = exports.getPoemExplanation = exports.costGuardCleanup = exports.updateTitles = exports.checkSeasonTransition = exports.generateDailyReflections = exports.expireStaleSession = exports.updateSeasonStatus = exports.dailyRankingSnapshot = exports.submitOfficialRecord = exports.submitOfficialSession = exports.db = void 0;
+exports.joinTebikiInvite = exports.getTebikiInviteInfo = exports.createTebikiInvite = exports.getEventParticipants = exports.leaveEvent = exports.joinEvent = exports.getGroupEvents = exports.rejectEvent = exports.closeEvent = exports.unpublishEvent = exports.publishEvent = void 0;
 const admin = __importStar(require("firebase-admin"));
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -90,6 +90,9 @@ Object.defineProperty(exports, "adminResumeGroup", { enumerable: true, get: func
 Object.defineProperty(exports, "adminDeleteGroup", { enumerable: true, get: function () { return adminFunctionsV2_1.adminDeleteGroup; } });
 Object.defineProperty(exports, "adminGetGroupAuditLogs", { enumerable: true, get: function () { return adminFunctionsV2_1.adminGetGroupAuditLogs; } });
 Object.defineProperty(exports, "adminGetAllGroups", { enumerable: true, get: function () { return adminFunctionsV2_1.adminGetAllGroups; } });
+// 106: ユーザー管理
+Object.defineProperty(exports, "adminGetUsers", { enumerable: true, get: function () { return adminFunctionsV2_1.adminGetUsers; } });
+Object.defineProperty(exports, "adminSetUserRole", { enumerable: true, get: function () { return adminFunctionsV2_1.adminSetUserRole; } });
 // Export scheduled functions (102)
 var scheduledFunctionsV2_1 = require("./scheduledFunctionsV2");
 Object.defineProperty(exports, "checkSeasonBoundary", { enumerable: true, get: function () { return scheduledFunctionsV2_1.checkSeasonBoundary; } });
@@ -120,4 +123,9 @@ Object.defineProperty(exports, "getGroupEvents", { enumerable: true, get: functi
 Object.defineProperty(exports, "joinEvent", { enumerable: true, get: function () { return groupFunctions_1.joinEvent; } });
 Object.defineProperty(exports, "leaveEvent", { enumerable: true, get: function () { return groupFunctions_1.leaveEvent; } });
 Object.defineProperty(exports, "getEventParticipants", { enumerable: true, get: function () { return groupFunctions_1.getEventParticipants; } });
+// Export invite functions (105: 手引招待機能)
+var inviteFunctions_1 = require("./inviteFunctions");
+Object.defineProperty(exports, "createTebikiInvite", { enumerable: true, get: function () { return inviteFunctions_1.createTebikiInvite; } });
+Object.defineProperty(exports, "getTebikiInviteInfo", { enumerable: true, get: function () { return inviteFunctions_1.getTebikiInviteInfo; } });
+Object.defineProperty(exports, "joinTebikiInvite", { enumerable: true, get: function () { return inviteFunctions_1.joinTebikiInvite; } });
 //# sourceMappingURL=index.js.map

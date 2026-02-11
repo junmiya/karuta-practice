@@ -27,6 +27,7 @@ import { GroupEventPage } from './pages/GroupEventPage';
 import { GroupEditPage } from './pages/GroupEditPage';
 import { TebikiPage } from './pages/TebikiPage';
 import { InviteJoinPage } from './pages/InviteJoinPage';
+import { AdminRoute } from './components/AdminRoute';
 
 export function App() {
   return (
@@ -70,8 +71,8 @@ export function App() {
             {/* プロフィール */}
             <Route path="/profile" element={<ProfilePage />} />
 
-            {/* 管理者ページ */}
-            <Route path="/admin" element={<AdminPage />} />
+            {/* 管理者ページ（admin のみ） */}
+            <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
 
             {/* 団体機能 */}
             <Route path="/groups" element={<GroupListPage />} />
