@@ -23,8 +23,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        // シンプルで知的なカラーパレット（東大風）
-        'karuta-tansei': '#196AAB',   // UTokyo Blue (Primary UI)
+        // シンプルで知的なカラーパレット（アカデミック・スタイル）
+        'karuta-tansei': '#196AAB',   // Academic Blue (Primary UI)
         'karuta-accent': '#FFCB05',   // Focus Yellow (Accent)
         'karuta-sky': '#5BDEFF',      // Official Tansei (Light Blue - Decorative)
         'karuta-red': '#c62828',      // 深紅（競技かるた的なアクセント・伝統色）
