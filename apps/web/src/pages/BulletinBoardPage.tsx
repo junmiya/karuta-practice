@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/Badge';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { LoadingState, EmptyState } from '@/components/ui/PageStates';
 import { getKawarabanPosts, getBugPosts, createBugReport, createKawarabanPost, updateBugStatus, deleteBoardPost } from '@/services/board.service';
-import type { BoardPost, PostCategory, PostType, BugStatus, BugTargetArea, BugFrequency } from '@/types/board';
+import type { BoardPost, PostType, BugStatus, BugTargetArea, BugFrequency } from '@/types/board';
 import {
   POST_TYPE_LABELS,
   BUG_STATUS_LABELS,
