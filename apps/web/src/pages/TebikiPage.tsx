@@ -29,6 +29,9 @@ export function TebikiPage() {
       <section className="text-center space-y-4">
         <div className="space-y-2">
           <Text size="lg" className="leading-loose">
+            ひと声で札が決まる瞬間が、気持ちよい。
+          </Text>
+          <Text size="lg" className="leading-loose">
             覚えるほど、取れる速さが増していく。
           </Text>
           <Text size="lg" className="leading-loose">
