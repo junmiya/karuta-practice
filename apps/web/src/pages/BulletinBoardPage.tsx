@@ -114,7 +114,7 @@ export function BulletinBoardPage() {
   }
 
   return (
-    <Container size="lg" className="py-6 space-y-4">
+    <Container size="md" className="py-6 space-y-4">
       <PageHeader title="便り">
         <div className="flex gap-2 mt-2">
           {activeTab === 'kawaraban' && isAdmin && (
