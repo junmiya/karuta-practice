@@ -7,8 +7,9 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Heading, Text } from '@/components/ui/Typography';
-import { Badge } from '@/components/ui/Badge';
+import { Text } from '@/components/ui/Typography';
+import { Badge, type BadgeVariant } from '@/components/ui/Badge';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { LoadingState, EmptyState } from '@/components/ui/PageStates';
 import { getKawarabanPosts, getBugPosts, createBugReport, createKawarabanPost, updateBugStatus, deleteBoardPost } from '@/services/board.service';
@@ -28,7 +29,7 @@ const TAB_OPTIONS: { value: TabValue; label: string }[] = [
 ];
 
 // 不具合ステータスのバッジ色
-const BUG_STATUS_VARIANT: Record<BugStatus, string> = {
+const BUG_STATUS_VARIANT: Record<BugStatus, BadgeVariant> = {
   new: 'danger',
   need_info: 'warning',
   confirmed: 'info',
@@ -38,7 +39,7 @@ const BUG_STATUS_VARIANT: Record<BugStatus, string> = {
 };
 
 // 投稿タイプのバッジ色
-const POST_TYPE_VARIANT: Record<PostType, string> = {
+const POST_TYPE_VARIANT: Record<PostType, BadgeVariant> = {
   external_news: 'info',
   system_news: 'accent',
   group_recruit: 'success',
@@ -114,9 +115,8 @@ export function BulletinBoardPage() {
 
   return (
     <Container size="lg" className="py-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <Heading as="h2" size="h2">便り</Heading>
-        <div className="flex gap-2">
+      <PageHeader title="便り">
+        <div className="flex gap-2 mt-2">
           {activeTab === 'kawaraban' && isAdmin && (
             <Button size="sm" onClick={() => { setFormMode('kawaraban'); setShowForm(true); }}>
               投稿する
@@ -128,7 +128,7 @@ export function BulletinBoardPage() {
             </Button>
           )}
         </div>
-      </div>
+      </PageHeader>
 
       <SegmentedControl options={tabOptions} value={activeTab} onChange={handleTabChange} size="md" />
 
@@ -166,7 +166,7 @@ export function BulletinBoardPage() {
       {activeTab === 'bugroom' && !showForm && (
         <div className="flex gap-2 flex-wrap">
           <select
-            className="text-xs border rounded px-2 py-1"
+            className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value as BugStatus | '')}
           >
@@ -176,7 +176,7 @@ export function BulletinBoardPage() {
             ))}
           </select>
           <select
-            className="text-xs border rounded px-2 py-1"
+            className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
             value={areaFilter}
             onChange={e => setAreaFilter(e.target.value as BugTargetArea | '')}
           >
@@ -201,7 +201,7 @@ export function BulletinBoardPage() {
       ) : posts.length === 0 ? (
         <EmptyState message={activeTab === 'kawaraban' ? 'まだ投稿がありません' : '不具合報告はありません'} />
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {posts.map(post => (
             activeTab === 'kawaraban'
               ? <KawarabanCard key={post.id} post={post} isAdmin={isAdmin} onDelete={async () => { await deleteBoardPost(post.id); loadPosts(); }} />
@@ -217,12 +217,12 @@ export function BulletinBoardPage() {
 function KawarabanCard({ post, isAdmin, onDelete }: { post: BoardPost; isAdmin: boolean; onDelete: () => void }) {
   const createdAt = post.createdAt instanceof Date ? post.createdAt : new Date(post.createdAt);
   return (
-    <Card className="p-4">
+    <Card padding="sm">
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             {post.pinned && <Badge variant="accent">固定</Badge>}
-            <Badge variant={(POST_TYPE_VARIANT[post.type] || 'secondary') as any}>
+            <Badge variant={POST_TYPE_VARIANT[post.type] || 'secondary'}>
               {POST_TYPE_LABELS[post.type]}
             </Badge>
             {post.groupName && (
@@ -242,9 +242,9 @@ function KawarabanCard({ post, isAdmin, onDelete }: { post: BoardPost; isAdmin: 
           </div>
         </div>
         {isAdmin && (
-          <button onClick={onDelete} className="text-xs text-gray-400 hover:text-red-500" title="削除">
+          <Button variant="ghost" size="sm" onClick={onDelete} title="削除">
             削除
-          </button>
+          </Button>
         )}
       </div>
     </Card>
@@ -260,12 +260,12 @@ function BugCard({ post, isAdmin, onStatusChange, onClick }: {
 }) {
   const createdAt = post.createdAt instanceof Date ? post.createdAt : new Date(post.createdAt);
   return (
-    <Card className="p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={onClick}>
+    <Card padding="sm" hover className="cursor-pointer" onClick={onClick}>
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             {post.status && (
-              <Badge variant={(BUG_STATUS_VARIANT[post.status] || 'secondary') as any}>
+              <Badge variant={BUG_STATUS_VARIANT[post.status] || 'secondary'}>
                 {BUG_STATUS_LABELS[post.status]}
               </Badge>
             )}
@@ -282,14 +282,14 @@ function BugCard({ post, isAdmin, onStatusChange, onClick }: {
         {isAdmin && post.status && (
           <div className="flex gap-1" onClick={e => e.stopPropagation()}>
             {post.status === 'new' && (
-              <button onClick={() => onStatusChange('confirmed')} className="text-xs px-2 py-0.5 rounded border border-blue-300 text-blue-600 hover:bg-blue-50">
+              <Button variant="outline" size="sm" onClick={() => onStatusChange('confirmed')}>
                 確認
-              </button>
+              </Button>
             )}
             {(post.status === 'confirmed' || post.status === 'in_progress') && (
-              <button onClick={() => onStatusChange('fixed')} className="text-xs px-2 py-0.5 rounded border border-green-300 text-green-600 hover:bg-green-50">
+              <Button variant="outline" size="sm" onClick={() => onStatusChange('fixed')}>
                 修正済
-              </button>
+              </Button>
             )}
           </div>
         )}
@@ -327,27 +327,27 @@ function KawarabanForm({ onSubmit, onCancel }: {
   };
 
   return (
-    <Card className="p-4 space-y-3">
-      <Heading as="h3" size="h3">瓦版に投稿</Heading>
+    <Card padding="sm" className="space-y-3">
+      <Text weight="bold" size="lg">瓦版に投稿</Text>
       <div>
-        <label className="block text-xs text-gray-600 mb-1">種別</label>
-        <select className="w-full border rounded px-2 py-1.5 text-sm" value={type} onChange={e => setType(e.target.value as PostType)}>
+        <label className="block text-sm font-medium text-gray-700 mb-1">種別</label>
+        <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" value={type} onChange={e => setType(e.target.value as PostType)}>
           <option value="system_news">お知らせ</option>
           <option value="external_news">外部ニュース</option>
         </select>
       </div>
       <div>
-        <label className="block text-xs text-gray-600 mb-1">タイトル</label>
-        <input className="w-full border rounded px-2 py-1.5 text-sm" value={title} onChange={e => setTitle(e.target.value)} maxLength={80} placeholder="タイトル（80文字以内）" />
+        <label className="block text-sm font-medium text-gray-700 mb-1">タイトル</label>
+        <input className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" value={title} onChange={e => setTitle(e.target.value)} maxLength={80} placeholder="タイトル（80文字以内）" />
       </div>
       <div>
-        <label className="block text-xs text-gray-600 mb-1">本文</label>
-        <textarea className="w-full border rounded px-2 py-1.5 text-sm" rows={4} value={body} onChange={e => setBody(e.target.value)} maxLength={4000} placeholder="本文（任意）" />
+        <label className="block text-sm font-medium text-gray-700 mb-1">本文</label>
+        <textarea className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={4} value={body} onChange={e => setBody(e.target.value)} maxLength={4000} placeholder="本文（任意）" />
       </div>
       {type === 'external_news' && (
         <div>
-          <label className="block text-xs text-gray-600 mb-1">外部リンクURL</label>
-          <input className="w-full border rounded px-2 py-1.5 text-sm" value={externalUrl} onChange={e => setExternalUrl(e.target.value)} placeholder="https://..." />
+          <label className="block text-sm font-medium text-gray-700 mb-1">外部リンクURL</label>
+          <input className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" value={externalUrl} onChange={e => setExternalUrl(e.target.value)} placeholder="https://..." />
         </div>
       )}
       <label className="flex items-center gap-2">
@@ -408,45 +408,45 @@ function BugReportForm({ onSubmit, onCancel }: {
   };
 
   return (
-    <Card className="p-4 space-y-3">
-      <Heading as="h3" size="h3">不具合を報告</Heading>
+    <Card padding="sm" className="space-y-3">
+      <Text weight="bold" size="lg">不具合を報告</Text>
       <div>
-        <label className="block text-xs text-gray-600 mb-1">対象機能 *</label>
-        <select className="w-full border rounded px-2 py-1.5 text-sm" value={targetArea} onChange={e => setTargetArea(e.target.value as BugTargetArea)}>
+        <label className="block text-sm font-medium text-gray-700 mb-1">対象機能 *</label>
+        <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" value={targetArea} onChange={e => setTargetArea(e.target.value as BugTargetArea)}>
           {(Object.keys(BUG_TARGET_AREA_LABELS) as BugTargetArea[]).map(a => (
             <option key={a} value={a}>{BUG_TARGET_AREA_LABELS[a]}</option>
           ))}
         </select>
       </div>
       <div>
-        <label className="block text-xs text-gray-600 mb-1">タイトル *</label>
-        <input className="w-full border rounded px-2 py-1.5 text-sm" value={title} onChange={e => setTitle(e.target.value)} maxLength={80} placeholder="簡潔に問題を記述" />
+        <label className="block text-sm font-medium text-gray-700 mb-1">タイトル *</label>
+        <input className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" value={title} onChange={e => setTitle(e.target.value)} maxLength={80} placeholder="簡潔に問題を記述" />
       </div>
       <div>
-        <label className="block text-xs text-gray-600 mb-1">再現手順</label>
-        <textarea className="w-full border rounded px-2 py-1.5 text-sm" rows={3} value={steps} onChange={e => setSteps(e.target.value)} placeholder="1. ○○を開く&#10;2. ○○をタップ&#10;3. ..." />
+        <label className="block text-sm font-medium text-gray-700 mb-1">再現手順</label>
+        <textarea className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={3} value={steps} onChange={e => setSteps(e.target.value)} placeholder="1. ○○を開く&#10;2. ○○をタップ&#10;3. ..." />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-gray-600 mb-1">期待する動作</label>
-          <textarea className="w-full border rounded px-2 py-1.5 text-sm" rows={2} value={expected} onChange={e => setExpected(e.target.value)} placeholder="本来はこうなるべき" />
+          <label className="block text-sm font-medium text-gray-700 mb-1">期待する動作</label>
+          <textarea className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={2} value={expected} onChange={e => setExpected(e.target.value)} placeholder="本来はこうなるべき" />
         </div>
         <div>
-          <label className="block text-xs text-gray-600 mb-1">実際の動作</label>
-          <textarea className="w-full border rounded px-2 py-1.5 text-sm" rows={2} value={actual} onChange={e => setActual(e.target.value)} placeholder="実際にはこうなった" />
+          <label className="block text-sm font-medium text-gray-700 mb-1">実際の動作</label>
+          <textarea className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={2} value={actual} onChange={e => setActual(e.target.value)} placeholder="実際にはこうなった" />
         </div>
       </div>
       <div>
-        <label className="block text-xs text-gray-600 mb-1">発生頻度</label>
-        <select className="w-full border rounded px-2 py-1.5 text-sm" value={frequency} onChange={e => setFrequency(e.target.value as BugFrequency)}>
+        <label className="block text-sm font-medium text-gray-700 mb-1">発生頻度</label>
+        <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" value={frequency} onChange={e => setFrequency(e.target.value as BugFrequency)}>
           {(Object.keys(BUG_FREQUENCY_LABELS) as BugFrequency[]).map(f => (
             <option key={f} value={f}>{BUG_FREQUENCY_LABELS[f]}</option>
           ))}
         </select>
       </div>
       <div>
-        <label className="block text-xs text-gray-600 mb-1">対象画面</label>
-        <input className="w-full border rounded px-2 py-1.5 text-sm" value={targetPage} onChange={e => setTargetPage(e.target.value)} placeholder="URL or 画面名" />
+        <label className="block text-sm font-medium text-gray-700 mb-1">対象画面</label>
+        <input className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" value={targetPage} onChange={e => setTargetPage(e.target.value)} placeholder="URL or 画面名" />
       </div>
       <div className="flex gap-2">
         <Button onClick={handleSubmit} disabled={submitting || !title.trim()}>
