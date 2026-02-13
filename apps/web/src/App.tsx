@@ -28,6 +28,7 @@ import { GroupEditPage } from './pages/GroupEditPage';
 import { TebikiPage } from './pages/TebikiPage';
 import { InviteJoinPage } from './pages/InviteJoinPage';
 import { BulletinBoardPage } from './pages/BulletinBoardPage';
+import { DesignPage } from './pages/DesignPage';
 import { BugDetailPage } from './pages/BugDetailPage';
 import { AdminRoute } from './components/AdminRoute';
 
@@ -75,6 +76,9 @@ export function App() {
 
             {/* 管理者ページ（admin のみ） */}
             <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
+
+            {/* デザインシステム（タブ非表示） */}
+            <Route path="/design" element={<DesignPage />} />
 
             {/* 便りタブ（108: 掲示板） */}
             <Route path="/bulletin" element={<BulletinBoardPage />} />
