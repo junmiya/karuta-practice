@@ -29,6 +29,7 @@ import { TebikiPage } from './pages/TebikiPage';
 import { InviteJoinPage } from './pages/InviteJoinPage';
 import { BulletinBoardPage } from './pages/BulletinBoardPage';
 import { DesignPage } from './pages/DesignPage';
+import { Design2Page } from './pages/Design2Page';
 import { BugDetailPage } from './pages/BugDetailPage';
 import { AdminRoute } from './components/AdminRoute';
 
@@ -79,6 +80,7 @@ export function App() {
 
             {/* デザインシステム（タブ非表示） */}
             <Route path="/design" element={<DesignPage />} />
+            <Route path="/design2" element={<Design2Page />} />
 
             {/* 便りタブ（108: 掲示板） */}
             <Route path="/bulletin" element={<BulletinBoardPage />} />
