@@ -1,8 +1,9 @@
 /**
  * デザインシステム ショーケース（T077 スペーシング・デザイン統一 イメージ）
  * /design でアクセス可能、タブには非表示
+ * 枠あり / 枠なし をボタンで切替可能
  */
-import { useState } from 'react';
+import { useState, createContext, useContext } from 'react';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -24,30 +25,85 @@ const SECTION_TABS: { value: SectionTab; label: string }[] = [
   { value: 'pages', label: 'ページ例' },
 ];
 
+// 枠なしモードの共有コンテキスト
+const BorderlessContext = createContext(false);
+const useBorderless = () => useContext(BorderlessContext);
+
+/** Card のラッパー: 枠なしモードでは border-transparent + shadow-none */
+function DCard({ children, className = '', ...props }: React.ComponentProps<typeof Card>) {
+  const borderless = useBorderless();
+  const bl = borderless ? 'border-transparent shadow-none' : '';
+  return <Card className={`${bl} ${className}`} {...props}>{children}</Card>;
+}
+
+/** PageHeader のラッパー */
+function DPageHeader(props: React.ComponentProps<typeof PageHeader>) {
+  const borderless = useBorderless();
+  const bl = borderless ? 'border-transparent shadow-none' : '';
+  return <PageHeader className={bl} {...props} />;
+}
+
+/** フォーム input の共通クラス */
+function useInputClass() {
+  const borderless = useBorderless();
+  const base = 'w-full px-3 py-2 rounded-lg text-sm';
+  return borderless
+    ? `${base} border border-transparent bg-gray-50 focus:bg-white focus:border-gray-300 transition-colors`
+    : `${base} border border-gray-300`;
+}
+
+function useFilterClass() {
+  const borderless = useBorderless();
+  const base = 'px-3 py-1 rounded-lg text-sm';
+  return borderless
+    ? `${base} border border-transparent bg-gray-50`
+    : `${base} border border-gray-300`;
+}
+
 export function DesignPage() {
   const [activeSection, setActiveSection] = useState<SectionTab>('colors');
+  const [borderless, setBorderless] = useState(false);
 
   return (
-    <Container size="md" className="py-6 space-y-6">
-      <PageHeader
-        title="デザインシステム"
-        subtitle="T077 スペーシング・デザイン統一ガイド"
-        badge={{ text: '内部用', variant: 'warning' }}
-      />
+    <BorderlessContext.Provider value={borderless}>
+      <Container size="md" className="py-6 space-y-6">
+        <DPageHeader
+          title="デザインシステム"
+          subtitle="T077 スペーシング・デザイン統一ガイド"
+          badge={{ text: borderless ? '枠なし' : '枠あり', variant: borderless ? 'accent' : 'info' }}
+        >
+          <div className="flex gap-2 mt-2">
+            <Button
+              size="sm"
+              variant={borderless ? 'outline' : 'primary'}
+              onClick={() => setBorderless(false)}
+            >
+              枠あり
+            </Button>
+            <Button
+              size="sm"
+              variant={borderless ? 'primary' : 'outline'}
+              onClick={() => setBorderless(true)}
+            >
+              枠なし
+            </Button>
+          </div>
+        </DPageHeader>
 
-      <SegmentedControl
-        options={SECTION_TABS}
-        value={activeSection}
-        onChange={setActiveSection}
-        size="md"
-      />
+        <SegmentedControl
+          options={SECTION_TABS}
+          value={activeSection}
+          onChange={setActiveSection}
+          size="md"
+        />
 
-      {activeSection === 'colors' && <ColorsSection />}
-      {activeSection === 'typography' && <TypographySection />}
-      {activeSection === 'spacing' && <SpacingSection />}
-      {activeSection === 'components' && <ComponentsSection />}
-      {activeSection === 'pages' && <PagesSection />}
-    </Container>
+        {activeSection === 'colors' && <ColorsSection />}
+        {activeSection === 'typography' && <TypographySection />}
+        {activeSection === 'spacing' && <SpacingSection />}
+        {activeSection === 'components' && <ComponentsSection />}
+        {activeSection === 'pages' && <PagesSection />}
+      </Container>
+    </BorderlessContext.Provider>
   );
 }
 
@@ -103,7 +159,7 @@ function ColorsSection() {
         Tailwindクラス: bg-karuta-tansei, text-karuta-accent, bg-karuta-red
       </Text>
       {colorGroups.map(group => (
-        <Card padding="sm" key={group.title}>
+        <DCard padding="sm" key={group.title}>
           <Text weight="bold" className="mb-3">{group.title}</Text>
           <div className="flex flex-wrap gap-2">
             {group.items.map(item => (
@@ -119,7 +175,7 @@ function ColorsSection() {
               </div>
             ))}
           </div>
-        </Card>
+        </DCard>
       ))}
     </div>
   );
@@ -131,7 +187,7 @@ function TypographySection() {
     <div className="space-y-4">
       <Heading as="h3" size="h3">タイポグラフィ</Heading>
 
-      <Card padding="sm" className="space-y-4">
+      <DCard padding="sm" className="space-y-4">
         <Text weight="bold">Heading コンポーネント</Text>
         <div className="space-y-2 border-l-2 border-gray-200 pl-4">
           <Heading as="h1" size="h1">h1: 百人一首を、遊ぼう。</Heading>
@@ -139,9 +195,9 @@ function TypographySection() {
           <Heading as="h3" size="h3">h3: 百人一首を、遊ぼう。</Heading>
           <Heading as="h4" size="h4">h4: 百人一首を、遊ぼう。</Heading>
         </div>
-      </Card>
+      </DCard>
 
-      <Card padding="sm" className="space-y-4">
+      <DCard padding="sm" className="space-y-4">
         <Text weight="bold">Text コンポーネント</Text>
         <div className="space-y-2 border-l-2 border-gray-200 pl-4">
           <Text size="xl">xl: 覚えるほど、取れる速さが増していく。</Text>
@@ -150,18 +206,18 @@ function TypographySection() {
           <Text size="sm">sm: 覚えるほど、取れる速さが増していく。</Text>
           <Text size="xs">xs: 覚えるほど、取れる速さが増していく。</Text>
         </div>
-      </Card>
+      </DCard>
 
-      <Card padding="sm" className="space-y-4">
+      <DCard padding="sm" className="space-y-4">
         <Text weight="bold">Text カラーバリエーション</Text>
         <div className="space-y-1 border-l-2 border-gray-200 pl-4">
           <Text color="default">default: 通常テキスト</Text>
           <Text color="muted">muted: 補助テキスト</Text>
           <Text color="primary">primary: 強調テキスト</Text>
         </div>
-      </Card>
+      </DCard>
 
-      <Card padding="sm" className="space-y-4">
+      <DCard padding="sm" className="space-y-4">
         <Text weight="bold">フォームラベル統一規則</Text>
         <div className="space-y-3 border-l-2 border-gray-200 pl-4">
           <div>
@@ -173,13 +229,16 @@ function TypographySection() {
             <label className="block text-sm font-medium text-gray-700 mb-1">ラベル名</label>
           </div>
         </div>
-      </Card>
+      </DCard>
     </div>
   );
 }
 
 // ===== スペーシング =====
 function SpacingSection() {
+  const inputClass = useInputClass();
+  const filterClass = useFilterClass();
+
   const spacingScale = [
     { name: '0.5', px: '2px', rem: '0.125rem' },
     { name: '1', px: '4px', rem: '0.25rem' },
@@ -195,7 +254,7 @@ function SpacingSection() {
     <div className="space-y-4">
       <Heading as="h3" size="h3">スペーシング</Heading>
 
-      <Card padding="sm" className="space-y-4">
+      <DCard padding="sm" className="space-y-4">
         <Text weight="bold">スペーシングスケール</Text>
         <div className="space-y-2">
           {spacingScale.map(s => (
@@ -209,9 +268,9 @@ function SpacingSection() {
             </div>
           ))}
         </div>
-      </Card>
+      </DCard>
 
-      <Card padding="sm" className="space-y-4">
+      <DCard padding="sm" className="space-y-4">
         <Text weight="bold">Container サイズ比較</Text>
         <Text size="sm" color="muted">全ページで Container コンポーネントを使用</Text>
         <div className="space-y-3">
@@ -236,9 +295,9 @@ function SpacingSection() {
             </div>
           ))}
         </div>
-      </Card>
+      </DCard>
 
-      <Card padding="sm" className="space-y-4">
+      <DCard padding="sm" className="space-y-4">
         <Text weight="bold">ページ構成の統一ルール</Text>
         <div className="space-y-2 border-l-2 border-gray-200 pl-4">
           <Text size="sm">1. Container size="md" className="py-6 space-y-4"</Text>
@@ -247,33 +306,34 @@ function SpacingSection() {
           <Text size="sm">4. Card padding="sm"（コンテンツカード）</Text>
           <Text size="sm">5. カード間: space-y-3</Text>
         </div>
-      </Card>
+      </DCard>
 
-      <Card padding="sm" className="space-y-4">
+      <DCard padding="sm" className="space-y-4">
         <Text weight="bold">フォーム入力の統一ルール</Text>
         <div className="space-y-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">select / input</label>
-            <input className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="px-3 py-2 border border-gray-300 rounded-lg text-sm" readOnly />
+            <input className={inputClass} placeholder="入力フィールド" readOnly />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">フィルタ用 select（コンパクト）</label>
-            <select className="px-3 py-1 border border-gray-300 rounded-lg text-sm">
-              <option>px-3 py-1 border border-gray-300 rounded-lg text-sm</option>
+            <select className={filterClass}>
+              <option>フィルタ選択</option>
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">textarea</label>
-            <textarea className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={2} placeholder="同上のスタイル" readOnly />
+            <textarea className={inputClass} rows={2} placeholder="自由記述" readOnly />
           </div>
         </div>
-      </Card>
+      </DCard>
     </div>
   );
 }
 
 // ===== コンポーネント一覧 =====
 function ComponentsSection() {
+  const borderless = useBorderless();
   const [segValue, setSegValue] = useState<'a' | 'b' | 'c'>('a');
 
   return (
@@ -281,7 +341,7 @@ function ComponentsSection() {
       <Heading as="h3" size="h3">UIコンポーネント</Heading>
 
       {/* Button */}
-      <Card padding="sm" className="space-y-3">
+      <DCard padding="sm" className="space-y-3">
         <Text weight="bold">Button</Text>
         <div className="flex flex-wrap gap-2">
           <Button variant="primary" size="sm">primary</Button>
@@ -296,10 +356,10 @@ function ComponentsSection() {
           <Button size="md">md</Button>
           <Button size="lg">lg</Button>
         </div>
-      </Card>
+      </DCard>
 
       {/* Badge */}
-      <Card padding="sm" className="space-y-3">
+      <DCard padding="sm" className="space-y-3">
         <Text weight="bold">Badge</Text>
         <div className="flex flex-wrap gap-2">
           <Badge variant="default">default</Badge>
@@ -311,32 +371,32 @@ function ComponentsSection() {
           <Badge variant="info">info</Badge>
           <Badge variant="warning">warning</Badge>
         </div>
-      </Card>
+      </DCard>
 
       {/* Card */}
-      <Card padding="sm" className="space-y-3">
+      <DCard padding="sm" className="space-y-3">
         <Text weight="bold">Card padding バリエーション</Text>
         <div className="grid grid-cols-3 gap-2">
-          <Card padding="sm" className="bg-gray-50">
+          <DCard padding="sm" className="bg-gray-50">
             <Text size="xs">padding="sm" (p-4)</Text>
-          </Card>
-          <Card padding="md" className="bg-gray-50">
+          </DCard>
+          <DCard padding="md" className="bg-gray-50">
             <Text size="xs">padding="md" (p-6)</Text>
-          </Card>
-          <Card padding="lg" className="bg-gray-50">
+          </DCard>
+          <DCard padding="lg" className="bg-gray-50">
             <Text size="xs">padding="lg" (p-8)</Text>
-          </Card>
+          </DCard>
         </div>
-      </Card>
+      </DCard>
 
       {/* PageHeader */}
-      <Card padding="sm" className="space-y-3">
+      <DCard padding="sm" className="space-y-3">
         <Text weight="bold">PageHeader</Text>
-        <PageHeader title="ページタイトル" subtitle="サブタイトルテキスト" badge={{ text: 'バッジ', variant: 'info' }} />
-      </Card>
+        <DPageHeader title="ページタイトル" subtitle="サブタイトルテキスト" badge={{ text: 'バッジ', variant: 'info' }} />
+      </DCard>
 
       {/* SegmentedControl */}
-      <Card padding="sm" className="space-y-3">
+      <DCard padding="sm" className="space-y-3">
         <Text weight="bold">SegmentedControl</Text>
         <SegmentedControl
           options={[
@@ -348,51 +408,66 @@ function ComponentsSection() {
           onChange={setSegValue}
           size="md"
         />
-      </Card>
+      </DCard>
 
       {/* StatCard */}
-      <Card padding="sm" className="space-y-3">
+      <DCard padding="sm" className="space-y-3">
         <Text weight="bold">StatCard</Text>
+        <Text size="xs" color="muted">
+          {borderless ? '枠なし: shadow-none + border-transparent' : '枠あり: shadow-sm + border'}
+        </Text>
         <div className="grid grid-cols-3 gap-2">
           <StatCard label="練習回数" value={128} small />
           <StatCard label="正答率" value="92%" small />
           <StatCard label="最高スコア" value={980} highlight small />
         </div>
-      </Card>
+      </DCard>
 
       {/* States */}
-      <Card padding="sm" className="space-y-3">
+      <DCard padding="sm" className="space-y-3">
         <Text weight="bold">状態コンポーネント</Text>
         <LoadingState message="読み込み中..." />
         <EmptyState message="データがありません" />
-      </Card>
+      </DCard>
     </div>
   );
 }
 
 // ===== ページ構成例 =====
 function PagesSection() {
+  const borderless = useBorderless();
+  const inputClass = useInputClass();
+
+  const cardBorder = borderless ? '' : 'border border-gray-300';
+  const cardShadow = borderless ? 'shadow-none' : 'shadow-sm';
+
   return (
     <div className="space-y-4">
       <Heading as="h3" size="h3">T077 統一後のページ構成イメージ</Heading>
 
-      <Card padding="sm" className="space-y-3">
-        <Text weight="bold">標準ページテンプレート</Text>
-        <div className="border border-dashed border-gray-300 rounded-lg p-4 space-y-3 bg-gray-50">
-          <div className="border border-gray-300 rounded-lg p-3 bg-white">
+      <DCard padding="sm" className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Text weight="bold">標準ページテンプレート</Text>
+          <Badge variant={borderless ? 'accent' : 'info'}>{borderless ? '枠なし' : '枠あり'}</Badge>
+        </div>
+        <div className="rounded-lg p-4 space-y-3 bg-gray-50">
+          {/* PageHeader mock */}
+          <div className={`rounded-lg p-3 bg-white ${cardBorder} ${cardShadow}`}>
             <div className="flex items-center gap-2">
               <Text weight="bold">PageHeader</Text>
               <Badge variant="info">バッジ</Badge>
             </div>
             <Text size="sm" color="muted">subtitle</Text>
           </div>
+          {/* SegmentedControl mock */}
           <div className="bg-gray-100 rounded-lg p-1 inline-flex gap-1">
             <div className="bg-white rounded px-3 py-1 text-xs font-medium" style={{ color: colors.tansei }}>タブ1</div>
             <div className="px-3 py-1 text-xs text-gray-500">タブ2</div>
           </div>
+          {/* Card list mock */}
           <div className="space-y-2">
             {[1, 2, 3].map(i => (
-              <div key={i} className="border border-gray-300 rounded-lg p-3 bg-white">
+              <div key={i} className={`rounded-lg p-3 bg-white ${cardBorder} ${cardShadow}`}>
                 <div className="flex items-center gap-2 mb-1">
                   <Badge variant="accent" className="text-[10px]">Badge</Badge>
                   <Text size="xs" color="muted">メタ情報</Text>
@@ -403,26 +478,29 @@ function PagesSection() {
           </div>
         </div>
         <Text size="xs" color="muted">Container(md) {'>'} PageHeader {'>'} SegmentedControl {'>'} Card(sm) x N</Text>
-      </Card>
+      </DCard>
 
-      <Card padding="sm" className="space-y-3">
-        <Text weight="bold">フォームページテンプレート</Text>
-        <div className="border border-dashed border-gray-300 rounded-lg p-4 space-y-3 bg-gray-50">
-          <div className="border border-gray-300 rounded-lg p-3 bg-white space-y-3">
+      <DCard padding="sm" className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Text weight="bold">フォームページテンプレート</Text>
+          <Badge variant={borderless ? 'accent' : 'info'}>{borderless ? '枠なし' : '枠あり'}</Badge>
+        </div>
+        <div className="rounded-lg p-4 space-y-3 bg-gray-50">
+          <div className={`rounded-lg p-3 bg-white space-y-3 ${cardBorder} ${cardShadow}`}>
             <Text weight="bold">フォームタイトル</Text>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">ラベル *</label>
-              <input className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="入力フィールド" readOnly />
+              <input className={inputClass} placeholder="入力フィールド" readOnly />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">選択</label>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+              <select className={inputClass}>
                 <option>オプション1</option>
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">テキスト</label>
-              <textarea className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" rows={2} placeholder="自由記述" readOnly />
+              <textarea className={inputClass} rows={2} placeholder="自由記述" readOnly />
             </div>
             <div className="flex gap-2">
               <Button size="sm">送信</Button>
@@ -430,8 +508,67 @@ function PagesSection() {
             </div>
           </div>
         </div>
-        <Text size="xs" color="muted">Card(sm) {'>'} Text(bold,lg) {'>'} label(sm,medium,gray-700) + input(px-3,py-2,rounded-lg)</Text>
-      </Card>
+        <Text size="xs" color="muted">
+          {borderless
+            ? 'Card: border-transparent shadow-none / Input: bg-gray-50 border-transparent → focus時にborder表示'
+            : 'Card: border shadow-sm / Input: border border-gray-300'
+          }
+        </Text>
+      </DCard>
+
+      {/* 便りページ mock */}
+      <DCard padding="sm" className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Text weight="bold">便りページ イメージ</Text>
+          <Badge variant={borderless ? 'accent' : 'info'}>{borderless ? '枠なし' : '枠あり'}</Badge>
+        </div>
+        <div className="rounded-lg p-4 space-y-3 bg-gray-50">
+          {/* PageHeader */}
+          <div className={`rounded-lg p-3 bg-white ${cardBorder} ${cardShadow}`}>
+            <Heading as="h3" size="h4">便り</Heading>
+          </div>
+          {/* SegmentedControl */}
+          <div className="bg-gray-100 rounded-lg p-1 inline-flex gap-1">
+            <div className="bg-white rounded px-3 py-1 text-xs font-medium" style={{ color: colors.tansei }}>瓦版</div>
+            <div className="px-3 py-1 text-xs text-gray-500">不具合の部屋</div>
+          </div>
+          {/* Posts */}
+          <div className="space-y-2">
+            <div className={`rounded-lg p-3 bg-white ${cardBorder} ${cardShadow}`}>
+              <div className="flex items-center gap-2 mb-1">
+                <Badge variant="accent">固定</Badge>
+                <Badge variant="info">お知らせ</Badge>
+              </div>
+              <Text size="sm" weight="bold">アプリをリリースしました</Text>
+              <div className="flex items-center gap-2 mt-1">
+                <Text size="xs" color="muted">管理者</Text>
+                <Text size="xs" color="muted">2026/02/12</Text>
+              </div>
+            </div>
+            <div className={`rounded-lg p-3 bg-white ${cardBorder} ${cardShadow}`}>
+              <div className="flex items-center gap-2 mb-1">
+                <Badge variant="accent">お知らせ</Badge>
+              </div>
+              <Text size="sm" weight="bold">新機能: 歌合の節気ランキング</Text>
+              <Text size="xs" color="muted" className="mt-1 line-clamp-2">二十四節気ごとにランキングが確定します。次の節気までに...</Text>
+              <div className="flex items-center gap-2 mt-1">
+                <Text size="xs" color="muted">管理者</Text>
+                <Text size="xs" color="muted">2026/02/10</Text>
+              </div>
+            </div>
+            <div className={`rounded-lg p-3 bg-white ${cardBorder} ${cardShadow}`}>
+              <div className="flex items-center gap-2 mb-1">
+                <Badge variant="success">団体募集</Badge>
+              </div>
+              <Text size="sm" weight="bold">初心者歓迎！週末かるた会</Text>
+              <div className="flex items-center gap-2 mt-1">
+                <Text size="xs" color="muted">かるた同好会</Text>
+                <Text size="xs" color="muted">2026/02/08</Text>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DCard>
     </div>
   );
 }
