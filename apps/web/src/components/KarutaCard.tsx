@@ -24,6 +24,8 @@ export interface KarutaCardProps {
   showToriKana?: boolean;
   /** 決まり字ハイライト表示（yomi/flipのみ有効） */
   showKimariji?: boolean;
+  /** flipモードで最初に表示する面: yomi=上の句（既定）, tori=下の句 */
+  flipStart?: 'yomi' | 'tori';
   /** 選択状態（練習モード用） */
   isSelected?: boolean;
   /** 正解状態（練習モード用） */
@@ -246,6 +248,7 @@ export function KarutaCard({
   showYomiKana,
   showToriKana,
   showKimariji = false,
+  flipStart = 'yomi',
   isSelected = false,
   isCorrect = false,
   isWrong = false,
@@ -316,6 +319,33 @@ export function KarutaCard({
     onClick?.();
   };
 
+  // 上の句（読札）面
+  const yomiFace = (
+    <CardFace
+      text={yomiText}
+      tokens={yomiTokens}
+      kimarijiCount={poem.kimarijiCount}
+      showKimariji={showKimariji}
+      isKana={isYomiKana}
+      variant="default"
+      clickable={false}
+      className="w-full h-full"
+    />
+  );
+
+  // 下の句（取札）面 - 5文字改行
+  const toriFace = (
+    <CardFace
+      text={toriText}
+      variant="tori-face"
+      clickable={false}
+      className="w-full h-full"
+      isTori
+    />
+  );
+
+  const toriFirst = flipStart === 'tori';
+
   return (
     <div
       onClick={handleFlip}
@@ -327,29 +357,14 @@ export function KarutaCard({
           isFlipped ? 'rotate-y-180' : ''
         )}
       >
-        {/* Front - Yomi (上の句) */}
+        {/* Front - 最初に見える面（既定: 上の句） */}
         <div className="absolute inset-0 backface-hidden">
-          <CardFace
-            text={yomiText}
-            tokens={yomiTokens}
-            kimarijiCount={poem.kimarijiCount}
-            showKimariji={showKimariji}
-            isKana={isYomiKana}
-            variant="default"
-            clickable={false}
-            className="w-full h-full"
-          />
+          {toriFirst ? toriFace : yomiFace}
         </div>
 
-        {/* Back - Tori (下の句) - 常にひらがな、5文字改行 */}
+        {/* Back - めくると見える面 */}
         <div className="absolute inset-0 backface-hidden rotate-y-180">
-          <CardFace
-            text={toriText}
-            variant="tori-face"
-            clickable={false}
-            className="w-full h-full"
-            isTori
-          />
+          {toriFirst ? yomiFace : toriFace}
         </div>
       </div>
     </div>

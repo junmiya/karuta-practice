@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { getAllPoemsSync } from '@/services/poems.service';
 import { KarutaCard } from '@/components/KarutaCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
@@ -12,10 +12,13 @@ import { cn } from '@/lib/utils';
 import type { Poem } from '@/types/poem';
 
 export function HomePage() {
-  const [showYomiKana, setShowYomiKana] = useState(false);
-  const [showToriKana, setShowToriKana] = useState(false);
+  // 手習はかな表示・下の句先出しがデフォルト
+  const [showYomiKana, setShowYomiKana] = useState(true);
+  const [showToriKana, setShowToriKana] = useState(true);
   const [showKimariji, setShowKimariji] = useState(true);
-  const [displayCount, setDisplayCount] = useState<12 | 100>(12);
+  const [flipStart, setFlipStart] = useState<'yomi' | 'tori'>('tori');
+  const [displayCount, setDisplayCount] = useState<1 | 12 | 100>(12);
+  const [singleIndex, setSingleIndex] = useState(0);
   const [selectedKimariji, setSelectedKimariji] = useState<number[]>([]);
   const [selectedPoemRange, setSelectedPoemRange] = useState<PoemRange[]>([]);
   const [searchText, setSearchText] = useState('');
@@ -88,12 +91,8 @@ export function HomePage() {
     return result;
   }, [allPoems, selectedKimariji, selectedPoemRange, searchText, filterMode, learnedPoemIds]);
 
-  // Display poems (limited by displayCount, shuffled if needed)
-  const displayPoems = useMemo(() => {
-    if (displayCount === 100) {
-      return filteredPoems;
-    }
-
+  // Shuffled order (seed=0 のときは元の順番のまま)
+  const shuffledPoems = useMemo(() => {
     // Shuffle based on seed (Fisher-Yates with seeded random)
     const shuffled = [...filteredPoems];
     if (shuffleSeed > 0) {
@@ -107,13 +106,97 @@ export function HomePage() {
       }
     }
 
-    return shuffled.slice(0, displayCount);
-  }, [filteredPoems, displayCount, shuffleSeed]);
+    return shuffled;
+  }, [filteredPoems, shuffleSeed]);
+
+  // 1枚モード: 絞り込みで枚数が減っても範囲内に収める
+  const currentIndex = Math.min(singleIndex, Math.max(shuffledPoems.length - 1, 0));
+
+  // Display poems (limited by displayCount)
+  const displayPoems = useMemo(() => {
+    if (displayCount === 100) return filteredPoems;
+    if (displayCount === 1) return shuffledPoems.slice(currentIndex, currentIndex + 1);
+    return shuffledPoems.slice(0, displayCount);
+  }, [filteredPoems, shuffledPoems, displayCount, currentIndex]);
 
   // Shuffle handler
   const handleShuffle = useCallback(() => {
     setShuffleSeed(prev => prev + 1);
+    setSingleIndex(0);
   }, []);
+
+  const handleDisplayCount = useCallback((count: 1 | 12 | 100) => {
+    setDisplayCount(count);
+    setSingleIndex(0);
+  }, []);
+
+  // 1枚モードの前後移動（端は反対側へ回り込む）
+  const goPrev = useCallback(() => {
+    const n = shuffledPoems.length;
+    if (n === 0) return;
+    setSingleIndex((currentIndex - 1 + n) % n);
+  }, [shuffledPoems.length, currentIndex]);
+
+  const goNext = useCallback(() => {
+    const n = shuffledPoems.length;
+    if (n === 0) return;
+    setSingleIndex((currentIndex + 1) % n);
+  }, [shuffledPoems.length, currentIndex]);
+
+  // 1枚モード: ← → キーで前後移動（検索入力中は無効）
+  useEffect(() => {
+    if (displayCount !== 1) return;
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
+      if (e.key === 'ArrowLeft') goPrev();
+      if (e.key === 'ArrowRight') goNext();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [displayCount, goPrev, goNext]);
+
+  // 札1枚 + 覚/解説ボタン
+  const renderCard = (poem: Poem) => (
+    <div key={`${poem.poemId}-${flipStart}`} className="flex flex-col gap-2 group">
+      <KarutaCard
+        poem={poem}
+        mode="flip"
+        flipStart={flipStart}
+        showYomiKana={showYomiKana}
+        showToriKana={showToriKana}
+        showKimariji={showKimariji}
+      />
+      <div className={cn(
+        "flex gap-2 transition-opacity duration-200",
+        displayCount === 1 ? "opacity-100" : "opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+      )}>
+        {/* 覚えた toggle button */}
+        {isAuthenticated && (
+          <button
+            onClick={() => toggleLearned(poem.poemId)}
+            className={cn(
+              "flex-1 py-1.5 text-xs font-bold rounded transition-colors border",
+              isLearned(poem.poemId)
+                ? "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
+                : "bg-white text-gray-500 border-gray-200 hover:bg-gray-50"
+            )}
+          >
+            {isLearned(poem.poemId) ? '✓' : '覚'}
+          </button>
+        )}
+        <button
+          onClick={() => setSelectedPoem(poem)}
+          className={cn(
+            isAuthenticated ? "flex-1" : "w-full",
+            "py-1.5 bg-blue-50 text-karuta-tansei border border-blue-100 text-xs font-bold rounded hover:bg-blue-100 flex items-center justify-center gap-1 transition-colors"
+          )}
+        >
+          解説
+        </button>
+      </div>
+    </div>
+  );
 
   if (!allPoems.length) {
     return <LoadingSpinner fullScreen message="読み込み中..." />;
@@ -123,20 +206,39 @@ export function HomePage() {
     <div className="karuta-container space-y-2 py-2">
       {/* Control Panel - 4行レイアウト */}
       <div className="bg-white/90 border border-gray-200 rounded-lg p-2 space-y-2">
-        {/* Line 1: Search + Count */}
-        <div className="flex items-center gap-2">
+        {/* Line 1: Search + 表示面 + Count（狭い画面では検索欄だけ1行目に折り返す） */}
+        <div className="flex flex-wrap items-center gap-2">
           <input
             type="text"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             placeholder="検索..."
-            className="flex-1 px-2 py-1 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-karuta-tansei/50"
+            className="basis-full sm:basis-0 sm:flex-1 min-w-0 px-2 py-1 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-karuta-tansei/50"
           />
+          {/* 最初に表示する面: 下の句 / 上の句 */}
+          <div className="flex bg-gray-100 rounded p-0.5" title="最初に表示する面">
+            {([['tori', '下'], ['yomi', '上']] as const).map(([side, label]) => (
+              <button
+                key={side}
+                onClick={() => setFlipStart(side)}
+                aria-pressed={flipStart === side}
+                title={side === 'tori' ? '下の句から表示' : '上の句から表示'}
+                className={cn(
+                  "px-2 py-0.5 text-xs font-medium rounded transition-colors whitespace-nowrap",
+                  flipStart === side
+                    ? "bg-white text-karuta-tansei shadow-sm"
+                    : "text-gray-600"
+                )}
+              >
+                {label}の句
+              </button>
+            ))}
+          </div>
           <div className="flex bg-gray-100 rounded p-0.5">
-            {([12, 100] as const).map(count => (
+            {([1, 12, 100] as const).map(count => (
               <button
                 key={count}
-                onClick={() => setDisplayCount(count)}
+                onClick={() => handleDisplayCount(count)}
                 className={cn(
                   "px-2 py-0.5 text-xs font-medium rounded transition-colors",
                   displayCount === count
@@ -149,7 +251,9 @@ export function HomePage() {
             ))}
           </div>
           <span className="text-xs text-gray-400 whitespace-nowrap">
-            {displayPoems.length}/{filteredPoems.length}首
+            {displayCount === 1
+              ? `${filteredPoems.length > 0 ? currentIndex + 1 : 0}/${filteredPoems.length}首`
+              : `${displayPoems.length}/${filteredPoems.length}首`}
           </span>
         </div>
 
@@ -184,46 +288,37 @@ export function HomePage() {
         />
       </div>
 
-      {/* Cards Grid - デバイス向きベースのグリッド (横向き=4×3, 縦向き=3×4) */}
+      {/* Cards - 1枚モードは中央に大きく、それ以外はグリッド (横向き=4×3, 縦向き=3×4) */}
       {displayPoems.length > 0 ? (
-        <div className={displayCount === 12 ? "karuta-grid" : "karuta-grid-all"}>
-          {displayPoems.map(poem => (
-            <div key={poem.poemId} className="flex flex-col gap-2 group">
-              <KarutaCard
-                poem={poem}
-                mode="flip"
-                showYomiKana={showYomiKana}
-                showToriKana={showToriKana}
-                showKimariji={showKimariji}
-              />
-              <div className="flex gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
-                {/* 覚えた toggle button */}
-                {isAuthenticated && (
-                  <button
-                    onClick={() => toggleLearned(poem.poemId)}
-                    className={cn(
-                      "flex-1 py-1.5 text-xs font-bold rounded transition-colors border",
-                      isLearned(poem.poemId)
-                        ? "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
-                        : "bg-white text-gray-500 border-gray-200 hover:bg-gray-50"
-                    )}
-                  >
-                    {isLearned(poem.poemId) ? '✓' : '覚'}
-                  </button>
-                )}
-                <button
-                  onClick={() => setSelectedPoem(poem)}
-                  className={cn(
-                    isAuthenticated ? "flex-1" : "w-full",
-                    "py-1.5 bg-blue-50 text-karuta-tansei border border-blue-100 text-xs font-bold rounded hover:bg-blue-100 flex items-center justify-center gap-1 transition-colors"
-                  )}
-                >
-                  解説
-                </button>
-              </div>
+        displayCount === 1 ? (
+          <div className="flex flex-col items-center gap-3 py-2">
+            <div className="w-full max-w-[280px]">
+              {renderCard(displayPoems[0])}
             </div>
-          ))}
-        </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={goPrev}
+                className="px-4 py-1.5 text-sm font-medium rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+              >
+                ← 前
+              </button>
+              <span className="text-xs text-gray-400 min-w-[4rem] text-center">
+                {currentIndex + 1} / {shuffledPoems.length}
+              </span>
+              <button
+                onClick={goNext}
+                className="px-4 py-1.5 text-sm font-medium rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+              >
+                次 →
+              </button>
+            </div>
+            <p className="text-[11px] text-gray-400">札をタップでめくる</p>
+          </div>
+        ) : (
+          <div className={displayCount === 12 ? "karuta-grid" : "karuta-grid-all"}>
+            {displayPoems.map(renderCard)}
+          </div>
+        )
       ) : (
         <div className="text-center py-8 text-gray-400 text-sm">
           該当する札がありません
@@ -238,7 +333,7 @@ export function HomePage() {
       )}
 
       {/* Show More */}
-      {displayCount !== 100 && filteredPoems.length > displayCount && (
+      {displayCount === 12 && filteredPoems.length > displayCount && (
         <div className="text-center py-2">
           <button
             onClick={() => setDisplayCount(100)}
