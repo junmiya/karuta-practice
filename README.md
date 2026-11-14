@@ -2,7 +2,7 @@
 
 競技かるたの練習から公式競技・番付までをサポートするWebアプリケーション
 
-**Live Demo:** https://karuta-practice-app.web.app
+**Live Demo:** https://karuta-banzuke.web.app
 
 ## Features
 
