@@ -40,16 +40,18 @@ export function DisplayOptionsToggle({
   onClearLearned,
   isAuthenticated = false,
 }: DisplayOptionsToggleProps) {
-  const baseBtn = "h-7 px-2.5 text-xs font-bold rounded-full transition-all border";
+  // whitespace-nowrap/shrink-0: 狭い画面でラベルが「か/な」のように折り返さないようにする
+  const baseBtn = "h-7 px-2.5 text-xs font-bold rounded-full transition-all border whitespace-nowrap shrink-0";
   const activeBtn = "bg-white shadow-sm";
   const inactiveBtn = "text-gray-500 hover:text-gray-700 border-transparent";
 
   return (
     <div className="flex items-center gap-2">
       {label && <span className="text-xs text-gray-500">{label}</span>}
-      <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-full">
+      {/* 収まらない幅ではボタン単位で折り返す */}
+      <div className="flex flex-wrap items-center gap-1 bg-gray-100 p-1 rounded-2xl">
         {/* 読札: 漢字/かな */}
-        <span className="text-[10px] text-gray-400 pl-1.5">読</span>
+        <span className="text-[10px] text-gray-400 pl-1.5 shrink-0">読</span>
         <button
           onClick={onToggleYomiKana}
           className={cn(
@@ -63,7 +65,7 @@ export function DisplayOptionsToggle({
         </button>
 
         {/* 取札: 漢字/かな */}
-        <span className="text-[10px] text-gray-400 pl-1">取</span>
+        <span className="text-[10px] text-gray-400 pl-1 shrink-0">取</span>
         <button
           onClick={onToggleToriKana}
           className={cn(

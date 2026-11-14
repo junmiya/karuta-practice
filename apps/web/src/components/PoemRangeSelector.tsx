@@ -49,7 +49,7 @@ export function PoemRangeSelector({
     return (
       <div className="flex items-center gap-2 py-1">
         <span className="text-xs text-gray-500 whitespace-nowrap">{label}</span>
-        <div className="flex gap-1 flex-1">
+        <div className="flex flex-wrap gap-1 flex-1">
           {POEM_RANGES.map(range => {
             const isSelected = selected.some(r => r.start === range.start);
             return (
@@ -60,7 +60,7 @@ export function PoemRangeSelector({
                 size="sm"
                 shape="pill"
                 onClick={() => toggleRange(range)}
-                className="min-w-0 px-2 py-0.5 text-xs"
+                className="min-w-0 shrink-0 whitespace-nowrap px-2 py-0.5 text-xs"
               >
                 {range.label}
               </SelectButton>
