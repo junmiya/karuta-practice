@@ -80,7 +80,9 @@ export function Header() {
       )}
     >
       {label}
-      {required && !isProfileComplete && <JapaneseLock className="inline-block w-3 h-3 ml-1 mb-0.5 text-neutral-400" />}
+      {required
+        ? <JapaneseLock className={cn("inline-block w-3 h-3 ml-1 mb-0.5 text-neutral-400", isProfileComplete && "invisible")} />
+        : <span className="inline-block w-3 ml-1" />}
     </button>
   );
 
