@@ -1,5 +1,34 @@
 @import "tailwindcss";
 
+/*
+ * テーマ（Tailwind v4）。旧 tailwind.config.js は v4 では読み込まれず、
+ * karuta-* の色が一切生成されていなかったため、ここへ移した。
+ * 値の出典: src/lib/design-tokens.ts
+ */
+@theme {
+  /* シンプルで知的なカラーパレット（アカデミック・スタイル） */
+  --color-karuta-tansei: #196AAB; /* Academic Blue (Primary UI) */
+  --color-karuta-accent: #FFCB05; /* Focus Yellow (Accent) */
+  --color-karuta-sky: #5BDEFF;    /* Official Tansei (Light Blue - Decorative) */
+  --color-karuta-red: #c62828;    /* 深紅（競技かるた的なアクセント・伝統色） */
+  --color-karuta-black: #212121;  /* ダークグレー */
+
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #eeeeee;
+  --color-neutral-700: #616161;
+  --color-neutral-800: #424242;
+
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --font-serif: Georgia, 'Yu Mincho', 'YuMincho', serif;
+}
+
+/* 旧 safelist（動的に組み立てるクラスを確実に生成） */
+@source inline("bg-white bg-gray-100 bg-gray-200 bg-gray-800 bg-karuta-tansei bg-karuta-accent bg-karuta-red bg-red-50 bg-red-100 bg-green-50 bg-green-100");
+@source inline("text-white text-gray-700 text-gray-900 text-gray-400 text-red-700 text-green-700");
+@source inline("border-gray-200 border-gray-300 border-gray-800 border-karuta-tansei border-karuta-accent border-karuta-red border-red-200 border-green-200");
+@source inline("hover:bg-gray-100 hover:bg-gray-200 hover:bg-gray-700 hover:bg-red-100 hover:bg-green-100 hover:bg-yellow-400 hover:bg-[#155a96] hover:bg-[#b71c1c] hover:border-gray-300");
+
 /* ダークモード無効化: dark: バリアントを .dark クラスベースに変更（適用しない） */
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -192,31 +221,6 @@ body {
   font-variant-numeric: tabular-nums;
   pointer-events: none;
   user-select: none;
-}
-
-/* 札の右下の印（手習の 覚えた / 覚えてない）。歌番号と同じく札の幅に比例 */
-.karuta-card-mark {
-  position: absolute;
-  right: 3.5cqw;
-  bottom: 2.5cqw;
-  padding: 0.8cqw 2.5cqw;
-  border-radius: 999px;
-  font-size: max(10px, 8.5cqw);
-  line-height: 1.15;
-  font-weight: 700;
-  font-family: ui-sans-serif, system-ui, sans-serif;
-  white-space: nowrap;
-  pointer-events: none;
-  user-select: none;
-}
-.karuta-card-mark--learned {
-  background: #16a34a; /* green-600 */
-  color: #fff;
-}
-.karuta-card-mark--not-learned {
-  background: #fff7ed; /* orange-50 */
-  color: #c2410c; /* orange-700 */
-  box-shadow: inset 0 0 0 1px #fdba74; /* orange-300 */
 }
 
 /* 3D Card Flip Animation */

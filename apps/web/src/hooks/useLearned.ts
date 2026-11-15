@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   getUserLearned,
   setPoemStatus,
+  setPoemStarred,
   clearLearnedPoems,
   type PoemStatus,
 } from '@/services/learned.service';
@@ -12,6 +13,7 @@ export type { PoemStatus };
 /** 未ログイン時はこの端末に保存する */
 const GUEST_STORAGE_KEY = 'learned_poems_guest';
 const GUEST_NOT_LEARNED_KEY = 'not_learned_poems_guest';
+const GUEST_STARRED_KEY = 'starred_poems_guest';
 
 function loadGuestIds(key: string): Set<string> {
   try {
@@ -34,6 +36,7 @@ function saveGuestIds(key: string, ids: Set<string>) {
 interface LearnedState {
   learnedPoemIds: Set<string>;
   notLearnedPoemIds: Set<string>;
+  starredPoemIds: Set<string>;
   loading: boolean;
   error: string | null;
 }
@@ -41,6 +44,7 @@ interface LearnedState {
 const emptyState = (): LearnedState => ({
   learnedPoemIds: new Set<string>(),
   notLearnedPoemIds: new Set<string>(),
+  starredPoemIds: new Set<string>(),
   loading: false,
   error: null,
 });
@@ -63,6 +67,7 @@ export function useLearned(uid: string | null) {
         setState({
           learnedPoemIds: new Set<string>(data?.poemIds || []),
           notLearnedPoemIds: new Set<string>(data?.notLearnedPoemIds || []),
+          starredPoemIds: new Set<string>(data?.starredPoemIds || []),
           loading: false,
           error: null,
         });
@@ -78,6 +83,7 @@ export function useLearned(uid: string | null) {
         ...emptyState(),
         learnedPoemIds: loadGuestIds(GUEST_STORAGE_KEY),
         notLearnedPoemIds: loadGuestIds(GUEST_NOT_LEARNED_KEY),
+        starredPoemIds: loadGuestIds(GUEST_STARRED_KEY),
       });
       return;
     }
@@ -110,6 +116,24 @@ export function useLearned(uid: string | null) {
     }
     setPoemStatus(uid, poemId, status).catch(() => {
       // 失敗したらサーバの状態に合わせ直す
+      setState(prev => ({ ...prev, error: 'Failed to update' }));
+      loadFromServer(uid);
+    });
+  }, [uid, loadFromServer]);
+
+  /** 星を付ける / 外す */
+  const toggleStar = useCallback((poemId: string) => {
+    const starred = new Set(stateRef.current.starredPoemIds);
+    const nowStarred = !starred.has(poemId);
+    if (nowStarred) starred.add(poemId);
+    else starred.delete(poemId);
+    setState(prev => ({ ...prev, starredPoemIds: starred, error: null }));
+
+    if (!uid) {
+      saveGuestIds(GUEST_STARRED_KEY, starred);
+      return;
+    }
+    setPoemStarred(uid, poemId, nowStarred).catch(() => {
       setState(prev => ({ ...prev, error: 'Failed to update' }));
       loadFromServer(uid);
     });
@@ -176,6 +200,10 @@ export function useLearned(uid: string | null) {
 
   return {
     learnedPoemIds: state.learnedPoemIds,
+    notLearnedPoemIds: state.notLearnedPoemIds,
+    starredPoemIds: state.starredPoemIds,
+    starredCount: state.starredPoemIds.size,
+    toggleStar,
     learnedCount: state.learnedPoemIds.size,
     notLearnedCount: state.notLearnedPoemIds.size,
     loading: state.loading,

@@ -10,10 +10,11 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useLearned } from '@/hooks/useLearned';
 import { cn } from '@/lib/utils';
 import { getDisplaySettings, isMobileViewport } from '@/lib/displaySettings';
-import { SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { SlidersHorizontal, ChevronDown, ListChecks, Star } from 'lucide-react';
 import type { Poem } from '@/types/poem';
 
-/** 1枚モードで印を見せてから次の札へ進むまでの時間 */
+/** 1枚モードで押したボタンの色を見せてから次の札へ進むまでの時間 */
 const MARK_HOLD_MS = 450;
 
 export function HomePage() {
@@ -38,7 +39,9 @@ export function HomePage() {
   const [searchText, setSearchText] = useState('');
   const [selectedPoem, setSelectedPoem] = useState<Poem | null>(null);
   const [shuffleSeed, setShuffleSeed] = useState(0);
-  // 1枚モードで 覚えた/覚えてない を押した直後、印を見せるため少しだけ同じ札を表示しておく
+  // 星を付けた札だけ表示する
+  const [starOnly, setStarOnly] = useState(false);
+  // 1枚モードで 覚えた/覚えてない を押した直後、押したことが分かるよう少しだけ同じ札を表示しておく
   const [held, setHeld] = useState<{ poem: Poem; nextPoemId: string | null; nextIndex: number } | null>(null);
   const holdTimer = useRef<number | null>(null);
   useEffect(() => () => {
@@ -49,6 +52,10 @@ export function HomePage() {
   const {
     learnedPoemIds,
     learnedCount,
+    notLearnedCount,
+    starredPoemIds,
+    starredCount,
+    toggleStar,
     filterMode,
     cycleFilterMode,
     setLearned,
@@ -95,6 +102,11 @@ export function HomePage() {
       );
     }
 
+    // 星の札だけ
+    if (starOnly) {
+      result = result.filter(p => starredPoemIds.has(p.poemId));
+    }
+
     // Apply learned filter mode
     if (filterMode === 'exclude' && learnedPoemIds.size > 0) {
       result = result.filter(p => !learnedPoemIds.has(p.poemId));
@@ -108,7 +120,7 @@ export function HomePage() {
     }
 
     return result;
-  }, [allPoems, selectedKimariji, selectedPoemRange, searchText, filterMode, learnedPoemIds]);
+  }, [allPoems, selectedKimariji, selectedPoemRange, searchText, filterMode, learnedPoemIds, starOnly, starredPoemIds]);
 
   // Shuffled order (seed=0 のときは元の順番のまま)
   const shuffledPoems = useMemo(() => {
@@ -138,7 +150,7 @@ export function HomePage() {
   const displayPoems = useMemo(() => {
     if (displayCount === 100) return filteredPoems;
     if (displayCount === 1) {
-      // 印を見せている間は、除外などで並びから消えてもその札を出し続ける
+      // 待っている間は、除外などで並びから消えてもその札を出し続ける
       if (held) return [held.poem];
       return shuffledPoems.slice(currentIndex, currentIndex + 1);
     }
@@ -173,7 +185,7 @@ export function HomePage() {
     setPinnedPoemId(null);
   }, [shuffledPoems.length, currentIndex, held]);
 
-  // 覚えた / 覚えてない を記録し、1枚モードでは札の印を少し見せてから次の札へ進む
+  // 覚えた / 覚えてない を記録し、1枚モードでは押したボタンの色を少し見せてから次の札へ進む
   const markAndNext = useCallback((poem: Poem, learned: boolean) => {
     setLearned(poem.poemId, learned);
     if (displayCount !== 1) return;
@@ -219,6 +231,7 @@ export function HomePage() {
     const status = getStatus(poem.poemId);
     const learned = status === 'learned';
     const notLearned = status === 'notLearned';
+    const starred = starredPoemIds.has(poem.poemId);
     const single = displayCount === 1;
     const btnBase = cn(
       "min-w-0 whitespace-nowrap rounded border font-bold transition-colors",
@@ -226,16 +239,36 @@ export function HomePage() {
     );
     return (
       <div key={`${poem.poemId}-${flipStart}`} className="flex flex-col gap-1.5">
-        <KarutaCard
-          poem={poem}
-          mode="flip"
-          flipStart={flipStart}
-          showNumber
-          mark={status}
-          showYomiKana={showYomiKana}
-          showToriKana={showToriKana}
-          showKimariji={showKimariji}
-        />
+        {/* 札の右上に星（めくっても同じ位置。押しても札はめくれない） */}
+        <div className="relative @container">
+          <KarutaCard
+            poem={poem}
+            mode="flip"
+            flipStart={flipStart}
+            showNumber
+            showYomiKana={showYomiKana}
+            showToriKana={showToriKana}
+            showKimariji={showKimariji}
+          />
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); toggleStar(poem.poemId); }}
+            data-action="star"
+            aria-pressed={starred}
+            aria-label={starred ? '星を外す' : '星を付ける'}
+            title={starred ? '星を外す' : '星を付ける'}
+            // 押せる範囲は最低 28px。星そのものは札の幅に比例させ、細い札でも歌の文字に重ならない
+            className="absolute top-0 right-0 z-10 flex items-start justify-end w-[max(28px,18cqw)] h-[max(28px,18cqw)] p-[2.5cqw]"
+          >
+            <Star
+              className={cn(
+                'w-[max(10px,13cqw)] h-[max(10px,13cqw)] transition-colors',
+                starred ? 'fill-amber-400 text-amber-500' : 'fill-white/60 text-gray-300 hover:text-amber-400'
+              )}
+              strokeWidth={starred ? 1.5 : 1.75}
+            />
+          </button>
+        </div>
         {/* 覚えた / 覚えてない（同じ幅で横並び。札が細いときは縦に並ぶ: index.css .learn-row）。未ログインでもこの端末に保存 */}
         <div className="learn-row-container">
         <div className="learn-row">
@@ -292,7 +325,7 @@ export function HomePage() {
     : `${displayPoems.length}/${filteredPoems.length}首`;
   // 畳んでいても絞り込みが効いていることが分かるように
   const isFiltering = selectedKimariji.length > 0 || selectedPoemRange.length > 0
-    || searchText.trim() !== '' || filterMode === 'exclude';
+    || searchText.trim() !== '' || filterMode === 'exclude' || starOnly;
 
   if (!allPoems.length) {
     return <LoadingSpinner fullScreen message="読み込み中..." />;
@@ -300,18 +333,43 @@ export function HomePage() {
 
   return (
     <div className="karuta-container space-y-2 py-2">
-      {/* スマホ: 畳んだ状態の操作バー（件数＋開閉ボタン） */}
-      <div className="sm:hidden flex items-center justify-between gap-2 px-1">
-        <span className="text-xs text-gray-400 whitespace-nowrap">
+      {/* 操作バー: 覚えてない一覧へ（常に表示）＋ スマホでは件数と開閉ボタン */}
+      <div className="flex items-center justify-between gap-2 px-1">
+        <span className="sm:hidden text-xs text-gray-400 whitespace-nowrap">
           {countLabel}
           {isFiltering && <span className="ml-1.5 text-karuta-tansei font-medium">絞り込み中</span>}
         </span>
+        <div className="flex items-center gap-1.5 ml-auto">
+        <button
+          type="button"
+          onClick={() => { setStarOnly(v => !v); setSingleIndex(0); setPinnedPoemId(null); }}
+          aria-pressed={starOnly}
+          data-action="star-only"
+          title="星を付けた札だけ表示"
+          className={cn(
+            "flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full border transition-colors whitespace-nowrap",
+            starOnly
+              ? "bg-amber-400 text-white border-amber-400"
+              : "bg-white text-amber-600 border-amber-200 hover:bg-amber-50"
+          )}
+        >
+          <Star className={cn("w-3.5 h-3.5", starOnly ? "fill-white" : "fill-amber-400 text-amber-500")} />
+          <span className="tabular-nums">{starredCount}</span>
+        </button>
+        <Link
+          to="/oboetenai"
+          data-action="not-learned-list"
+          className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full border border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 whitespace-nowrap"
+        >
+          <ListChecks className="w-3.5 h-3.5" />
+          覚えてない<span className="tabular-nums">{notLearnedCount}</span>
+        </Link>
         <button
           onClick={() => setPanelOpen(o => !o)}
           aria-expanded={panelOpen}
           aria-controls="tenarai-panel"
           className={cn(
-            "flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full border transition-colors",
+            "sm:hidden flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full border transition-colors",
             panelOpen
               ? "bg-karuta-tansei/10 text-karuta-tansei border-karuta-tansei/30"
               : "bg-white text-gray-600 border-gray-200"
@@ -321,6 +379,7 @@ export function HomePage() {
           検索・表示
           <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", panelOpen && "rotate-180")} />
         </button>
+        </div>
       </div>
 
       {/* Control Panel - 4行レイアウト（スマホでは畳める） */}
@@ -444,7 +503,9 @@ export function HomePage() {
         )
       ) : (
         <div className="text-center py-8 text-gray-400 text-sm">
-          該当する札がありません
+          {starOnly && starredCount === 0
+            ? '星を付けた札はありません。札の右上の☆を押すと星が付きます'
+            : '該当する札がありません'}
         </div>
       )}
 

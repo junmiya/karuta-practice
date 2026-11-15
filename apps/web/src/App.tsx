@@ -7,6 +7,7 @@ import { PracticePage } from './pages/PracticePage';
 import { Practice12Page } from './pages/Practice12Page';
 import { ResultPage } from './pages/ResultPage';
 import { CardsListPage } from './pages/CardsListPage';
+import { NotLearnedPage } from './pages/NotLearnedPage';
 import { BanzukePage } from './pages/BanzukePage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
@@ -50,6 +51,7 @@ export function App() {
             {/* 手習タブ（無料） */}
             <Route path="/" element={<HomePage />} />
             <Route path="/cards" element={<CardsListPage />} />
+            <Route path="/oboetenai" element={<NotLearnedPage />} />
 
             {/* 稽古タブ */}
             <Route path="/keiko" element={<KeikoPage />} />

@@ -34,7 +34,7 @@ export function useNavTabs() {
       case '/tebiki':
         return pathname === '/tebiki';
       case '/tenarai':
-        return pathname === '/' || pathname === '/cards';
+        return pathname === '/' || pathname === '/cards' || pathname === '/oboetenai';
       case '/keiko':
         return ['/keiko', '/practice', '/practice12', '/result'].includes(pathname);
       case '/utakurai':
