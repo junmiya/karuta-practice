@@ -148,6 +148,38 @@ body {
   white-space: nowrap;
 }
 
+/* 手習: 覚えた / 覚えてない ボタン行
+   2つのボタンが同じ幅で収まる幅なら横並び、足りなければ縦に並べる */
+.learn-row-container {
+  container-type: inline-size;
+}
+
+.learn-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.25rem;
+}
+
+@container (min-width: 136px) {
+  .learn-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* 「覚えてない」が入らないほど札が細いときは「まだ」と表示 */
+.learn-row .label-short {
+  display: none;
+}
+
+@container (max-width: 66px) {
+  .learn-row .label-full {
+    display: none;
+  }
+  .learn-row .label-short {
+    display: inline;
+  }
+}
+
 /* 3D Card Flip Animation */
 .perspective-1000 {
   perspective: 1000px;

@@ -9,6 +9,7 @@ import { ResultPage } from './pages/ResultPage';
 import { CardsListPage } from './pages/CardsListPage';
 import { BanzukePage } from './pages/BanzukePage';
 import { ProfilePage } from './pages/ProfilePage';
+import { SettingsPage } from './pages/SettingsPage';
 import { KeikoPage } from './pages/KeikoPage';
 import { KyogiPage } from './pages/KyogiPage';
 import { SeisekiPage } from './pages/SeisekiPage';
@@ -74,6 +75,9 @@ export function App() {
 
             {/* プロフィール */}
             <Route path="/profile" element={<ProfilePage />} />
+
+            {/* 表示設定（ログイン不要） */}
+            <Route path="/settings" element={<SettingsPage />} />
 
             {/* 管理者ページ（admin のみ） */}
             <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />

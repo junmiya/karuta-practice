@@ -10,6 +10,7 @@ import { calculateAllPracticeStats, type AllPracticeStats } from '@/services/pra
 import { KimarijiSelector } from '@/components/KimarijiSelector';
 import { PoemRangeSelector, type PoemRange } from '@/components/PoemRangeSelector';
 import { DisplayOptionsToggle } from '@/components/DisplayOptionsToggle';
+import { getDisplaySettings } from '@/lib/displaySettings';
 import { cn } from '@/lib/utils';
 
 export function KeikoPage() {
@@ -22,9 +23,11 @@ export function KeikoPage() {
   const poemCounts = useMemo(() => getPoemCountByKimariji(), []);
 
   // 表示設定
-  const [showYomiKana, setShowYomiKana] = useState(false);
-  const [showToriKana, setShowToriKana] = useState(false);
-  const [showKimariji, setShowKimariji] = useState(false);
+  // 初期値は設定画面の値。ページ上の切替はその場だけ
+  const [initialDisplay] = useState(() => getDisplaySettings().keiko);
+  const [showYomiKana, setShowYomiKana] = useState(initialDisplay.yomiKana);
+  const [showToriKana, setShowToriKana] = useState(initialDisplay.toriKana);
+  const [showKimariji, setShowKimariji] = useState(initialDisplay.kimariji);
 
   // 稽古録データ
   const [stats, setStats] = useState<AllPracticeStats | null>(null);
