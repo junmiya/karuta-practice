@@ -1752,7 +1752,7 @@
         "yomi": "忘れじの 行く末までは 難ければ",
         "yomiKana": "わすれじの ゆくすえまでは かたければ",
         "tori": "今日を限りの 命ともがな",
-        "toriKana": "きょうをかぎりの いのちともがな",
+        "toriKana": "けふをかぎりの いのちともがな",
         "yomiTokens": [
             "忘れじの",
             "行く末までは",
@@ -1768,13 +1768,13 @@
             "命ともがな"
         ],
         "toriKanaTokens": [
-            "きょうをかぎりの",
+            "けふをかぎりの",
             "いのちともがな"
         ],
         "yomiNoSpace": "忘れじの行く末までは難ければ",
         "yomiKanaNoSpace": "わすれじのゆくすえまではかたければ",
         "toriNoSpace": "今日を限りの命ともがな",
-        "toriKanaNoSpace": "きょうをかぎりのいのちともがな",
+        "toriKanaNoSpace": "けふをかぎりのいのちともがな",
         "kimariji": "わすれ",
         "kimarijiCount": 3,
         "author": "儀同三司母"
@@ -1982,7 +1982,7 @@
         "yomi": "いにしへの 奈良の都の 八重桜",
         "yomiKana": "いにしえの ならのみやこの やえざくら",
         "tori": "今日九重に 匂ひぬるかな",
-        "toriKana": "きょうここのえに においぬるかな",
+        "toriKana": "けふここのえに においぬるかな",
         "yomiTokens": [
             "いにしへの",
             "奈良の都の",
@@ -1998,13 +1998,13 @@
             "匂ひぬるかな"
         ],
         "toriKanaTokens": [
-            "きょうここのえに",
+            "けふここのえに",
             "においぬるかな"
         ],
         "yomiNoSpace": "いにしへの奈良の都の八重桜",
         "yomiKanaNoSpace": "いにしえのならのみやこのやえざくら",
         "toriNoSpace": "今日九重に匂ひぬるかな",
-        "toriKanaNoSpace": "きょうここのえににおいぬるかな",
+        "toriKanaNoSpace": "けふここのえににおいぬるかな",
         "kimariji": "いに",
         "kimarijiCount": 2,
         "author": "伊勢大輔"
