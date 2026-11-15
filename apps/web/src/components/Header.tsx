@@ -12,7 +12,7 @@ const TEBIKI_BANNER_KEY = 'tebiki_banner_dismissed';
 export function Header() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, profile, logout } = useAuthContext();
+  const { isAuthenticated, profile } = useAuthContext();
   const { tabs, isActive, goTo, isProfileComplete } = useNavTabs();
 
   // 手引バナー状態
@@ -25,11 +25,6 @@ export function Header() {
   const dismissBanner = () => {
     localStorage.setItem(TEBIKI_BANNER_KEY, '1');
     setBannerDismissed(true);
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/');
   };
 
   const TabButton = ({ tab }: { tab: NavTab }) => (
@@ -100,31 +95,25 @@ export function Header() {
               <Settings className="w-4 h-4" />
             </button>
             {isAuthenticated ? (
-              <>
-                <button
-                  onClick={() => navigate('/profile')}
-                  className={cn(
-                    "text-xs px-2 py-0.5 rounded transition-colors",
-                    location.pathname === '/profile'
-                      ? "bg-karuta-tansei/10 text-karuta-tansei"
-                      : "text-neutral-600 hover:text-karuta-tansei"
-                  )}
-                >
-                  {profile?.nickname || 'プロフィール'}
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="text-xs text-neutral-400 hover:text-red-500 px-1"
-                >
-                  出門
-                </button>
-              </>
+              // 自分の名前 → プロフィール画面（ログアウトはその画面の一番下）
+              <button
+                onClick={() => navigate('/profile')}
+                title="プロフィール・ログアウト"
+                className={cn(
+                  "text-xs px-2 py-0.5 rounded transition-colors max-w-[10rem] truncate",
+                  location.pathname === '/profile'
+                    ? "bg-karuta-tansei/10 text-karuta-tansei"
+                    : "text-neutral-600 hover:text-karuta-tansei"
+                )}
+              >
+                {profile?.nickname || 'プロフィール'}
+              </button>
             ) : (
               <button
                 onClick={() => navigate('/profile')}
-                className="text-xs text-karuta-tansei font-medium px-2 py-0.5 bg-karuta-tansei/10 rounded hover:bg-karuta-tansei/20"
+                className="text-xs text-karuta-tansei font-medium px-2 py-0.5 bg-karuta-tansei/10 rounded hover:bg-karuta-tansei/20 whitespace-nowrap"
               >
-                入門
+                ログイン
               </button>
             )}
           </div>

@@ -24,6 +24,7 @@ export function ProfilePage() {
     loginWithPasskey,
     registerWithEmail,
     refreshProfile,
+    logout,
   } = useAuthContext();
   const passkeySupported = isPasskeySupported();
 
@@ -189,15 +190,22 @@ export function ProfilePage() {
           ) : (
             <div className="space-y-3">
               {passkeySupported && (
-                <Button
-                  onClick={loginWithPasskey}
-                  disabled={loading}
-                  variant="outline"
-                  className="w-full flex items-center justify-center gap-2"
-                >
-                  <KeyRound className="w-5 h-5" />
-                  パスキーでログイン
-                </Button>
+                <div>
+                  <Button
+                    onClick={loginWithPasskey}
+                    disabled={loading}
+                    variant="outline"
+                    className="w-full flex items-center justify-center gap-2"
+                    aria-describedby="passkey-login-note"
+                  >
+                    <KeyRound className="w-5 h-5" />
+                    パスキーでログイン
+                  </Button>
+                  {/* パスキーは事前登録が必要（未登録だと端末に二次元コードなどしか出ない） */}
+                  <p id="passkey-login-note" className="mt-1.5 text-xs text-gray-500 text-left">
+                    {'パスキーは先に登録が必要です。初めての方は、Googleかメールでログインした後、名前を押して開くプロフィール画面の「パスキー」欄で登録してください。'}
+                  </p>
+                </div>
               )}
               <Button
                 onClick={loginWithGoogle}
@@ -337,6 +345,20 @@ export function ProfilePage() {
           <li>• 本名の使用は推奨しません</li>
         </ul>
       </InfoBox>
+
+      {/* ログアウト（画面の一番下） */}
+      <div className="pt-2 pb-4">
+        <Button
+          variant="outline"
+          onClick={async () => {
+            await logout();
+            navigate('/');
+          }}
+          className="w-full"
+        >
+          ログアウト
+        </Button>
+      </div>
     </Container>
   );
 }
