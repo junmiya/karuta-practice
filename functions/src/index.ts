@@ -31,6 +31,16 @@ export {
 // Export AI Tutor functions
 export { getPoemExplanation } from './getPoemExplanation';
 
+// Export passkey (WebAuthn) login functions
+export {
+  passkeyRegisterOptions,
+  passkeyRegisterVerify,
+  passkeyLoginOptions,
+  passkeyLoginVerify,
+  passkeyList,
+  passkeyDelete,
+} from './passkeyFunctions';
+
 // Export AI Stats Analysis
 export { analyzeStats } from './analyzeStats';
 

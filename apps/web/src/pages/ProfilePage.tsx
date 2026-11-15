@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/Button';
 import { Heading, Text } from '@/components/ui/Typography';
 import { Container } from '@/components/ui/Container';
 import { LoadingState, InfoBox } from '@/components/ui/PageStates';
+import { PasskeySection } from '@/components/PasskeySection';
+import { isPasskeySupported } from '@/services/passkey.service';
+import { KeyRound } from 'lucide-react';
 
 export function ProfilePage() {
   const navigate = useNavigate();
@@ -18,9 +21,11 @@ export function ProfilePage() {
     error,
     loginWithGoogle,
     loginWithEmail,
+    loginWithPasskey,
     registerWithEmail,
     refreshProfile,
   } = useAuthContext();
+  const passkeySupported = isPasskeySupported();
 
   const [nickname, setNickname] = useState('');
   const [banzukeConsent, setBanzukeConsent] = useState(false);
@@ -183,6 +188,17 @@ export function ProfilePage() {
             </form>
           ) : (
             <div className="space-y-3">
+              {passkeySupported && (
+                <Button
+                  onClick={loginWithPasskey}
+                  disabled={loading}
+                  variant="outline"
+                  className="w-full flex items-center justify-center gap-2"
+                >
+                  <KeyRound className="w-5 h-5" />
+                  パスキーでログイン
+                </Button>
+              )}
               <Button
                 onClick={loginWithGoogle}
                 className="w-full flex items-center justify-center gap-2"
@@ -220,6 +236,7 @@ export function ProfilePage() {
             <ul className="space-y-1">
               <li>• <strong>Googleログイン</strong>: データが永続化され、別のデバイスからもアクセスできます</li>
               <li>• <strong>メールログイン</strong>: メールアドレスとパスワードで登録・ログインできます</li>
+              <li>• <strong>パスキーログイン</strong>: Googleかメールでログインした後、プロフィール画面でパスキーを登録すると、次回から指紋・顔認証などでログインできます</li>
             </ul>
           </InfoBox>
         </div>
@@ -308,6 +325,9 @@ export function ProfilePage() {
           </div>
         </div>
       </Card>
+
+      {/* パスキーの登録・管理 */}
+      <PasskeySection />
 
       {/* Privacy Notice */}
       <InfoBox title="プライバシーについて" variant="warning">

@@ -110,7 +110,7 @@ export function Header() {
                       : "text-neutral-600 hover:text-karuta-tansei"
                   )}
                 >
-                  {profile?.nickname || '設定'}
+                  {profile?.nickname || 'プロフィール'}
                 </button>
                 <button
                   onClick={handleLogout}
