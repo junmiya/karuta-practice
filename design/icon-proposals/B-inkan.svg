@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- B: 番付の朱印 — 生成りの地に、朱色の角印「百首」。下に藍の帯 -->
+  <defs><clipPath id="b-r"><rect width="512" height="512" rx="112"/></clipPath></defs>
+  <g clip-path="url(#b-r)">
+    <rect width="512" height="512" fill="#FBF7EC"/>
+    <rect x="0" y="404" width="512" height="108" fill="#196AAB"/>
+  </g>
+  <rect x="116" y="76" width="280" height="280" rx="28" fill="#c62828"/>
+  <rect x="134" y="94" width="244" height="244" rx="16" fill="none" stroke="#FBF7EC" stroke-width="8"/>
+  <text x="256" y="208" text-anchor="middle" font-family="'Hiragino Mincho ProN','Yu Mincho','YuMincho',serif" font-weight="700" font-size="118" fill="#FBF7EC">百</text>
+  <text x="256" y="322" text-anchor="middle" font-family="'Hiragino Mincho ProN','Yu Mincho','YuMincho',serif" font-weight="700" font-size="118" fill="#FBF7EC">首</text>
+  <rect x="196" y="446" width="120" height="12" rx="6" fill="#FFCB05"/>
+</svg>
