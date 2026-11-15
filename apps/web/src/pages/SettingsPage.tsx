@@ -193,6 +193,7 @@ export function SettingsPage() {
                 poem={samplePoem}
                 mode="flip"
                 flipStart={tenarai.flipStart}
+                showNumber
                 showYomiKana={tenarai.yomiKana}
                 showToriKana={tenarai.toriKana}
                 showKimariji={tenarai.kimariji}

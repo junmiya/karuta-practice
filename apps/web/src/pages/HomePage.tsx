@@ -199,6 +199,7 @@ export function HomePage() {
           poem={poem}
           mode="flip"
           flipStart={flipStart}
+          showNumber
           showYomiKana={showYomiKana}
           showToriKana={showToriKana}
           showKimariji={showKimariji}

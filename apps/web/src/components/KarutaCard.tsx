@@ -26,6 +26,8 @@ export interface KarutaCardProps {
   showKimariji?: boolean;
   /** flipモードで最初に表示する面: yomi=上の句（既定）, tori=下の句 */
   flipStart?: 'yomi' | 'tori';
+  /** 札の左下に歌番号を表示（手習・札一覧用。稽古・歌合では手がかりになるため使わない） */
+  showNumber?: boolean;
   /** 選択状態（練習モード用） */
   isSelected?: boolean;
   /** 正解状態（練習モード用） */
@@ -97,6 +99,8 @@ interface CardFaceProps {
   isTori?: boolean;
   /** ひらがな表示モード（決まり字ハイライト用） */
   isKana?: boolean;
+  /** 左下に表示する歌番号 */
+  number?: number;
 }
 
 function CardFace({
@@ -110,6 +114,7 @@ function CardFace({
   className,
   isTori = false,
   isKana = false,
+  number,
 }: CardFaceProps) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -182,11 +187,18 @@ function CardFace({
   };
 
   const content = (
-    <div className="karuta-card-container-grid">
-      <div className="karuta-text-wrapper">
-        {linePositions.slice().reverse().map((item, i) => renderLine(item, i))}
+    <>
+      <div className="karuta-card-container-grid">
+        <div className="karuta-text-wrapper">
+          {linePositions.slice().reverse().map((item, i) => renderLine(item, i))}
+        </div>
       </div>
-    </div>
+      {number !== undefined && (
+        <span className="karuta-card-number" aria-label={`${number}番`}>
+          {number}
+        </span>
+      )}
+    </>
   );
 
   const cardClass = cn(
@@ -249,6 +261,7 @@ export function KarutaCard({
   showToriKana,
   showKimariji = false,
   flipStart = 'yomi',
+  showNumber = false,
   isSelected = false,
   isCorrect = false,
   isWrong = false,
@@ -266,6 +279,8 @@ export function KarutaCard({
   const yomiText = isYomiKana ? poem.yomiKana : poem.yomi;
   const yomiTokens = isYomiKana ? poem.yomiKanaTokens : undefined;
   const toriText = isToriKana ? poem.toriKana : poem.tori;
+
+  const number = showNumber ? poem.order : undefined;
 
   // 状態からvariantを決定
   const getVariant = (): CardVariant => {
@@ -288,6 +303,7 @@ export function KarutaCard({
         onClick={onClick}
         className={className}
         isTori
+        number={number}
       />
     );
   }
@@ -307,6 +323,7 @@ export function KarutaCard({
         clickable={!disabled && !!onClick}
         onClick={onClick}
         className={className}
+        number={number}
       />
     );
   }
@@ -330,6 +347,7 @@ export function KarutaCard({
       variant="default"
       clickable={false}
       className="w-full h-full"
+      number={number}
     />
   );
 
@@ -341,6 +359,7 @@ export function KarutaCard({
       clickable={false}
       className="w-full h-full"
       isTori
+      number={number}
     />
   );
 

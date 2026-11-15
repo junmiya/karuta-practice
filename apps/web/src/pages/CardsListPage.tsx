@@ -135,6 +135,7 @@ export function CardsListPage() {
               <KarutaCard
                 poem={poem}
                 mode="flip"
+                showNumber
                 showYomiKana={showYomiKana}
                 showToriKana={showToriKana}
                 showKimariji={showKimariji}

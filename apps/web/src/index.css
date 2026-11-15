@@ -180,6 +180,20 @@ body {
   }
 }
 
+/* 札の左下の歌番号（札の幅に比例。細い札でも読める最小 9px） */
+.karuta-card-number {
+  position: absolute;
+  left: 5cqw;
+  bottom: 3cqw;
+  font-size: max(9px, 7cqw);
+  line-height: 1;
+  color: #a3a3a3;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  user-select: none;
+}
+
 /* 3D Card Flip Animation */
 .perspective-1000 {
   perspective: 1000px;
