@@ -1,18 +1,21 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   getUserLearned,
-  toggleLearnedPoem,
+  setPoemStatus,
   clearLearnedPoems,
+  type PoemStatus,
 } from '@/services/learned.service';
 
 export type LearnedFilterMode = 'normal' | 'exclude' | 'prioritize';
+export type { PoemStatus };
 
 /** 未ログイン時はこの端末に保存する */
 const GUEST_STORAGE_KEY = 'learned_poems_guest';
+const GUEST_NOT_LEARNED_KEY = 'not_learned_poems_guest';
 
-function loadGuestLearned(): Set<string> {
+function loadGuestIds(key: string): Set<string> {
   try {
-    const raw = localStorage.getItem(GUEST_STORAGE_KEY);
+    const raw = localStorage.getItem(key);
     const ids: unknown = raw ? JSON.parse(raw) : [];
     return new Set(Array.isArray(ids) ? ids.filter((x): x is string => typeof x === 'string') : []);
   } catch {
@@ -20,9 +23,9 @@ function loadGuestLearned(): Set<string> {
   }
 }
 
-function saveGuestLearned(ids: Set<string>) {
+function saveGuestIds(key: string, ids: Set<string>) {
   try {
-    localStorage.setItem(GUEST_STORAGE_KEY, JSON.stringify([...ids]));
+    localStorage.setItem(key, JSON.stringify([...ids]));
   } catch {
     // 保存できなくても画面上は反映される
   }
@@ -30,116 +33,127 @@ function saveGuestLearned(ids: Set<string>) {
 
 interface LearnedState {
   learnedPoemIds: Set<string>;
+  notLearnedPoemIds: Set<string>;
   loading: boolean;
   error: string | null;
 }
 
+const emptyState = (): LearnedState => ({
+  learnedPoemIds: new Set<string>(),
+  notLearnedPoemIds: new Set<string>(),
+  loading: false,
+  error: null,
+});
+
 /**
- * Hook for managing learned poems
+ * 覚えた / 覚えてない の記録
  * @param uid - User ID (null if not authenticated → この端末の localStorage に保存)
  */
 export function useLearned(uid: string | null) {
-  const [state, setState] = useState<LearnedState>({
-    learnedPoemIds: new Set<string>(),
-    loading: false,
-    error: null,
-  });
+  const [state, setState] = useState<LearnedState>(emptyState);
   const [filterMode, setFilterMode] = useState<LearnedFilterMode>('normal');
+  // 書き込み失敗時に最新の状態から戻すため
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
-  // Load learned poems from Firestore
-  useEffect(() => {
-    if (!uid) {
-      setState({ learnedPoemIds: loadGuestLearned(), loading: false, error: null });
-      return;
-    }
-
+  const loadFromServer = useCallback((userId: string) => {
     setState(prev => ({ ...prev, loading: true, error: null }));
-
-    getUserLearned(uid)
+    getUserLearned(userId)
       .then(data => {
         setState({
           learnedPoemIds: new Set<string>(data?.poemIds || []),
+          notLearnedPoemIds: new Set<string>(data?.notLearnedPoemIds || []),
           loading: false,
           error: null,
         });
       })
       .catch(() => {
-        setState(prev => ({
-          ...prev,
-          loading: false,
-          error: 'Failed to load learned poems',
-        }));
+        setState(prev => ({ ...prev, loading: false, error: 'Failed to load learned poems' }));
       });
-  }, [uid]);
+  }, []);
 
-  // Toggle a poem's learned status
-  const toggleLearned = useCallback(async (poemId: string) => {
+  useEffect(() => {
     if (!uid) {
-      setState(prev => {
-        const newSet = new Set(prev.learnedPoemIds);
-        if (newSet.has(poemId)) newSet.delete(poemId);
-        else newSet.add(poemId);
-        saveGuestLearned(newSet);
-        return { ...prev, learnedPoemIds: newSet };
+      setState({
+        ...emptyState(),
+        learnedPoemIds: loadGuestIds(GUEST_STORAGE_KEY),
+        notLearnedPoemIds: loadGuestIds(GUEST_NOT_LEARNED_KEY),
       });
       return;
     }
+    loadFromServer(uid);
+  }, [uid, loadFromServer]);
 
-    // Optimistic update
-    setState(prev => {
-      const newSet = new Set(prev.learnedPoemIds);
-      if (newSet.has(poemId)) {
-        newSet.delete(poemId);
-      } else {
-        newSet.add(poemId);
-      }
-      return { ...prev, learnedPoemIds: newSet };
-    });
+  /** 1首を「覚えた」または「覚えてない」にする（もう一方の印は外れる） */
+  const setStatus = useCallback((poemId: string, status: PoemStatus) => {
+    const cur = stateRef.current;
+    const already = status === 'learned'
+      ? cur.learnedPoemIds.has(poemId)
+      : cur.notLearnedPoemIds.has(poemId);
+    if (already) return;
 
-    try {
-      await toggleLearnedPoem(uid, poemId);
-    } catch {
-      // Revert on error
-      setState(prev => {
-        const newSet = new Set(prev.learnedPoemIds);
-        if (newSet.has(poemId)) {
-          newSet.delete(poemId);
-        } else {
-          newSet.add(poemId);
-        }
-        return { ...prev, learnedPoemIds: newSet, error: 'Failed to update' };
-      });
+    const learned = new Set(cur.learnedPoemIds);
+    const notLearned = new Set(cur.notLearnedPoemIds);
+    if (status === 'learned') {
+      learned.add(poemId);
+      notLearned.delete(poemId);
+    } else {
+      notLearned.add(poemId);
+      learned.delete(poemId);
     }
-  }, [uid]);
+    setState(prev => ({ ...prev, learnedPoemIds: learned, notLearnedPoemIds: notLearned, error: null }));
 
-  // 覚えた / 覚えてない を明示的に設定（既に同じ状態なら何もしない）
+    if (!uid) {
+      saveGuestIds(GUEST_STORAGE_KEY, learned);
+      saveGuestIds(GUEST_NOT_LEARNED_KEY, notLearned);
+      return;
+    }
+    setPoemStatus(uid, poemId, status).catch(() => {
+      // 失敗したらサーバの状態に合わせ直す
+      setState(prev => ({ ...prev, error: 'Failed to update' }));
+      loadFromServer(uid);
+    });
+  }, [uid, loadFromServer]);
+
+  /** 覚えた(true) / 覚えてない(false) */
   const setLearned = useCallback((poemId: string, learned: boolean) => {
-    if (state.learnedPoemIds.has(poemId) === learned) return;
-    void toggleLearned(poemId);
-  }, [state.learnedPoemIds, toggleLearned]);
+    setStatus(poemId, learned ? 'learned' : 'notLearned');
+  }, [setStatus]);
 
-  // Clear all learned poems
+  // Clear all（覚えた・覚えてない の印をすべて外す）
   const clearAll = useCallback(async () => {
     if (!uid) {
-      saveGuestLearned(new Set());
-      setState(prev => ({ ...prev, learnedPoemIds: new Set() }));
+      saveGuestIds(GUEST_STORAGE_KEY, new Set());
+      saveGuestIds(GUEST_NOT_LEARNED_KEY, new Set());
+      setState(prev => ({ ...prev, learnedPoemIds: new Set(), notLearnedPoemIds: new Set() }));
       return;
     }
 
-    const backup = state.learnedPoemIds;
-    setState(prev => ({ ...prev, learnedPoemIds: new Set() }));
+    const backup = stateRef.current;
+    setState(prev => ({ ...prev, learnedPoemIds: new Set(), notLearnedPoemIds: new Set() }));
 
     try {
       await clearLearnedPoems(uid);
     } catch {
-      setState(prev => ({ ...prev, learnedPoemIds: backup, error: 'Failed to clear' }));
+      setState(prev => ({
+        ...prev,
+        learnedPoemIds: backup.learnedPoemIds,
+        notLearnedPoemIds: backup.notLearnedPoemIds,
+        error: 'Failed to clear',
+      }));
     }
-  }, [uid, state.learnedPoemIds]);
+  }, [uid]);
 
-  // Check if a poem is learned
   const isLearned = useCallback((poemId: string) => {
     return state.learnedPoemIds.has(poemId);
   }, [state.learnedPoemIds]);
+
+  /** 印の状態（未記録は null） */
+  const getStatus = useCallback((poemId: string): PoemStatus | null => {
+    if (state.learnedPoemIds.has(poemId)) return 'learned';
+    if (state.notLearnedPoemIds.has(poemId)) return 'notLearned';
+    return null;
+  }, [state.learnedPoemIds, state.notLearnedPoemIds]);
 
   // Cycle through filter modes: normal -> exclude -> prioritize -> normal
   const cycleFilterMode = useCallback(() => {
@@ -152,7 +166,6 @@ export function useLearned(uid: string | null) {
     });
   }, []);
 
-  // Get filter mode label
   const getFilterModeLabel = useCallback(() => {
     switch (filterMode) {
       case 'normal': return '通常';
@@ -164,16 +177,18 @@ export function useLearned(uid: string | null) {
   return {
     learnedPoemIds: state.learnedPoemIds,
     learnedCount: state.learnedPoemIds.size,
+    notLearnedCount: state.notLearnedPoemIds.size,
     loading: state.loading,
     error: state.error,
     filterMode,
     setFilterMode,
     cycleFilterMode,
     getFilterModeLabel,
-    toggleLearned,
+    setStatus,
     setLearned,
     clearAll,
     isLearned,
+    getStatus,
     isAuthenticated: !!uid,
   };
 }

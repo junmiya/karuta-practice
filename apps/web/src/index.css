@@ -194,6 +194,31 @@ body {
   user-select: none;
 }
 
+/* 札の右下の印（手習の 覚えた / 覚えてない）。歌番号と同じく札の幅に比例 */
+.karuta-card-mark {
+  position: absolute;
+  right: 3.5cqw;
+  bottom: 2.5cqw;
+  padding: 0.8cqw 2.5cqw;
+  border-radius: 999px;
+  font-size: max(10px, 8.5cqw);
+  line-height: 1.15;
+  font-weight: 700;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+.karuta-card-mark--learned {
+  background: #16a34a; /* green-600 */
+  color: #fff;
+}
+.karuta-card-mark--not-learned {
+  background: #fff7ed; /* orange-50 */
+  color: #c2410c; /* orange-700 */
+  box-shadow: inset 0 0 0 1px #fdba74; /* orange-300 */
+}
+
 /* 3D Card Flip Animation */
 .perspective-1000 {
   perspective: 1000px;

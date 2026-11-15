@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { getAllPoemsSync } from '@/services/poems.service';
 import { KarutaCard } from '@/components/KarutaCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
@@ -12,6 +12,9 @@ import { cn } from '@/lib/utils';
 import { getDisplaySettings, isMobileViewport } from '@/lib/displaySettings';
 import { SlidersHorizontal, ChevronDown } from 'lucide-react';
 import type { Poem } from '@/types/poem';
+
+/** 1枚モードで印を見せてから次の札へ進むまでの時間 */
+const MARK_HOLD_MS = 450;
 
 export function HomePage() {
   // 初期値は設定画面の値（既定: かな表示・下の句先出し・スマホ1枚/PC12枚）。ページ上の切替はその場だけ
@@ -35,6 +38,12 @@ export function HomePage() {
   const [searchText, setSearchText] = useState('');
   const [selectedPoem, setSelectedPoem] = useState<Poem | null>(null);
   const [shuffleSeed, setShuffleSeed] = useState(0);
+  // 1枚モードで 覚えた/覚えてない を押した直後、印を見せるため少しだけ同じ札を表示しておく
+  const [held, setHeld] = useState<{ poem: Poem; nextPoemId: string | null; nextIndex: number } | null>(null);
+  const holdTimer = useRef<number | null>(null);
+  useEffect(() => () => {
+    if (holdTimer.current) window.clearTimeout(holdTimer.current);
+  }, []);
 
   const { user } = useAuthContext();
   const {
@@ -44,7 +53,7 @@ export function HomePage() {
     cycleFilterMode,
     setLearned,
     clearAll,
-    isLearned,
+    getStatus,
   } = useLearned(user?.uid ?? null);
 
   // 一括クリア確認
@@ -128,9 +137,13 @@ export function HomePage() {
   // Display poems (limited by displayCount)
   const displayPoems = useMemo(() => {
     if (displayCount === 100) return filteredPoems;
-    if (displayCount === 1) return shuffledPoems.slice(currentIndex, currentIndex + 1);
+    if (displayCount === 1) {
+      // 印を見せている間は、除外などで並びから消えてもその札を出し続ける
+      if (held) return [held.poem];
+      return shuffledPoems.slice(currentIndex, currentIndex + 1);
+    }
     return shuffledPoems.slice(0, displayCount);
-  }, [filteredPoems, shuffledPoems, displayCount, currentIndex]);
+  }, [filteredPoems, shuffledPoems, displayCount, currentIndex, held]);
 
   // Shuffle handler
   const handleShuffle = useCallback(() => {
@@ -148,29 +161,45 @@ export function HomePage() {
   // 1枚モードの前後移動（端は反対側へ回り込む）
   const goPrev = useCallback(() => {
     const n = shuffledPoems.length;
-    if (n === 0) return;
+    if (n === 0 || held) return;
     setSingleIndex((currentIndex - 1 + n) % n);
     setPinnedPoemId(null);
-  }, [shuffledPoems.length, currentIndex]);
+  }, [shuffledPoems.length, currentIndex, held]);
 
   const goNext = useCallback(() => {
     const n = shuffledPoems.length;
-    if (n === 0) return;
+    if (n === 0 || held) return;
     setSingleIndex((currentIndex + 1) % n);
     setPinnedPoemId(null);
-  }, [shuffledPoems.length, currentIndex]);
+  }, [shuffledPoems.length, currentIndex, held]);
 
-  // 覚えた / 覚えてない を記録し、1枚モードでは次の札へ進む
-  const markAndNext = useCallback((poemId: string, learned: boolean) => {
+  // 覚えた / 覚えてない を記録し、1枚モードでは札の印を少し見せてから次の札へ進む
+  const markAndNext = useCallback((poem: Poem, learned: boolean) => {
+    setLearned(poem.poemId, learned);
+    if (displayCount !== 1) return;
     const n = shuffledPoems.length;
-    // 記録前の並びで「次の札」を決めておく（除外・優先で並びが変わっても次の札を表示するため）
-    const next = displayCount === 1 && n > 1 ? shuffledPoems[(currentIndex + 1) % n] : null;
-    setLearned(poemId, learned);
-    if (next) {
-      setPinnedPoemId(next.poemId);
-      setSingleIndex((currentIndex + 1) % n);
-    }
-  }, [shuffledPoems, currentIndex, displayCount, setLearned]);
+    // 同じ札でもう一度押したときは、最初に決めた「次の札」のまま待ち時間だけ延ばす
+    const target = held && held.poem.poemId === poem.poemId
+      ? held
+      : {
+          poem,
+          // 記録前の並びで「次の札」を決めておく（除外・優先で並びが変わっても次の札を表示するため）
+          nextPoemId: n > 1 ? shuffledPoems[(currentIndex + 1) % n].poemId : null,
+          nextIndex: n > 0 ? (currentIndex + 1) % n : 0,
+        };
+    setHeld(target);
+    if (holdTimer.current) window.clearTimeout(holdTimer.current);
+    holdTimer.current = window.setTimeout(() => {
+      holdTimer.current = null;
+      setHeld(null);
+      if (target.nextPoemId) {
+        setPinnedPoemId(target.nextPoemId);
+        setSingleIndex(target.nextIndex);
+      } else {
+        setPinnedPoemId(poem.poemId);
+      }
+    }, MARK_HOLD_MS);
+  }, [shuffledPoems, currentIndex, displayCount, setLearned, held]);
 
   // 1枚モード: ← → キーで前後移動（検索入力中は無効）
   useEffect(() => {
@@ -187,7 +216,9 @@ export function HomePage() {
 
   // 札1枚 + 覚えた/覚えてない（横並び）+ 解説（その下）
   const renderCard = (poem: Poem) => {
-    const learned = isLearned(poem.poemId);
+    const status = getStatus(poem.poemId);
+    const learned = status === 'learned';
+    const notLearned = status === 'notLearned';
     const single = displayCount === 1;
     const btnBase = cn(
       "min-w-0 whitespace-nowrap rounded border font-bold transition-colors",
@@ -200,6 +231,7 @@ export function HomePage() {
           mode="flip"
           flipStart={flipStart}
           showNumber
+          mark={status}
           showYomiKana={showYomiKana}
           showToriKana={showToriKana}
           showKimariji={showKimariji}
@@ -208,7 +240,7 @@ export function HomePage() {
         <div className="learn-row-container">
         <div className="learn-row">
           <button
-            onClick={() => markAndNext(poem.poemId, true)}
+            onClick={() => markAndNext(poem, true)}
             data-action="learned"
             aria-pressed={learned}
             title={single ? '覚えたにして次の札へ' : '覚えたにする'}
@@ -222,11 +254,17 @@ export function HomePage() {
             {learned ? '✓ 覚えた' : '覚えた'}
           </button>
           <button
-            onClick={() => markAndNext(poem.poemId, false)}
+            onClick={() => markAndNext(poem, false)}
             data-action="not-learned"
             aria-label="覚えてない"
+            aria-pressed={notLearned}
             title={single ? '覚えてないにして次の札へ' : '覚えてないにする'}
-            className={cn(btnBase, "bg-white text-orange-700 border-orange-300 hover:bg-orange-50")}
+            className={cn(
+              btnBase,
+              notLearned
+                ? "bg-orange-500 text-white border-orange-500 hover:bg-orange-600"
+                : "bg-white text-orange-700 border-orange-300 hover:bg-orange-50"
+            )}
           >
             {/* 札がとても細いとき（スマホ横向きの12枚など）は短い表記 */}
             <span className="label-full">覚えてない</span>

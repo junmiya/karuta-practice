@@ -9,6 +9,8 @@ import { colors } from '@/lib/design-tokens';
 // =============================================================================
 
 export type CardMode = 'tori' | 'yomi' | 'flip';
+/** 札の右下に付ける印（手習の 覚えた / 覚えてない） */
+export type CardMark = 'learned' | 'notLearned';
 export type CardVariant = 'default' | 'selected' | 'correct' | 'wrong' | 'disabled' | 'tori-face';
 
 export interface KarutaCardProps {
@@ -28,6 +30,8 @@ export interface KarutaCardProps {
   flipStart?: 'yomi' | 'tori';
   /** 札の左下に歌番号を表示（手習・札一覧用。稽古・歌合では手がかりになるため使わない） */
   showNumber?: boolean;
+  /** 札の右下の印: learned=覚えた, notLearned=覚えてない（まだ） */
+  mark?: CardMark | null;
   /** 選択状態（練習モード用） */
   isSelected?: boolean;
   /** 正解状態（練習モード用） */
@@ -101,6 +105,8 @@ interface CardFaceProps {
   isKana?: boolean;
   /** 左下に表示する歌番号 */
   number?: number;
+  /** 右下の印 */
+  mark?: CardMark | null;
 }
 
 function CardFace({
@@ -115,6 +121,7 @@ function CardFace({
   isTori = false,
   isKana = false,
   number,
+  mark,
 }: CardFaceProps) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -198,6 +205,14 @@ function CardFace({
           {number}
         </span>
       )}
+      {mark && (
+        <span
+          className={cn('karuta-card-mark', mark === 'learned' ? 'karuta-card-mark--learned' : 'karuta-card-mark--not-learned')}
+          data-mark={mark}
+        >
+          {mark === 'learned' ? '覚えた' : 'まだ'}
+        </span>
+      )}
     </>
   );
 
@@ -262,6 +277,7 @@ export function KarutaCard({
   showKimariji = false,
   flipStart = 'yomi',
   showNumber = false,
+  mark = null,
   isSelected = false,
   isCorrect = false,
   isWrong = false,
@@ -304,6 +320,7 @@ export function KarutaCard({
         className={className}
         isTori
         number={number}
+        mark={mark}
       />
     );
   }
@@ -324,6 +341,7 @@ export function KarutaCard({
         onClick={onClick}
         className={className}
         number={number}
+        mark={mark}
       />
     );
   }
@@ -348,6 +366,7 @@ export function KarutaCard({
       clickable={false}
       className="w-full h-full"
       number={number}
+      mark={mark}
     />
   );
 
@@ -360,6 +379,7 @@ export function KarutaCard({
       className="w-full h-full"
       isTori
       number={number}
+      mark={mark}
     />
   );
 
