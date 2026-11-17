@@ -8,6 +8,7 @@ import {
   signOut,
   handleRedirectResult,
 } from '@/services/auth.service';
+import { signInWithPasskey, PasskeyCancelledError, passkeyErrorMessage } from '@/services/passkey.service';
 import {
   getUserProfile,
   createUserProfile,
@@ -167,6 +168,23 @@ export function useAuth() {
     }
   }, []);
 
+  // パスキーでログイン（成功後は onAuthStateChanged がプロフィールを読み込む）
+  const loginWithPasskey = useCallback(async () => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+    try {
+      await signInWithPasskey();
+    } catch (err: unknown) {
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+        // キャンセルはエラー表示しない
+        error: err instanceof PasskeyCancelledError
+          ? null
+          : passkeyErrorMessage(err, 'パスキーでログインできませんでした'),
+      }));
+    }
+  }, []);
+
   const registerWithEmail = useCallback(async (email: string, password: string) => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
@@ -234,6 +252,7 @@ export function useAuth() {
     isTester,
     loginWithGoogle,
     loginWithEmail,
+    loginWithPasskey,
     registerWithEmail,
     logout,
     refreshProfile,

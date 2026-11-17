@@ -51,8 +51,9 @@ export function Practice12Page() {
     }
 
     // Display options
-    result.showYomiKana = searchParams.get('yomiKana') === '1';
-    result.showToriKana = searchParams.get('toriKana') === '1';
+    // かなが既定（漢字のときだけ 0 が付く）
+    result.showYomiKana = searchParams.get('yomiKana') !== '0';
+    result.showToriKana = searchParams.get('toriKana') !== '0';
     result.showKimariji = searchParams.get('kimariji_show') === '1';
 
     return result;

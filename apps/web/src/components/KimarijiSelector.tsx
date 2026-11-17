@@ -42,7 +42,7 @@ export function KimarijiSelector({
     return (
       <div className="flex items-center gap-2 py-1">
         <span className="text-xs text-gray-500 whitespace-nowrap">{label}</span>
-        <div className="flex gap-1 flex-1">
+        <div className="flex flex-wrap gap-1 flex-1">
           {[1, 2, 3, 4, 5, 6].map(count => {
             const isSelected = selected.includes(count);
             return (
@@ -53,7 +53,7 @@ export function KimarijiSelector({
                 size="sm"
                 shape="pill"
                 onClick={() => toggleKimariji(count)}
-                className="min-w-0 px-2 py-0.5 text-xs"
+                className="min-w-0 shrink-0 whitespace-nowrap px-2 py-0.5 text-xs"
               >
                 {count}字
               </SelectButton>

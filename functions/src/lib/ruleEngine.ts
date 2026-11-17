@@ -11,6 +11,7 @@ import {
   DenLevel,
   UtakuraiLevel,
   KyuiExamEventData,
+  KyuiRequirement,
   UserProgress,
   KYUI_LEVELS_ORDERED,
   DAN_LEVELS_ORDERED,
@@ -61,6 +62,57 @@ export function determineTier(
 // 級位検定 (Kyui) promotion
 // =============================================================================
 
+/** 字決まり別の札数（1字〜6字決まり） */
+const KIMARIJI_POEM_COUNTS = [7, 42, 37, 6, 2, 6];
+
+/**
+ * 旧ルールセットの級位ID（並び順で新IDに対応する。旧 rokkyu は「五級（5字決まり）」）。
+ * 本番の rulesets/current がこの旧IDのまま残っていて、新IDで条件を探すと見つからず誰も合格できなかった。
+ */
+const LEGACY_KYUI_ORDER = ['beginner', 'jyukkyu', 'kyukyu', 'hachikyu', 'nanakyu', 'rokkyu'];
+
+/** 規定の昇級条件（ルールセットに無い級位はこれを使う。adminSeedDefaultRuleset と同じ値） */
+export const DEFAULT_KYUI_REQUIREMENTS: KyuiRequirement[] = [
+  { level: 'minarai', label: '見習', kimarijiFuda: null, questionCount: 0, passRate: 0, allCards: false },
+  { level: 'shokkyu', label: '初級', kimarijiFuda: 1, questionCount: 10, passRate: 80, allCards: false },
+  { level: 'nikyu', label: '二級', kimarijiFuda: 2, questionCount: 10, passRate: 80, allCards: false },
+  { level: 'sankyu', label: '三級', kimarijiFuda: 3, questionCount: 10, passRate: 80, allCards: false },
+  { level: 'yonkyu', label: '四級', kimarijiFuda: 4, questionCount: 10, passRate: 80, allCards: false },
+  { level: 'gokyu', label: '五級', kimarijiFuda: 5, questionCount: 10, passRate: 80, allCards: false },
+  { level: 'rokkyu', label: '六級', kimarijiFuda: null, questionCount: 50, passRate: 90, allCards: true },
+];
+
+/** ルールセットの級位条件を新IDにそろえる（旧IDのルールセットにも対応） */
+export function resolveKyuiRequirements(ruleset: Ruleset): KyuiRequirement[] {
+  const reqs = ruleset.kyuiRequirements ?? [];
+  const isLegacy = reqs.some((r) => (r.level as string) === 'beginner');
+  if (!isLegacy) return reqs;
+  return reqs.map((r) => {
+    const i = LEGACY_KYUI_ORDER.indexOf(r.level as string);
+    return i >= 0 ? { ...r, level: KYUI_LEVELS_ORDERED[i] } : r;
+  });
+}
+
+/** 利用者の級位を新IDにそろえる（旧IDで保存されている場合） */
+function normalizeKyuiLevel(level: string): KyuiLevel {
+  if ((KYUI_LEVELS_ORDERED as string[]).includes(level)) return level as KyuiLevel;
+  const i = LEGACY_KYUI_ORDER.indexOf(level);
+  return i >= 0 ? KYUI_LEVELS_ORDERED[i] : 'minarai';
+}
+
+/**
+ * 必要な出題数。対象の札がそれより少ない（1字決まり=7枚など）ときは、対象の札をすべて出題すればよい
+ */
+function requiredQuestionCount(requirement: KyuiRequirement): number {
+  const n = Number(requirement.questionCount) || 0;
+  if (requirement.allCards) return Math.min(n, 100);
+  const k = requirement.kimarijiFuda == null ? null : Number(requirement.kimarijiFuda);
+  if (k !== null && k >= 1 && k <= KIMARIJI_POEM_COUNTS.length) {
+    return Math.min(n, KIMARIJI_POEM_COUNTS[k - 1]);
+  }
+  return n;
+}
+
 /**
  * 級位検定の合格判定 + 昇級先を返す
  * 飛び級禁止: 現在レベルの次のレベルにのみ昇級可能
@@ -70,6 +122,7 @@ export function evaluateKyuiPromotion(
   examData: KyuiExamEventData,
   ruleset: Ruleset
 ): { promoted: boolean; newLevel: KyuiLevel; danEligible: boolean } {
+  currentLevel = normalizeKyuiLevel(currentLevel);
   const currentIndex = KYUI_LEVELS_ORDERED.indexOf(currentLevel);
   const nextIndex = currentIndex + 1;
 
@@ -79,7 +132,9 @@ export function evaluateKyuiPromotion(
   }
 
   const nextLevel = KYUI_LEVELS_ORDERED[nextIndex];
-  const requirement = ruleset.kyuiRequirements.find((r) => r.level === nextLevel);
+  const requirement =
+    resolveKyuiRequirements(ruleset).find((r) => r.level === nextLevel) ??
+    DEFAULT_KYUI_REQUIREMENTS.find((r) => r.level === nextLevel);
 
   if (!requirement) {
     return { promoted: false, newLevel: currentLevel, danEligible: false };
@@ -90,11 +145,11 @@ export function evaluateKyuiPromotion(
     ? (examData.correctCount / examData.questionCount) * 100
     : 0;
 
-  const passRateMet = actualPassRate >= requirement.passRate;
+  const passRateMet = actualPassRate >= Number(requirement.passRate);
   const cardRequirementMet = requirement.allCards
     ? examData.allCards
-    : requirement.kimarijiFuda === null || examData.kimarijiFuda === requirement.kimarijiFuda;
-  const questionCountMet = examData.questionCount >= requirement.questionCount;
+    : requirement.kimarijiFuda == null || Number(examData.kimarijiFuda) === Number(requirement.kimarijiFuda);
+  const questionCountMet = examData.questionCount >= requiredQuestionCount(requirement);
 
   if (passRateMet && cardRequirementMet && questionCountMet) {
     const newLevel = nextLevel;

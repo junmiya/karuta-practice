@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
 import { Header } from './Header';
+import { BottomNav } from './BottomNav';
 import { Container } from './ui/Container';
 
 interface LayoutProps {
@@ -8,7 +9,8 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col">
+    // スマホでは下部メニュー分の余白を確保（h-14 + セーフエリア）
+    <div className="min-h-screen bg-neutral-50 flex flex-col pb-[calc(3.5rem+env(safe-area-inset-bottom))] sm:pb-0">
       <Header />
       <main className="flex-1 py-4">
         {/* Note: Children pages are responsible for their own Container/Layout logic if needed, 
@@ -27,6 +29,7 @@ export function Layout({ children }: LayoutProps) {
           </div>
         </Container>
       </footer>
+      <BottomNav />
     </div>
   );
 }

@@ -3,6 +3,8 @@ import {
   getDoc,
   setDoc,
   serverTimestamp,
+  arrayUnion,
+  arrayRemove,
 } from 'firebase/firestore';
 import { db } from './firebase';
 
@@ -11,6 +13,10 @@ const USER_LEARNED_COLLECTION = 'userLearned';
 export interface UserLearned {
   uid: string;
   poemIds: string[];
+  /** 「覚えてない」を押した札 */
+  notLearnedPoemIds: string[];
+  /** 星を付けた札 */
+  starredPoemIds: string[];
   updatedAt: Date;
 }
 
@@ -29,37 +35,50 @@ export async function getUserLearned(uid: string): Promise<UserLearned | null> {
   return {
     uid,
     poemIds: data.poemIds || [],
+    notLearnedPoemIds: data.notLearnedPoemIds || [],
+    starredPoemIds: data.starredPoemIds || [],
     updatedAt: data.updatedAt?.toDate() || new Date(),
   };
 }
 
+export type PoemStatus = 'learned' | 'notLearned';
+
 /**
- * Toggle a poem's learned status
- * Returns the new learned state (true if now learned, false if removed)
+ * 1首の状態を「覚えた」または「覚えてない」にする（もう一方からは外す）。
+ * arrayUnion / arrayRemove で書くので読み込み不要で、他のフィールドも消さない。
  */
-export async function toggleLearnedPoem(
+export async function setPoemStatus(
   uid: string,
-  poemId: string
-): Promise<boolean> {
+  poemId: string,
+  status: PoemStatus
+): Promise<void> {
   const docRef = doc(db, USER_LEARNED_COLLECTION, uid);
-  const docSnap = await getDoc(docRef);
+  await setDoc(
+    docRef,
+    {
+      poemIds: status === 'learned' ? arrayUnion(poemId) : arrayRemove(poemId),
+      notLearnedPoemIds: status === 'notLearned' ? arrayUnion(poemId) : arrayRemove(poemId),
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true }
+  );
+}
 
-  let currentPoemIds: string[] = [];
-  if (docSnap.exists()) {
-    currentPoemIds = docSnap.data().poemIds || [];
-  }
-
-  const isCurrentlyLearned = currentPoemIds.includes(poemId);
-  const newPoemIds = isCurrentlyLearned
-    ? currentPoemIds.filter(id => id !== poemId)
-    : [...currentPoemIds, poemId].sort();
-
-  await setDoc(docRef, {
-    poemIds: newPoemIds,
-    updatedAt: serverTimestamp(),
-  });
-
-  return !isCurrentlyLearned;
+/** 星を付ける / 外す（覚えた・覚えてない の記録とは別） */
+export async function setPoemStarred(
+  uid: string,
+  poemId: string,
+  starred: boolean
+): Promise<void> {
+  const docRef = doc(db, USER_LEARNED_COLLECTION, uid);
+  await setDoc(
+    docRef,
+    {
+      starredPoemIds: starred ? arrayUnion(poemId) : arrayRemove(poemId),
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true }
+  );
 }
 
 /**
@@ -73,16 +92,17 @@ export async function setLearnedPoems(
   await setDoc(docRef, {
     poemIds: [...poemIds].sort(),
     updatedAt: serverTimestamp(),
-  });
+  }, { merge: true });
 }
 
 /**
- * Clear all learned poems
+ * Clear all learned poems（覚えた・覚えてない の印をすべて外す。星はそのまま）
  */
 export async function clearLearnedPoems(uid: string): Promise<void> {
   const docRef = doc(db, USER_LEARNED_COLLECTION, uid);
   await setDoc(docRef, {
     poemIds: [],
+    notLearnedPoemIds: [],
     updatedAt: serverTimestamp(),
-  });
+  }, { merge: true });
 }

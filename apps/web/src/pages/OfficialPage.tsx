@@ -26,8 +26,9 @@ export function OfficialPage() {
   const [seasonStatus, setSeasonStatus] = useState<SeasonStatus | null>(null);
   const [entryId, setEntryId] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
-  const [showYomiKana, setShowYomiKana] = useState(false);
-  const [showToriKana, setShowToriKana] = useState(false);
+  // かなが既定
+  const [showYomiKana, setShowYomiKana] = useState(true);
+  const [showToriKana, setShowToriKana] = useState(true);
   const [pendingToggle, setPendingToggle] = useState<'yomi' | 'tori' | null>(null);
   const [phase, setPhase] = useState<'waiting' | 'countdown' | 'playing'>('waiting');
   const [countdown, setCountdown] = useState(0);

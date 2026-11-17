@@ -7,8 +7,10 @@ import { PracticePage } from './pages/PracticePage';
 import { Practice12Page } from './pages/Practice12Page';
 import { ResultPage } from './pages/ResultPage';
 import { CardsListPage } from './pages/CardsListPage';
+import { NotLearnedPage } from './pages/NotLearnedPage';
 import { BanzukePage } from './pages/BanzukePage';
 import { ProfilePage } from './pages/ProfilePage';
+import { SettingsPage } from './pages/SettingsPage';
 import { KeikoPage } from './pages/KeikoPage';
 import { KyogiPage } from './pages/KyogiPage';
 import { SeisekiPage } from './pages/SeisekiPage';
@@ -49,6 +51,7 @@ export function App() {
             {/* 手習タブ（無料） */}
             <Route path="/" element={<HomePage />} />
             <Route path="/cards" element={<CardsListPage />} />
+            <Route path="/oboetenai" element={<NotLearnedPage />} />
 
             {/* 稽古タブ */}
             <Route path="/keiko" element={<KeikoPage />} />
@@ -74,6 +77,9 @@ export function App() {
 
             {/* プロフィール */}
             <Route path="/profile" element={<ProfilePage />} />
+
+            {/* 表示設定（ログイン不要） */}
+            <Route path="/settings" element={<SettingsPage />} />
 
             {/* 管理者ページ（admin のみ） */}
             <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />

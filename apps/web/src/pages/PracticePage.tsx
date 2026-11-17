@@ -9,13 +9,16 @@ import { POEM_RANGES } from '@/components/PoemRangeSelector';
 import { cn } from '@/lib/utils';
 import type { Poem } from '@/types/poem';
 import type { PracticeFilter } from '@/services/practice.service';
+import { getDisplaySettings } from '@/lib/displaySettings';
 
 export function PracticePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [showYomiKana, setShowYomiKana] = useState(false);
-  const [showToriKana, setShowToriKana] = useState(false);
-  const [showKimariji, setShowKimariji] = useState(false);
+  // 初期値は設定画面（稽古）の値
+  const [initialDisplay] = useState(() => getDisplaySettings().keiko);
+  const [showYomiKana, setShowYomiKana] = useState(initialDisplay.yomiKana);
+  const [showToriKana, setShowToriKana] = useState(initialDisplay.toriKana);
+  const [showKimariji, setShowKimariji] = useState(initialDisplay.kimariji);
 
   // Parse filter from URL params
   const filter: PracticeFilter | undefined = useMemo(() => {
