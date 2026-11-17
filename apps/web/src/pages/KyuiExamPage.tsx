@@ -22,10 +22,26 @@ import type { Poem } from '@/types/poem';
 /** 字決まり別の札数 */
 const KIMARIJI_POEM_COUNTS = [7, 42, 37, 6, 2, 6];
 
+/** 偏りなく並べ替える（Fisher-Yates） */
+function shuffle<T>(items: T[]): T[] {
+  const a = [...items];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 /** ランダムに n 枚選ぶ */
 function selectRandom(poems: Poem[], n: number): Poem[] {
-  const shuffled = [...poems].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, Math.min(n, shuffled.length));
+  return shuffle(poems).slice(0, Math.min(n, poems.length));
+}
+
+/** 札の並びに poem が無ければ、どれか1枚と入れ替えて加える */
+function withCard(cards: Poem[], poem: Poem): Poem[] {
+  if (cards.some(c => c.poemId === poem.poemId)) return cards;
+  const i = Math.floor(Math.random() * cards.length);
+  return cards.map((c, j) => (j === i ? poem : c));
 }
 
 export function KyuiExamPage() {
@@ -46,8 +62,9 @@ export function KyuiExamPage() {
   } = useKyuiExam();
 
   // --- 表示オプション ---
-  const [showYomiKana, setShowYomiKana] = useState(false);
-  const [showToriKana, setShowToriKana] = useState(false);
+  // かなが既定
+  const [showYomiKana, setShowYomiKana] = useState(true);
+  const [showToriKana, setShowToriKana] = useState(true);
   const [showKimariji, setShowKimariji] = useState(false);
 
   // --- 出題用ステート ---
@@ -60,6 +77,8 @@ export function KyuiExamPage() {
   const [questionCount, setQuestionCount] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(0);
+  // 出題順（対象の札を1回ずつ。同じ札を繰り返し出さない）
+  const [questionOrder, setQuestionOrder] = useState<Poem[]>([]);
 
   // Fetch user's current kyui level
   useEffect(() => {
@@ -122,8 +141,10 @@ export function KyuiExamPage() {
 
   /** 出題を初期化（検定開始時） */
   const initQuiz = useCallback(() => {
-    const cards = selectRandom(eligiblePoems, gridCardCount);
-    const correct = cards[Math.floor(Math.random() * cards.length)];
+    const order = shuffle(eligiblePoems).slice(0, examQuestionCount);
+    const correct = order[0];
+    const cards = withCard(selectRandom(eligiblePoems, gridCardCount), correct);
+    setQuestionOrder(order);
     setExamCards(cards);
     setCorrectPoemId(correct.poemId);
     setSelectedPoemId(null);
@@ -181,18 +202,15 @@ export function KyuiExamPage() {
       return p;
     });
 
-    // 新しい正解札を選択（入れ替えた札以外から優先）
-    const replacedIds = new Set(newPoems.map(p => p.poemId));
-    const candidates = nextCards.filter(p => !replacedIds.has(p.poemId));
-    const source = candidates.length > 0 ? candidates : nextCards;
-    const nextCorrect = source[Math.floor(Math.random() * source.length)];
+    // 次の正解札は出題順のとおり（まだ出していない札）。並びに無ければ加える
+    const nextCorrect = questionOrder[newQ] ?? nextCards[Math.floor(Math.random() * nextCards.length)];
 
-    setExamCards(nextCards);
+    setExamCards(withCard(nextCards, nextCorrect));
     setCorrectPoemId(nextCorrect.poemId);
     setSelectedPoemId(null);
     setIsAnswered(false);
     setIsCorrect(null);
-  }, [questionCount, totalQuestions, correctCount, correctPoemId, selectedPoemId, isCorrect, examCards, eligiblePoems, submitExam]);
+  }, [questionCount, totalQuestions, correctCount, correctPoemId, selectedPoemId, isCorrect, examCards, eligiblePoems, submitExam, questionOrder]);
 
   /** 再挑戦 */
   const handleReset = useCallback(() => {
