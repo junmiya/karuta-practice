@@ -44,10 +44,15 @@ export const DEFAULT_DISPLAY_SETTINGS: DisplaySettings = {
     countMobile: 1,
     panelMobile: false,
   },
-  keiko: { yomiKana: false, toriKana: false, kimariji: false },
+  keiko: { yomiKana: true, toriKana: true, kimariji: false },
 };
 
 const STORAGE_KEY = 'display_settings_v1';
+/**
+ * 保存形式の版。2: 稽古の読札・取札も かな を既定にした（2026-11-17）。
+ * 版が古い保存値の稽古のかな設定は旧既定（漢字）のまま保存されていただけなので、新しい既定に置き換える。
+ */
+const SETTINGS_VERSION = 2;
 
 const isBool = (v: unknown): v is boolean => typeof v === 'boolean';
 const isCount = (v: unknown): v is TenaraiCount => v === 1 || v === 12 || v === 100;
@@ -68,6 +73,7 @@ function normalize(raw: unknown): DisplaySettings {
   const r = (raw && typeof raw === 'object' ? raw : {}) as Partial<Record<keyof DisplaySettings, Record<string, unknown>>>;
   const t = r.tenarai ?? {};
   const k = r.keiko ?? {};
+  const isCurrent = (r as { v?: unknown }).v === SETTINGS_VERSION;
   return {
     tenarai: {
       yomiKana: isBool(t.yomiKana) ? t.yomiKana : d.tenarai.yomiKana,
@@ -79,8 +85,8 @@ function normalize(raw: unknown): DisplaySettings {
       panelMobile: isBool(t.panelMobile) ? t.panelMobile : d.tenarai.panelMobile,
     },
     keiko: {
-      yomiKana: isBool(k.yomiKana) ? k.yomiKana : d.keiko.yomiKana,
-      toriKana: isBool(k.toriKana) ? k.toriKana : d.keiko.toriKana,
+      yomiKana: isCurrent && isBool(k.yomiKana) ? k.yomiKana : d.keiko.yomiKana,
+      toriKana: isCurrent && isBool(k.toriKana) ? k.toriKana : d.keiko.toriKana,
       kimariji: isBool(k.kimariji) ? k.kimariji : d.keiko.kimariji,
     },
   };
@@ -105,7 +111,7 @@ export function getDisplaySettings(): DisplaySettings {
 function saveDisplaySettings(next: DisplaySettings) {
   cache = next;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...next, v: SETTINGS_VERSION }));
   } catch {
     // 保存できなくてもこの画面を開いている間は反映される
   }

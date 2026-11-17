@@ -8,11 +8,14 @@ import { PoemDetailModal } from '@/components/PoemDetailModal';
 import { KimarijiSelector } from '@/components/KimarijiSelector';
 import { PoemRangeSelector, type PoemRange } from '@/components/PoemRangeSelector';
 import { ControlBar } from '@/components/ControlBar';
+import { getDisplaySettings } from '@/lib/displaySettings';
 import type { Poem } from '@/types/poem';
 
 export function CardsListPage() {
-  const [showYomiKana, setShowYomiKana] = useState(false);
-  const [showToriKana, setShowToriKana] = useState(false);
+  // 初期値は設定画面の手習の値（既定: かな）
+  const [initialDisplay] = useState(() => getDisplaySettings().tenarai);
+  const [showYomiKana, setShowYomiKana] = useState(initialDisplay.yomiKana);
+  const [showToriKana, setShowToriKana] = useState(initialDisplay.toriKana);
   const [showKimariji, setShowKimariji] = useState(true);
   const [displayCount, setDisplayCount] = useState<12 | 100>(12);
   const [selectedKimariji, setSelectedKimariji] = useState<number[]>([]);

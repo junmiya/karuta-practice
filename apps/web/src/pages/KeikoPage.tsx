@@ -91,11 +91,12 @@ export function KeikoPage() {
     if (selectedPoemRange.length > 0) {
       params.set('range', selectedPoemRange.map(r => `${r.start}-${r.end}`).join(','));
     }
-    if (showYomiKana) {
-      params.set('yomiKana', '1');
+    // かなが既定なので、漢字のときだけ 0 を付ける
+    if (!showYomiKana) {
+      params.set('yomiKana', '0');
     }
-    if (showToriKana) {
-      params.set('toriKana', '1');
+    if (!showToriKana) {
+      params.set('toriKana', '0');
     }
     if (showKimariji) {
       params.set('kimariji_show', '1');

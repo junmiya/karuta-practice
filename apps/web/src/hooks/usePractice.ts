@@ -35,8 +35,9 @@ export function usePractice(options: UsePracticeOptions = {}) {
 
   const initialKimarijiFilter = options.initialKimarijiFilter || [1, 2, 3, 4, 5, 6];
   const initialPoemRangeFilter = options.initialPoemRangeFilter || [];
-  const initialShowYomiKana = options.initialShowYomiKana || false;
-  const initialShowToriKana = options.initialShowToriKana || false;
+  // かなが既定
+  const initialShowYomiKana = options.initialShowYomiKana ?? true;
+  const initialShowToriKana = options.initialShowToriKana ?? true;
   const initialShowKimariji = options.initialShowKimariji || false;
 
   const [state, setState] = useState<PracticeState>(() => {
